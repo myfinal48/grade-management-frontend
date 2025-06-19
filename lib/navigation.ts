@@ -10,6 +10,7 @@ import {
     BarChart3,
     UserCheck,
     School,
+    Book,
 } from "lucide-react"
 
 export interface NavigationItem {
@@ -32,6 +33,12 @@ export const navigationConfig: NavigationItem[] = [
         title: "Gestion des utilisateurs",
         href: "/dashboard/users",
         icon: Users,
+        roles: [UserRoles.ADMIN],
+    },
+    {
+        title: "Gestion des filieres",
+        href: "/dashboard/majors",
+        icon: Book,
         roles: [UserRoles.ADMIN],
     },
     {
