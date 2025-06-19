@@ -7,7 +7,7 @@ function getEnvVar(name: string) {
 }
 
 const envConfig = {
-    baseUrl: "BASE_URL",
+    baseUrl: "NEXT_PUBLIC_BASE_URL",
     authUrl: "NEXTAUTH_URL",
     apiUrl: "NEXT_PUBLIC_API_URL",
     authSecret: "NEXTAUTH_SECRET",
