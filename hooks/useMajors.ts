@@ -1,7 +1,8 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { useMutation, useQuery } from "@tanstack/react-query"
 import { majorsService } from "@/services/majorsService"
 import type { CreateMajorRequest, UpdateMajorRequest } from "@/types/major"
 import { toast } from "sonner"
+import { queryClient } from "@/providers"
 
 const MAJORS_QUERY_KEY = ["majors"]
 
@@ -22,7 +23,6 @@ export function useMajor(id: number) {
 }
 
 export function useCreateMajor() {
-  const queryClient = useQueryClient()
 
   return useMutation({
     mutationFn: (data: CreateMajorRequest) => majorsService.createMajor(data),
@@ -41,7 +41,6 @@ export function useCreateMajor() {
 }
 
 export function useUpdateMajor() {
-  const queryClient = useQueryClient()
 
   return useMutation({
     mutationFn: ({ id, data }: { id: number; data: UpdateMajorRequest }) => majorsService.updateMajor(id, data),
@@ -60,7 +59,6 @@ export function useUpdateMajor() {
 }
 
 export function useDeleteMajor() {
-  const queryClient = useQueryClient()
 
   return useMutation({
     mutationFn: (id: number) => majorsService.deleteMajor(id),
