@@ -12,6 +12,7 @@ import {
     School,
     Book,
     Hash,
+    LucideListChecks,
 } from "lucide-react"
 
 export interface NavigationItem {
@@ -49,9 +50,9 @@ export const navigationConfig: NavigationItem[] = [
         roles: [UserRoles.ADMIN],
     },
     {
-        title: "Rapports",
-        href: "/dashboard/reports",
-        icon: BarChart3,
+        title: "Gestion des semestres",
+        href: "/dashboard/semesters",
+        icon: LucideListChecks,
         roles: [UserRoles.ADMIN],
     },
     // Teacher specific

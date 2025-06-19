@@ -1,6 +1,11 @@
-import { Level } from "@/components/modules/dashboard/admin/levels";
+import { Levels } from "@/components/modules/dashboard/admin/levels";
 
 
 export default function LevelsPage () {
-    return <Level />
+    return (
+        <div>
+       
+        <Levels />
+        </div>
+        )
 }
