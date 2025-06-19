@@ -1,0 +1,81 @@
+"use client"
+
+import { useState } from "react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { Badge } from "@/components/ui/badge"
+import { MoreHorizontal, Edit, Trash2 } from "lucide-react"
+import type { Course } from "@/types/course"
+import { DeleteCourseDialog } from "@/components/modules/dashboard/admin/courses/DeleteCourseDialog"
+import { CourseForm } from "./CourseForm"
+import { useCourses } from "@/hooks/useCourses"
+
+interface CourseCardProps {
+  course: Course
+}
+
+export function CourseCard({ course }: CourseCardProps) {
+  const [showEditDialog, setShowEditDialog] = useState(false)
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false)
+  const { deleteCourse } = useCourses({ courseId: course.id })
+
+  const courseForForm = {
+    id: course.id,
+    code: course.code,
+    name: course.name,
+    description: String(course.description ?? ""),
+    credit: course.credit,
+    semesterId: 1,
+  }
+
+  return (
+    <>
+      <Card className="h-full">
+        <CardHeader className="pb-3">
+          <div className="flex items-start justify-between">
+            <div className="space-y-1">
+              <CardTitle className="text-lg">{course.name}</CardTitle>
+              <Badge variant="secondary" className="text-xs">
+                Code: {course.code}
+              </Badge>
+            </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="h-8 w-8 p-0">
+                  <span className="sr-only">Open menu</span>
+                  <MoreHorizontal className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => setShowEditDialog(true)}>
+                  <Edit className="mr-2 h-4 w-4" />
+                  Edit
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setShowDeleteDialog(true)} className="text-destructive">
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Delete
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <CardDescription className="text-sm leading-relaxed">{course.description}</CardDescription>
+        </CardContent>
+        <CardFooter className="pt-0">
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" onClick={() => setShowEditDialog(true)}>
+              <Edit className="mr-2 h-4 w-4" />
+              Edit
+            </Button>
+          </div>
+        </CardFooter>
+      </Card>
+
+      <CourseForm open={showEditDialog} onOpenChange={setShowEditDialog} course={courseForForm} mode="edit" />
+
+      <DeleteCourseDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog} course={course} />
+    </>
+  )
+} 

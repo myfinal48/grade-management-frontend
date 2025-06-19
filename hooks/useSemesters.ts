@@ -2,12 +2,12 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { semestersService } from "@/services/semestersService"
 import type { CreateSemesterRequest, UpdateSemesterRequest } from "@/types/semester"
 import { toast } from "sonner"
+import { LevelsCacheKeys, SemestersCacheKeys } from "./const"
 
-const SEMESTERS_QUERY_KEY = ["semesters"]
 
 export function useSemesters() {
   return useQuery({
-    queryKey: SEMESTERS_QUERY_KEY,
+    queryKey: [SemestersCacheKeys.Semesters],
     queryFn: semestersService.getAllSemesters,
     staleTime: 5 * 60 * 1000, // 5 minutes
   })
@@ -15,7 +15,7 @@ export function useSemesters() {
 
 export function useSemester(id: number) {
   return useQuery({
-    queryKey: ["semester", id],
+    queryKey: [SemestersCacheKeys.Semester, id],
     queryFn: () => semestersService.getSemesterById(id),
     enabled: !!id,
   })
@@ -23,7 +23,7 @@ export function useSemester(id: number) {
 
 export function useSemestersByLevel(levelId: number) {
   return useQuery({
-    queryKey: ["semesters", "level", levelId],
+    queryKey: [SemestersCacheKeys.Semesters, LevelsCacheKeys.Level, levelId],
     queryFn: () => semestersService.getSemestersByLevel(levelId),
     enabled: !!levelId,
   })
@@ -36,7 +36,7 @@ export function useCreateSemester() {
     mutationFn: ({ levelId, data }: { levelId: number; data: CreateSemesterRequest }) =>
       semestersService.createSemester(levelId, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: SEMESTERS_QUERY_KEY })
+      queryClient.invalidateQueries({ queryKey: [SemestersCacheKeys.Semesters] })
       toast.success("Semester created successfully")
     },
     onError: (error: any) => {
@@ -52,7 +52,7 @@ export function useUpdateSemester() {
     mutationFn: ({ id, data }: { id: number; data: UpdateSemesterRequest }) =>
       semestersService.updateSemester(id, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: SEMESTERS_QUERY_KEY })
+      queryClient.invalidateQueries({ queryKey: [SemestersCacheKeys.Semesters] })
       toast.success("Semester updated successfully")
     },
     onError: (error: any) => {
@@ -67,7 +67,7 @@ export function useDeleteSemester() {
   return useMutation({
     mutationFn: (id: number) => semestersService.deleteSemester(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: SEMESTERS_QUERY_KEY })
+      queryClient.invalidateQueries({ queryKey: [SemestersCacheKeys.Semesters] })
       toast.success("Semester deleted successfully")
     },
     onError: (error: any) => {
