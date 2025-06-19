@@ -16,11 +16,11 @@ import {
 } from "lucide-react"
 
 export interface NavigationItem {
-  title: string
-  href: string
-  icon: any
-  badge?: string
-  roles: UserRole[]
+    title: string
+    href: string
+    icon: LucideIcon
+    badge?: string
+    roles: UserRole[]
 }
 
 export const navigationConfig: NavigationItem[] = [
@@ -55,22 +55,10 @@ export const navigationConfig: NavigationItem[] = [
         icon: LucideListChecks,
         roles: [UserRoles.ADMIN],
     },
-    {
-      title: "Cours",
-      href: "/dashboard/courses",
-      icon: BookOpen,
-      roles: [UserRoles.ADMIN],
-    },
-    {
-      title: "Notes",
-      href: "/dashboard/grades",
-      icon: FileText,
-      roles: [UserRoles.ADMIN],
-    },
-    {
-        title: "Transcripts",
-        href: "/dashboard/transcripts",
-        icon: FileText,
+      {
+        title: "Générer des relevés de notes",
+        href: "/dashboard/generate-transcripts",
+        icon: BarChart3,
         roles: [UserRoles.ADMIN],
     },
     // Teacher specific
