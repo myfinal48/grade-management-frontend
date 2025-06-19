@@ -11,6 +11,7 @@ import {
     UserCheck,
     School,
     Book,
+    Hash,
 } from "lucide-react"
 
 export interface NavigationItem {
@@ -42,9 +43,9 @@ export const navigationConfig: NavigationItem[] = [
         roles: [UserRoles.ADMIN],
     },
     {
-        title: "Gestion des cours",
-        href: "/dashboard/courses",
-        icon: BookOpen,
+        title: "Gestion des niveaux",
+        href: "/dashboard/levels",
+        icon: Hash,
         roles: [UserRoles.ADMIN],
     },
     {
