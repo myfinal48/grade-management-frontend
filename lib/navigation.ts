@@ -7,12 +7,13 @@ import {
   Settings,
   FileText,
   Calendar,
-  BarChart3,
+    LucideIcon,
   UserCheck,
   School,
   Book,
   Hash,
   LucideListChecks,
+  BarChart3,
 } from "lucide-react"
 
 export interface NavigationItem {
@@ -55,10 +56,22 @@ export const navigationConfig: NavigationItem[] = [
         icon: LucideListChecks,
         roles: [UserRoles.ADMIN],
     },
-      {
-        title: "Générer des relevés de notes",
-        href: "/dashboard/generate-transcripts",
-        icon: BarChart3,
+    {
+      title: "Cours",
+      href: "/dashboard/courses",
+      icon: BookOpen,
+      roles: [UserRoles.ADMIN],
+    },
+    {
+      title: "Notes",
+      href: "/dashboard/grades",
+      icon: FileText,
+      roles: [UserRoles.ADMIN],
+    },
+    {
+        title: "Relevés de notes",
+        href: "/dashboard/transcripts",
+        icon: FileText,
         roles: [UserRoles.ADMIN],
     },
     // Teacher specific
@@ -79,6 +92,12 @@ export const navigationConfig: NavigationItem[] = [
         href: "/dashboard/evaluations",
         icon: FileText,
         roles: [UserRoles.TEACHER],
+    },
+    {
+        title: "Générer relevé de notes PDF",
+        href: "/dashboard/pdf-transcripts",
+        icon: BarChart3,
+        roles: [UserRoles.ADMIN],
     },
     // Student specific
     {
