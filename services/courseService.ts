@@ -23,5 +23,13 @@ export const courseService ={
   delete: async (id:number)=>{
     const response = await apiClient.delete<void>(`${BASE_URL}/${id}`)
     return response.data
+  },
+  getByTeacherId: async (teacherId:number)=>{
+    const response = await apiClient.get<Course[]>(`${BASE_URL}/teacher/${teacherId}`)
+    return response.data
+  },
+  assignTeacher: async (courseId:number,teacherId:number)=>{
+    const response = await apiClient.put<Course>(`${BASE_URL}/${courseId}/assign/${teacherId}`)
+    return response.data
   }
 }

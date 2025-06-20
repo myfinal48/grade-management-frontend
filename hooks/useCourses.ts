@@ -4,7 +4,7 @@ import { CoursesCacheKeys } from "./const"
 import { toast } from "sonner"
 import { queryClient } from "@/providers"
 
-export const useCourses = ({ courseId }: { courseId?: number } = {}) => {
+export const useCourses = ({ courseId, teacherId }: { courseId?: number, teacherId?: number } = {}) => {
   // Liste des cours
   const getCourses = useQuery({
     queryKey: [CoursesCacheKeys.Courses],
@@ -45,11 +45,29 @@ export const useCourses = ({ courseId }: { courseId?: number } = {}) => {
     },
   })
 
+  // Assignation d'un professeur à un cours
+  const assignTeacher = useMutation({
+    mutationFn: ({ courseId, teacherId }: { courseId: number, teacherId: number }) => courseService.assignTeacher(courseId, teacherId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [CoursesCacheKeys.Courses] })
+      toast.success("Succès", { description: "Professeur assigné au cours avec succès" })
+    },
+  })
+
+  // Récupération des cours par professeur
+  const getByTeacherId = useQuery({
+    queryKey: [CoursesCacheKeys.Courses, teacherId],
+    queryFn: () => courseService.getByTeacherId(teacherId as number),
+    enabled: !!teacherId,
+  })
+
   return {
     getCourses,
     getCourse,
     createCourse,
     updateCourse,
     deleteCourse,
+    assignTeacher,
+    getByTeacherId,
   }
 }
