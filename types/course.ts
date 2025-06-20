@@ -1,0 +1,23 @@
+export interface Course {
+  id: number;
+  code: string;
+  name: string;
+  description: number;
+  credit: number;
+}
+
+export interface CourseRequestData {
+  semesterId: number;
+  code: string;
+  name: string;
+  description: string;
+  credit: number;
+}
+
+export interface CourseResponseData {
+  semesterName: string;
+  code: string;
+  name: string;
+  description: string;
+  credit: number;
+} 

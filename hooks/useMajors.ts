@@ -3,12 +3,12 @@ import { majorsService } from "@/services/majorsService"
 import type { CreateMajorRequest, UpdateMajorRequest } from "@/types/major"
 import { toast } from "sonner"
 import { queryClient } from "@/providers"
+import { MajorsCacheKeys } from "./const"
 
-const MAJORS_QUERY_KEY = ["majors"]
 
 export function useMajors() {
   return useQuery({
-    queryKey: MAJORS_QUERY_KEY,
+    queryKey: [MajorsCacheKeys.Majors],
     queryFn: majorsService.getAllMajors,
     staleTime: 5 * 60 * 1000, // 5 minutes
   })
@@ -16,7 +16,7 @@ export function useMajors() {
 
 export function useMajor(id: number) {
   return useQuery({
-    queryKey: ["major", id],
+    queryKey: [MajorsCacheKeys.Major, id],
     queryFn: () => majorsService.getMajorById(id),
     enabled: !!id,
   })
@@ -27,7 +27,7 @@ export function useCreateMajor() {
   return useMutation({
     mutationFn: (data: CreateMajorRequest) => majorsService.createMajor(data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: MAJORS_QUERY_KEY })
+      queryClient.invalidateQueries({ queryKey: [MajorsCacheKeys.Majors] })
       toast.success("Success",{
         description: "Major created successfully",
       })
@@ -45,7 +45,7 @@ export function useUpdateMajor() {
   return useMutation({
     mutationFn: ({ id, data }: { id: number; data: UpdateMajorRequest }) => majorsService.updateMajor(id, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: MAJORS_QUERY_KEY })
+      queryClient.invalidateQueries({ queryKey: [MajorsCacheKeys.Majors] })
       toast.success("Success",{
         description: "Major updated successfully",
       })
@@ -63,7 +63,7 @@ export function useDeleteMajor() {
   return useMutation({
     mutationFn: (id: number) => majorsService.deleteMajor(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: MAJORS_QUERY_KEY })
+      queryClient.invalidateQueries({ queryKey: [MajorsCacheKeys.Majors] })
       toast.success("Success",{
         description: "Major deleted successfully",
       })
