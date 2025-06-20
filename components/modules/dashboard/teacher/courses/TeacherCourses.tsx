@@ -1,9 +1,9 @@
 "use client";
 import { useCourses } from "@/hooks/useCourses";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { BookOpen } from "lucide-react";
+import { GridSkeleton } from "@/components/ui/loading-skeletons";
 
 export function TeacherCourses({ teacherId }: { teacherId: number }) {
   const { getByTeacherId } = useCourses({ teacherId });
@@ -17,11 +17,7 @@ export function TeacherCourses({ teacherId }: { teacherId: number }) {
       </CardHeader>
       <CardContent>
         {isLoading && (
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {[...Array(3)].map((_, i) => (
-              <Skeleton key={i} className="h-32 w-full rounded-lg" />
-            ))}
-          </div>
+          <GridSkeleton items={3} columns={3} cardHeight="h-32" />
         )}
         {error && (
           <Alert variant="destructive">
