@@ -17,31 +17,79 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
-import { UserRoles } from "@/types";
+import { UserRoles, UserRole } from "@/types";
+import { User, RegisterRequest, UpdateUserRequestData } from "@/types/user";
 import {
   DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator
 } from "@/components/ui/dropdown-menu";
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
+import { TableSkeleton } from "@/components/ui/loading-skeletons";
+import { useForm, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Separator } from "@/components/ui/separator";
+
+// Schémas de validation
+const createUserSchema = z.object({
+  username: z.string().min(3, "Le nom d'utilisateur doit contenir au moins 3 caractères"),
+  email: z.string().email("Email invalide"),
+  password: z.string().min(6, "Le mot de passe doit contenir au moins 6 caractères"),
+  firstName: z.string().min(2, "Le prénom doit contenir au moins 2 caractères"),
+  lastName: z.string().min(2, "Le nom doit contenir au moins 2 caractères"),
+  registrationNumber: z.string().min(1, "Le matricule est requis"),
+  role: z.enum([UserRoles.ADMIN, UserRoles.TEACHER, UserRoles.STUDENT] as const)
+});
+
+const updateUserSchema = z.object({
+  username: z.string().min(3, "Le nom d'utilisateur doit contenir au moins 3 caractères"),
+  email: z.string().email("Email invalide"),
+  firstName: z.string().min(2, "Le prénom doit contenir au moins 2 caractères"),
+  lastName: z.string().min(2, "Le nom doit contenir au moins 2 caractères"),
+  registrationNumber: z.string().min(1, "Le matricule est requis"),
+  role: z.enum([UserRoles.ADMIN, UserRoles.TEACHER, UserRoles.STUDENT] as const)
+});
+
+type CreateUserFormData = z.infer<typeof createUserSchema>;
+type UpdateUserFormData = z.infer<typeof updateUserSchema>;
 
 export function AdminUsers() {
   const { getUsers, deleteUser, updateUser, createUser } = useUsers();
   const { data: users, isLoading, error, refetch } = getUsers;
   const [deleteId, setDeleteId] = useState<number | null>(null);
-  const [editUser, setEditUser] = useState<any | null>(null);
-  const [editForm, setEditForm] = useState<any | null>(null);
+  const [editUser, setEditUser] = useState<User | null>(null);
   const [showCreateDialog, setShowCreateDialog] = useState(false);
-  const [createForm, setCreateForm] = useState<any>({
-    username: "",
-    email: "",
-    password: "",
-    firstName: "",
-    lastName: "",
-    registrationNumber: "",
-    role: "STUDENT"
-  });
-  const [showUserInfo, setShowUserInfo] = useState<any | null>(null);
+  const [showUserInfo, setShowUserInfo] = useState<User | null>(null);
   const [roleFilter, setRoleFilter] = useState<string>("ALL");
   const [search, setSearch] = useState("");
+
+  // Formulaires React Hook Form
+  const createForm = useForm<CreateUserFormData>({
+    resolver: zodResolver(createUserSchema),
+    defaultValues: {
+      username: "",
+      email: "",
+      password: "",
+      firstName: "",
+      lastName: "",
+      registrationNumber: "",
+      role: UserRoles.STUDENT
+    }
+  });
+
+  const editForm = useForm<UpdateUserFormData>({
+    resolver: zodResolver(updateUserSchema),
+    defaultValues: {
+      username: "",
+      email: "",
+      firstName: "",
+      lastName: "",
+      registrationNumber: "",
+      role: UserRoles.STUDENT
+    }
+  });
 
   // Filtrage côté front-end
   const filteredUsers = (users || []).filter(user => {
@@ -71,46 +119,35 @@ export function AdminUsers() {
     }
   };
 
-  const handleEdit = (user: any) => {
+  const handleEdit = (user: User) => {
     setEditUser(user);
-    setEditForm({ ...user });
+    editForm.reset({
+      username: user.username,
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      registrationNumber: user.registrationNumber,
+      role: user.role
+    });
   };
 
-  const handleEditChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    setEditForm({ ...editForm, [e.target.name]: e.target.value });
-  };
-
-  const handleEditSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (editUser && editForm) {
-      updateUser.mutate({ id: editUser.id, data: { ...editForm, role: editForm.role } }, {
+  const handleEditSubmit = (data: UpdateUserFormData) => {
+    if (editUser) {
+      updateUser.mutate({ id: editUser.id, data }, {
         onSuccess: () => {
           setEditUser(null);
-          setEditForm(null);
+          editForm.reset();
           refetch();
         },
       });
     }
   };
 
-  const handleCreateChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    setCreateForm({ ...createForm, [e.target.name]: e.target.value });
-  };
-
-  const handleCreateSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    createUser.mutate(createForm, {
+  const handleCreateSubmit = (data: CreateUserFormData) => {
+    createUser.mutate(data, {
       onSuccess: () => {
         setShowCreateDialog(false);
-        setCreateForm({
-          username: "",
-          email: "",
-          password: "",
-          firstName: "",
-          lastName: "",
-          registrationNumber: "",
-          role: "STUDENT"
-        });
+        createForm.reset();
         refetch();
       },
     });
@@ -152,40 +189,124 @@ export function AdminUsers() {
               <DialogTitle>Créer un utilisateur</DialogTitle>
               <DialogDescription>Remplissez le formulaire pour ajouter un nouvel utilisateur.</DialogDescription>
             </DialogHeader>
-            <form onSubmit={handleCreateSubmit} className="space-y-4">
-              <Input name="firstName" value={createForm.firstName} onChange={handleCreateChange} placeholder="Prénom" required />
-              <Input name="lastName" value={createForm.lastName} onChange={handleCreateChange} placeholder="Nom" required />
-              <Input name="email" value={createForm.email} onChange={handleCreateChange} placeholder="Email" required type="email" />
-              <Input name="username" value={createForm.username} onChange={handleCreateChange} placeholder="Nom d'utilisateur" required />
-              <Input name="registrationNumber" value={createForm.registrationNumber} onChange={handleCreateChange} placeholder="Matricule" required />
-              <Input name="password" value={createForm.password} onChange={handleCreateChange} placeholder="Mot de passe" required type="password" />
-              <Select name="role" value={createForm.role} onValueChange={val => setCreateForm({ ...createForm, role: val })}>
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Rôle" />
-                </SelectTrigger>
-                <SelectContent>
-                  {Object.values(UserRoles).map(role => (
-                    <SelectItem key={role} value={role}>{role}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <DialogFooter>
-                <Button type="submit" disabled={createUser.isPending}>Créer</Button>
-                <DialogClose asChild>
-                  <Button type="button" variant="outline">Annuler</Button>
-                </DialogClose>
-              </DialogFooter>
-            </form>
+            <Form {...createForm}>
+              <form onSubmit={createForm.handleSubmit(handleCreateSubmit)} className="space-y-4">
+                <FormField
+                  control={createForm.control}
+                  name="firstName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Prénom</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Prénom" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={createForm.control}
+                  name="lastName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Nom</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Nom" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={createForm.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Email</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Email" type="email" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={createForm.control}
+                  name="username"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Nom d'utilisateur</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Nom d'utilisateur" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={createForm.control}
+                  name="registrationNumber"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Matricule</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Matricule" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={createForm.control}
+                  name="password"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Mot de passe</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Mot de passe" type="password" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={createForm.control}
+                  name="role"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Rôle</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Sélectionner un rôle" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {Object.values(UserRoles).map(role => (
+                            <SelectItem key={role} value={role}>{role}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <DialogFooter>
+                  <Button type="submit" disabled={createUser.isPending}>
+                    {createUser.isPending ? "Création..." : "Créer"}
+                  </Button>
+                  <DialogClose asChild>
+                    <Button type="button" variant="outline">Annuler</Button>
+                  </DialogClose>
+                </DialogFooter>
+              </form>
+            </Form>
           </DialogContent>
         </Dialog>
       </CardHeader>
       <CardContent>
         {isLoading && (
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {[...Array(3)].map((_, i) => (
-              <Skeleton key={i} className="h-24 w-full rounded-lg" />
-            ))}
-          </div>
+          <TableSkeleton rows={5} columns={4} />
         )}
         {error && (
           <Alert variant="destructive">
@@ -252,27 +373,105 @@ export function AdminUsers() {
             <DialogTitle>Modifier l'utilisateur</DialogTitle>
             <DialogDescription>Modifiez les informations de l'utilisateur puis validez.</DialogDescription>
           </DialogHeader>
-          {editForm && (
-            <form onSubmit={handleEditSubmit} className="space-y-4">
-              <Input name="firstName" value={editForm.firstName} onChange={handleEditChange} placeholder="Prénom" required />
-              <Input name="lastName" value={editForm.lastName} onChange={handleEditChange} placeholder="Nom" required />
-              <Input name="email" value={editForm.email} onChange={handleEditChange} placeholder="Email" required type="email" />
-              <Input name="username" value={editForm.username} onChange={handleEditChange} placeholder="Nom d'utilisateur" required />
-              <Input name="registrationNumber" value={editForm.registrationNumber} onChange={handleEditChange} placeholder="Matricule" />
-              <Select name="role" value={editForm.role} onValueChange={val => setEditForm({ ...editForm, role: val })}>
-                <SelectTrigger className="w-full"><SelectValue placeholder="Rôle" /></SelectTrigger>
-                <SelectContent>
-                  {Object.values(UserRoles).map(role => (
-                    <SelectItem key={role} value={role}>{role}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+          <Form {...editForm}>
+            <form onSubmit={editForm.handleSubmit(handleEditSubmit)} className="space-y-4">
+              <FormField
+                control={editForm.control}
+                name="firstName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Prénom</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Prénom" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={editForm.control}
+                name="lastName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Nom</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Nom" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={editForm.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Email" type="email" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={editForm.control}
+                name="username"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Nom d'utilisateur</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Nom d'utilisateur" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={editForm.control}
+                name="registrationNumber"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Matricule</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Matricule" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={editForm.control}
+                name="role"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Rôle</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Sélectionner un rôle" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {Object.values(UserRoles).map(role => (
+                          <SelectItem key={role} value={role}>{role}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
               <DialogFooter>
-                <Button type="submit" disabled={updateUser.isPending}>{updateUser.isPending ? "Sauvegarde..." : "Valider"}</Button>
-                <DialogClose asChild><Button type="button" variant="outline">Annuler</Button></DialogClose>
+                <Button type="submit" disabled={updateUser.isPending}>
+                  {updateUser.isPending ? "Sauvegarde..." : "Valider"}
+                </Button>
+                <DialogClose asChild>
+                  <Button type="button" variant="outline">Annuler</Button>
+                </DialogClose>
               </DialogFooter>
             </form>
-          )}
+          </Form>
         </DialogContent>
       </Dialog>
       
@@ -296,18 +495,73 @@ export function AdminUsers() {
 
       {/* Modal d'infos utilisateur */}
       <Dialog open={!!showUserInfo} onOpenChange={open => { if (!open) setShowUserInfo(null); }}>
-        <DialogContent>
+        <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>Informations utilisateur</DialogTitle>
             <DialogDescription>Voici les informations détaillées de l'utilisateur.</DialogDescription>
           </DialogHeader>
           {showUserInfo && (
-            <div className="space-y-2">
-              <div><span className="font-semibold">Nom :</span> {showUserInfo.firstName} {showUserInfo.lastName}</div>
-              <div><span className="font-semibold">Email :</span> {showUserInfo.email}</div>
-              <div><span className="font-semibold">Nom d'utilisateur :</span> {showUserInfo.username}</div>
-              <div><span className="font-semibold">Matricule :</span> {showUserInfo.registrationNumber}</div>
-              <div><span className="font-semibold">Rôle :</span> {showUserInfo.role}</div>
+            <div className="space-y-6">
+              {/* Avatar et nom */}
+              <div className="flex items-center space-x-4">
+                <Avatar className="h-16 w-16">
+                  <AvatarFallback className="text-lg font-semibold">
+                    {showUserInfo.firstName.charAt(0)}{showUserInfo.lastName.charAt(0)}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="space-y-1">
+                  <h3 className="text-lg font-semibold">
+                    {showUserInfo.firstName} {showUserInfo.lastName}
+                  </h3>
+                  <Badge variant={showUserInfo.role === UserRoles.ADMIN ? "destructive" : showUserInfo.role === UserRoles.TEACHER ? "default" : "secondary"}>
+                    {showUserInfo.role}
+                  </Badge>
+                </div>
+              </div>
+
+              <Separator />
+
+              {/* Tableau des informations */}
+              <Table>
+                <TableBody>
+                  <TableRow>
+                    <TableCell className="font-medium w-1/3">ID Utilisateur</TableCell>
+                    <TableCell className="font-mono">#{showUserInfo.id}</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell className="font-medium">Prénom</TableCell>
+                    <TableCell>{showUserInfo.firstName}</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell className="font-medium">Nom</TableCell>
+                    <TableCell>{showUserInfo.lastName}</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell className="font-medium">Email</TableCell>
+                    <TableCell>{showUserInfo.email}</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell className="font-medium">Nom d'utilisateur</TableCell>
+                    <TableCell className="font-mono bg-muted px-2 py-1 rounded">
+                      {showUserInfo.username}
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell className="font-medium">Matricule</TableCell>
+                    <TableCell className="font-mono bg-muted px-2 py-1 rounded">
+                      {showUserInfo.registrationNumber}
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell className="font-medium">Rôle</TableCell>
+                    <TableCell>
+                      <Badge variant={showUserInfo.role === UserRoles.ADMIN ? "destructive" : showUserInfo.role === UserRoles.TEACHER ? "default" : "secondary"}>
+                        {showUserInfo.role}
+                      </Badge>
+                    </TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
             </div>
           )}
           <DialogFooter>
