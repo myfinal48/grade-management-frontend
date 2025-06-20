@@ -55,6 +55,12 @@ export const navigationConfig: NavigationItem[] = [
         icon: LucideListChecks,
         roles: [UserRoles.ADMIN],
     },
+    {
+        title: "Transcripts",
+        href: "/dashboard/transcripts",
+        icon: FileText,
+        roles: [UserRoles.ADMIN],
+    },
     // Teacher specific
     {
         title: "Mes cours",
