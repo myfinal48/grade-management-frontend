@@ -75,7 +75,7 @@ export const navigationConfig: NavigationItem[] = [
     },
     // Teacher specific
     {
-        title: "Mes cours",
+        title: "Cours",
         href: "/dashboard/courses",
         icon: School,
         roles: [UserRoles.TEACHER],

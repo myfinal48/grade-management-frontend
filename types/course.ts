@@ -7,6 +7,7 @@ export interface Course {
 }
 
 export interface CourseRequestData {
+  id:number
   semesterId: number;
   code: string;
   name: string;
@@ -20,4 +21,6 @@ export interface CourseResponseData {
   name: string;
   description: string;
   credit: number;
+  teacherId: number;
+  teacherName: string;
 } 

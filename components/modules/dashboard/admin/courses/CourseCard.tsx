@@ -10,6 +10,27 @@ import type { Course } from "@/types/course"
 import { DeleteCourseDialog } from "@/components/modules/dashboard/admin/courses/DeleteCourseDialog"
 import { CourseForm } from "./CourseForm"
 import { useCourses } from "@/hooks/useCourses"
+import { useUsers } from "@/hooks/useUsers"
+import { UserRoles } from "@/types"
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+  SelectGroup,
+  SelectLabel
+} from "@/components/ui/select"
+import {
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+  DialogClose
+} from "@/components/ui/dialog"
 
 interface CourseCardProps {
   course: Course
@@ -18,7 +39,10 @@ interface CourseCardProps {
 export function CourseCard({ course }: CourseCardProps) {
   const [showEditDialog, setShowEditDialog] = useState(false)
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
-  const { deleteCourse } = useCourses({ courseId: course.id })
+  const [showAssignDialog, setShowAssignDialog] = useState(false)
+  const { deleteCourse, assignTeacher } = useCourses({ courseId: course.id })
+  const { getUsers } = useUsers({ role: UserRoles.TEACHER })
+  const [selectedTeacherId, setSelectedTeacherId] = useState<number | null>(null)
 
   const courseForForm = {
     id: course.id,
@@ -27,6 +51,18 @@ export function CourseCard({ course }: CourseCardProps) {
     description: String(course.description ?? ""),
     credit: course.credit,
     semesterId: 1,
+  }
+
+  // Pour affichage enseignant assigné si info présente
+  // @ts-ignore
+  const teacherName = course.teacherName || null
+
+  const handleAssign = () => {
+    if (selectedTeacherId) {
+      assignTeacher.mutate({ courseId: course.id, teacherId: selectedTeacherId }, {
+        onSuccess: () => setShowAssignDialog(false)
+      })
+    }
   }
 
   return (
@@ -39,6 +75,9 @@ export function CourseCard({ course }: CourseCardProps) {
               <Badge variant="secondary" className="text-xs">
                 Code: {course.code}
               </Badge>
+              {teacherName && (
+                <div className="text-xs mt-1">Enseignant: {teacherName}</div>
+              )}
             </div>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -51,6 +90,10 @@ export function CourseCard({ course }: CourseCardProps) {
                 <DropdownMenuItem onClick={() => setShowEditDialog(true)}>
                   <Edit className="mr-2 h-4 w-4" />
                   Edit
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setShowAssignDialog(true)}>
+                  <Edit className="mr-2 h-4 w-4" />
+                  Assigner un enseignant
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => setShowDeleteDialog(true)} className="text-destructive">
                   <Trash2 className="mr-2 h-4 w-4" />
@@ -76,6 +119,52 @@ export function CourseCard({ course }: CourseCardProps) {
       <CourseForm open={showEditDialog} onOpenChange={setShowEditDialog} course={courseForForm} mode="edit" />
 
       <DeleteCourseDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog} course={course} />
+
+      {/* Dialog d'assignation d'enseignant */}
+      <Dialog open={showAssignDialog} onOpenChange={setShowAssignDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Assigner un enseignant</DialogTitle>
+            <DialogDescription>
+              Sélectionnez un enseignant à assigner à ce cours.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col gap-4 py-2">
+            <Select
+              value={selectedTeacherId ? String(selectedTeacherId) : ""}
+              onValueChange={val => setSelectedTeacherId(val ? Number(val) : null)}
+              disabled={getUsers.isLoading || getUsers.data?.length === 0}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Sélectionner un enseignant" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectLabel>Enseignants</SelectLabel>
+                  {getUsers.data?.map(teacher => (
+                    <SelectItem key={teacher.id} value={String(teacher.id)}>
+                      {teacher.firstName} {teacher.lastName}
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+          </div>
+          <DialogFooter>
+            <Button
+              size="sm"
+              variant="default"
+              onClick={handleAssign}
+              disabled={!selectedTeacherId || assignTeacher.isPending}
+            >
+              Assigner
+            </Button>
+            <DialogClose asChild>
+              <Button size="sm" variant="outline">Annuler</Button>
+            </DialogClose>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   )
 } 
