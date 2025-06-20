@@ -4,7 +4,7 @@ import { GradesCacheKeys } from "./const"
 import { toast } from "sonner"
 import { queryClient } from "@/providers"
 
-export const useGrades = ({ gradeId, studentId }: { gradeId?: number; studentId?: number } = {}) => {
+export const useGrades = ({ gradeId, studentId, teacherId }: { gradeId?: number; studentId?: number; teacherId?: number } = {}) => {
   // Liste des notes
   const getGrades = useQuery({
     queryKey: [GradesCacheKeys.Grades],
@@ -23,6 +23,13 @@ export const useGrades = ({ gradeId, studentId }: { gradeId?: number; studentId?
     queryKey: [GradesCacheKeys.Grades, studentId],
     queryFn: () => gradeService.getByStudentId(studentId as number),
     enabled: !!studentId,
+  })
+
+  // Liste des notes d'un enseignant
+  const getGradesByTeacher = useQuery({
+    queryKey: [GradesCacheKeys.Grades, teacherId],
+    queryFn: () => gradeService.getByTeacherId(teacherId as number),
+    enabled: !!teacherId,
   })
 
   // Création
@@ -56,6 +63,7 @@ export const useGrades = ({ gradeId, studentId }: { gradeId?: number; studentId?
     getGrades,
     getGrade,
     getGradesByStudent,
+    getGradesByTeacher,
     createGrade,
     updateGrade,
     deleteGrade,

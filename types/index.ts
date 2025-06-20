@@ -13,5 +13,6 @@ export interface UserResponseData{
   email:string
   firstName:string
   lastName:string
+  registrationNumber:string
   role:UserRole
 }

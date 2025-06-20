@@ -91,6 +91,12 @@ export function AdminUsers() {
     }
   });
 
+  // Watch pour gérer l'état des modals et filtres
+  const createFormValues = createForm.watch();
+  const editFormValues = editForm.watch();
+  const isCreateFormValid = createForm.formState.isValid;
+  const isEditFormValid = editForm.formState.isValid;
+
   // Filtrage côté front-end
   const filteredUsers = (users || []).filter(user => {
     const matchRole = roleFilter === "ALL" ? true : user.role === roleFilter;
@@ -151,6 +157,16 @@ export function AdminUsers() {
         refetch();
       },
     });
+  };
+
+  const handleCloseCreateDialog = () => {
+    setShowCreateDialog(false);
+    createForm.reset();
+  };
+
+  const handleCloseEditDialog = () => {
+    setEditUser(null);
+    editForm.reset();
   };
 
   return (
@@ -292,11 +308,11 @@ export function AdminUsers() {
                   )}
                 />
                 <DialogFooter>
-                  <Button type="submit" disabled={createUser.isPending}>
+                  <Button type="submit" disabled={createUser.isPending || !isCreateFormValid}>
                     {createUser.isPending ? "Création..." : "Créer"}
                   </Button>
                   <DialogClose asChild>
-                    <Button type="button" variant="outline">Annuler</Button>
+                    <Button type="button" variant="outline" onClick={handleCloseCreateDialog}>Annuler</Button>
                   </DialogClose>
                 </DialogFooter>
               </form>
@@ -367,7 +383,11 @@ export function AdminUsers() {
       </CardContent>
 
       {/* Modal d'édition */}
-      <Dialog open={!!editUser} onOpenChange={open => { if (!open) setEditUser(null); }}>
+      <Dialog open={!!editUser} onOpenChange={(open) => {
+        if (!open) {
+          handleCloseEditDialog();
+        }
+      }}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Modifier l'utilisateur</DialogTitle>
@@ -463,11 +483,11 @@ export function AdminUsers() {
                 )}
               />
               <DialogFooter>
-                <Button type="submit" disabled={updateUser.isPending}>
+                <Button type="submit" disabled={updateUser.isPending || !isEditFormValid}>
                   {updateUser.isPending ? "Sauvegarde..." : "Valider"}
                 </Button>
                 <DialogClose asChild>
-                  <Button type="button" variant="outline">Annuler</Button>
+                  <Button type="button" variant="outline" onClick={handleCloseEditDialog}>Annuler</Button>
                 </DialogClose>
               </DialogFooter>
             </form>

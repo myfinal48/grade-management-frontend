@@ -92,6 +92,12 @@ export const navigationConfig: NavigationItem[] = [
         icon: FileText,
         roles: [UserRoles.TEACHER],
     },
+    {
+        title: "Notes",
+        href: "/dashboard/grades",
+        icon: FileText,
+        roles: [UserRoles.TEACHER],
+    },
     // Student specific
     {
         title: "Mes cours",
