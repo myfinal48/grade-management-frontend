@@ -4,10 +4,10 @@ import axios, {
     type InternalAxiosRequestConfig,
 } from "axios"
 import { getSession } from "next-auth/react"
-import getEnv from "@/lib/env";
+import {getEnv} from "@/lib/env";
 
 export const apiClient: AxiosInstance = axios.create({
-    baseURL: "https://grade-management.onrender.com/api/v1",
+    baseURL: getEnv().apiUrl,
     headers: {
         "Content-Type": "application/json",
         Accept: "application/json",
