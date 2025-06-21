@@ -2,7 +2,6 @@
 import { useUsers } from "@/hooks/useUsers";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { UserPlus, Trash2, Edit, MoreHorizontal, Info } from "lucide-react";
 import { useState } from "react";
@@ -10,27 +9,26 @@ import {
   Table, TableHeader, TableBody, TableRow, TableHead, TableCell
 } from "@/components/ui/table";
 import {
-  AlertDialog, AlertDialogTrigger, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogAction, AlertDialogCancel
+  AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogAction, AlertDialogCancel
 } from "@/components/ui/alert-dialog";
 import {
   Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
-import { UserRoles, UserRole } from "@/types";
-import { User, RegisterRequest, UpdateUserRequestData } from "@/types/user";
+import { User } from "@/types/user";
 import {
   DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator
 } from "@/components/ui/dropdown-menu";
-import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { TableSkeleton } from "@/components/ui/loading-skeletons";
-import { useForm, Controller } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
+import { UserRoles } from "@/types";
 
 // Schémas de validation
 const createUserSchema = z.object({
@@ -90,12 +88,6 @@ export function AdminUsers() {
       role: UserRoles.STUDENT
     }
   });
-
-  // Watch pour gérer l'état des modals et filtres
-  const createFormValues = createForm.watch();
-  const editFormValues = editForm.watch();
-  const isCreateFormValid = createForm.formState.isValid;
-  const isEditFormValid = editForm.formState.isValid;
 
   // Filtrage côté front-end
   const filteredUsers = (users || []).filter(user => {
@@ -251,9 +243,9 @@ export function AdminUsers() {
                   name="username"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Nom d'utilisateur</FormLabel>
+                      <FormLabel>Nom d&apos;utilisateur</FormLabel>
                       <FormControl>
-                        <Input placeholder="Nom d'utilisateur" {...field} />
+                        <Input placeholder="Nom d&apos;utilisateur" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -308,7 +300,7 @@ export function AdminUsers() {
                   )}
                 />
                 <DialogFooter>
-                  <Button type="submit" disabled={createUser.isPending || !isCreateFormValid}>
+                  <Button type="submit" disabled={createUser.isPending || !createForm.formState.isValid}>
                     {createUser.isPending ? "Création..." : "Créer"}
                   </Button>
                   <DialogClose asChild>
@@ -390,8 +382,8 @@ export function AdminUsers() {
       }}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Modifier l'utilisateur</DialogTitle>
-            <DialogDescription>Modifiez les informations de l'utilisateur puis validez.</DialogDescription>
+            <DialogTitle>{"Modifier l'utilisateur"}</DialogTitle>
+            <DialogDescription>{"Modifiez les informations de l'utilisateur puis validez."}</DialogDescription>
           </DialogHeader>
           <Form {...editForm}>
             <form onSubmit={editForm.handleSubmit(handleEditSubmit)} className="space-y-4">
@@ -439,7 +431,7 @@ export function AdminUsers() {
                 name="username"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Nom d'utilisateur</FormLabel>
+                    <FormLabel>{"Nom d'utilisateur"}</FormLabel>
                     <FormControl>
                       <Input placeholder="Nom d'utilisateur" {...field} />
                     </FormControl>
@@ -483,7 +475,7 @@ export function AdminUsers() {
                 )}
               />
               <DialogFooter>
-                <Button type="submit" disabled={updateUser.isPending || !isEditFormValid}>
+                <Button type="submit" disabled={updateUser.isPending || !editForm.formState.isValid}>
                   {updateUser.isPending ? "Sauvegarde..." : "Valider"}
                 </Button>
                 <DialogClose asChild>
@@ -518,7 +510,7 @@ export function AdminUsers() {
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>Informations utilisateur</DialogTitle>
-            <DialogDescription>Voici les informations détaillées de l'utilisateur.</DialogDescription>
+            <DialogDescription>{"Voici les informations détaillées de l'utilisateur."}</DialogDescription>
           </DialogHeader>
           {showUserInfo && (
             <div className="space-y-6">
@@ -561,7 +553,7 @@ export function AdminUsers() {
                     <TableCell>{showUserInfo.email}</TableCell>
                   </TableRow>
                   <TableRow>
-                    <TableCell className="font-medium">Nom d'utilisateur</TableCell>
+                    <TableCell className="font-medium">{"Nom d'utilisateur"}</TableCell>
                     <TableCell className="font-mono bg-muted px-2 py-1 rounded">
                       {showUserInfo.username}
                     </TableCell>

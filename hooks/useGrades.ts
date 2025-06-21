@@ -3,6 +3,7 @@ import { useMutation, useQuery } from "@tanstack/react-query"
 import { GradesCacheKeys } from "./const"
 import { toast } from "sonner"
 import { queryClient } from "@/providers"
+import { GradeRequestData } from "@/types/grade"
 
 export const useGrades = ({ gradeId, studentId, teacherId }: { gradeId?: number; studentId?: number; teacherId?: number } = {}) => {
   // Liste des notes
@@ -52,7 +53,7 @@ export const useGrades = ({ gradeId, studentId, teacherId }: { gradeId?: number;
 
   // Edition
   const updateGrade = useMutation({
-    mutationFn: (data: any) => gradeService.update(gradeId as number, data),
+    mutationFn: (data: GradeRequestData) => gradeService.update(gradeId as number, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [GradesCacheKeys.Grades] })
       toast.success("Succès", { description: "Note modifiée avec succès" })

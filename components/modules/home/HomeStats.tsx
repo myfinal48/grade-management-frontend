@@ -12,7 +12,7 @@ export function HomeStats() {
         <section className="py-16 px-4 sm:px-6 lg:px-8 bg-muted/50">
             <div className="max-w-7xl mx-auto">
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-                    {stats.map((stat, index) => (
+                    {stats.map((stat) => (
                         <div key={stat.label} className="text-center">
                             <div className="inline-flex items-center justify-center w-12 h-12 rounded-lg bg-primary/10 mb-4">
                                 <stat.icon className={`h-6 w-6 ${stat.color}`} />

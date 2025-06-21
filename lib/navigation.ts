@@ -7,18 +7,18 @@ import {
   Settings,
   FileText,
   Calendar,
-  BarChart3,
   UserCheck,
   School,
   Book,
   Hash,
   LucideListChecks,
 } from "lucide-react"
+import type { ComponentType, SVGProps } from "react"
 
 export interface NavigationItem {
   title: string
   href: string
-  icon: any
+  icon: ComponentType<SVGProps<SVGSVGElement>>
   badge?: string
   roles: UserRole[]
 }

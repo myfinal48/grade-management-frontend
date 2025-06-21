@@ -16,7 +16,7 @@ import * as z from "zod";
 import { useGrades } from "@/hooks/useGrades";
 import { useState, useEffect } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useStudents } from "@/hooks/useStudents";
+import { useUsers } from "@/hooks/useUsers";
 import { useCourses } from "@/hooks/useCourses";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loader2 } from "lucide-react";
@@ -24,7 +24,9 @@ import { Loader2 } from "lucide-react";
 const gradeSchema = z.object({
   studentId: z.coerce.number().min(1, "L'étudiant est requis"),
   courseId: z.coerce.number().min(1, "Le cours est requis"),
-  value: z.coerce.number().min(0, "La note est requise").max(20, "La note doit être entre 0 et 20"),
+  value: z.coerce.number()
+    .min(0, "La note ne peut pas être négative")
+    .max(20, "La note ne peut pas dépasser 20"),
 });
 
 type GradeFormData = z.infer<typeof gradeSchema>;
@@ -35,15 +37,22 @@ interface GradeFormProps {
   initialData?: Partial<GradeFormData>;
   mode: "create" | "edit";
   gradeId?: number;
+  teacherId?: number;
 }
 
-export function GradeForm({ open, onOpenChange, initialData, mode, gradeId }: GradeFormProps) {
-  const { createGrade, updateGrade } = useGrades({ gradeId });
+export function GradeForm({ open, onOpenChange, initialData, mode, gradeId, teacherId }: GradeFormProps) {
+  const { createGrade, updateGrade } = useGrades({ gradeId, teacherId });
+  const { getByTeacherId } = useCourses({ teacherId });
   const [formError, setFormError] = useState<string | null>(null);
-  const { getStudents } = useStudents();
-  const { getCourses } = useCourses();
-  const students = getStudents.data || [];
-  const courses = getCourses.data || [];
+  const { getUsers } = useUsers({ role: "STUDENT" });
+
+  const courses = teacherId && getByTeacherId.data
+    ? getByTeacherId.data
+    : [];
+
+  const isCoursesLoading =getByTeacherId.isLoading;
+
+  const students = getUsers.data || [];
 
   const form = useForm<GradeFormData>({
     resolver: zodResolver(gradeSchema),
@@ -62,6 +71,12 @@ export function GradeForm({ open, onOpenChange, initialData, mode, gradeId }: Gr
         courseId: initialData.courseId ?? 0,
         value: initialData.value ?? 0,
       });
+    } else {
+      form.reset({
+        studentId: 0,
+        courseId: 0,
+        value: 0,
+      });
     }
   }, [initialData, form]);
 
@@ -75,8 +90,12 @@ export function GradeForm({ open, onOpenChange, initialData, mode, gradeId }: Gr
       }
       onOpenChange(false);
       form.reset();
-    } catch (error: any) {
-      setFormError(error?.message || "Une erreur est survenue. Veuillez réessayer.");
+    } catch (error: unknown) {
+      if (error && typeof error === 'object' && 'message' in error) {
+        setFormError((error as { message?: string }).message || "Une erreur est survenue. Veuillez réessayer.");
+      } else {
+        setFormError("Une erreur est survenue. Veuillez réessayer.");
+      }
     }
   };
 
@@ -98,21 +117,21 @@ export function GradeForm({ open, onOpenChange, initialData, mode, gradeId }: Gr
             <FormField
               control={form.control}
               name="studentId"
-              render={({ field }) => (
+              render={({ field, fieldState }) => (
                 <FormItem>
                   <FormLabel>Étudiant</FormLabel>
                   <Select
                     value={field.value ? String(field.value) : ""}
                     onValueChange={(value) => field.onChange(Number(value))}
-                    disabled={getStudents.isLoading || isLoading}
+                    disabled={getUsers.isLoading || isLoading}
                   >
                     <FormControl>
-                      <SelectTrigger>
+                      <SelectTrigger className={fieldState.invalid ? "border-red-500 focus-visible:ring-red-500" : ""}>
                         <SelectValue placeholder="Sélectionner un étudiant" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {getStudents.isLoading ? (
+                      {getUsers.isLoading ? (
                         <div className="flex items-center gap-2 px-3 py-2 text-muted-foreground text-sm">
                           <Loader2 className="h-4 w-4 animate-spin" />
                           Chargement...
@@ -135,21 +154,22 @@ export function GradeForm({ open, onOpenChange, initialData, mode, gradeId }: Gr
             <FormField
               control={form.control}
               name="courseId"
-              render={({ field }) => (
+              render={({ field, fieldState }) => (
                 <FormItem>
                   <FormLabel>Cours</FormLabel>
                   <Select
                     value={field.value ? String(field.value) : ""}
                     onValueChange={(value) => field.onChange(Number(value))}
-                    disabled={getCourses.isLoading || isLoading}
+                    disabled={isCoursesLoading || isLoading}
+                    
                   >
                     <FormControl>
-                      <SelectTrigger>
+                      <SelectTrigger className={fieldState.invalid ? "border-red-500 focus-visible:ring-red-500" : ""}>
                         <SelectValue placeholder="Sélectionner un cours" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {getCourses.isLoading ? (
+                      {isCoursesLoading ? (
                         <div className="flex items-center gap-2 px-3 py-2 text-muted-foreground text-sm">
                           <Loader2 className="h-4 w-4 animate-spin" />
                           Chargement...
@@ -172,17 +192,18 @@ export function GradeForm({ open, onOpenChange, initialData, mode, gradeId }: Gr
             <FormField
               control={form.control}
               name="value"
-              render={({ field }) => (
+              render={({ field, fieldState }) => (
                 <FormItem>
                   <FormLabel>Note</FormLabel>
                   <FormControl>
-                    <Input 
-                      type="number" 
-                      placeholder="Note sur 20" 
+                    <Input
+                      type="number"
+                      placeholder="Note sur 20"
                       min="0"
                       max="20"
                       step="0.5"
-                      {...field} 
+                      {...field}
+                      className={fieldState.invalid ? "border-red-500 focus-visible:ring-red-500" : ""}
                     />
                   </FormControl>
                   <FormMessage />

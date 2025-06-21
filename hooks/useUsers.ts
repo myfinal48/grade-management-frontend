@@ -3,6 +3,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { queryClient } from "@/providers";
 import { UserRole } from "@/types";
+import { UpdateUserRequestData } from "@/types/user";
 
 export const useUsers = ({ userId, role }: { userId?: number; role?: UserRole } = {}) => {
   // Liste des utilisateurs (optionnellement filtrée par rôle)
@@ -39,7 +40,7 @@ export const useUsers = ({ userId, role }: { userId?: number; role?: UserRole } 
 
   // Edition
   const updateUser = useMutation({
-    mutationFn: ({ id, data }: { id: number; data: any }) => userService.update(id, data),
+    mutationFn: ({ id, data }: { id: number; data: UpdateUserRequestData }) => userService.update(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["users"] });
       toast.success("Utilisateur modifié avec succès");

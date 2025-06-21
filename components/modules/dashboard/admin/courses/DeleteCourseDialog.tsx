@@ -23,12 +23,8 @@ export function DeleteCourseDialog({ open, onOpenChange, course }: DeleteCourseD
   const { deleteCourse } = useCourses({ courseId: course.id })
 
   const handleDelete = async () => {
-    try {
       await deleteCourse.mutateAsync(course.id)
       onOpenChange(false)
-    } catch (error) {
-      // Error handling is done in the hook
-    }
   }
 
   return (
@@ -37,7 +33,7 @@ export function DeleteCourseDialog({ open, onOpenChange, course }: DeleteCourseD
         <AlertDialogHeader>
           <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
           <AlertDialogDescription>
-            This action cannot be undone. This will permanently delete the course <strong>"{course.name}"</strong> from
+            This action cannot be undone. This will permanently delete the course <strong>&quot;{course.name}&quot;</strong> from
             the system.
           </AlertDialogDescription>
         </AlertDialogHeader>

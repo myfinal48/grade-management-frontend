@@ -23,21 +23,18 @@ import {
 import {
   Table, TableHeader, TableBody, TableRow, TableHead, TableCell
 } from "@/components/ui/table";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
-import { Trash2, RefreshCw, MoreHorizontal, Eye, User, BookOpen, Calendar, GraduationCap, Search } from "lucide-react";
+import { Trash2, RefreshCw, MoreHorizontal, User, BookOpen, Calendar, GraduationCap, Search } from "lucide-react";
 import { TableSkeleton } from "@/components/ui/loading-skeletons";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
   Tooltip,
   TooltipContent,
-  TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Badge } from "@/components/ui/badge";

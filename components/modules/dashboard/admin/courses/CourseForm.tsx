@@ -13,9 +13,11 @@ import { Input } from "@/components/ui/input"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
-import type { Course, CourseRequestData } from "@/types/course"
+import type { CourseRequestData } from "@/types/course"
 import { useCourses } from "@/hooks/useCourses"
 import { useState } from "react"
+import { useSemesters } from "@/hooks/useSemesters"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 const courseSchema = z.object({
   code: z.string().min(1, "Code is required").max(20, "Code must be less than 20 characters"),
@@ -37,6 +39,7 @@ interface CourseFormProps {
 export function CourseForm({ open, onOpenChange, course, mode }: CourseFormProps) {
   const { createCourse, updateCourse } = useCourses({ courseId: course?.id })
   const [formError, setFormError] = useState<string | null>(null)
+  const { data: semesters, isLoading: semestersLoading, error: semestersError } = useSemesters()
 
   const form = useForm<CourseFormData>({
     resolver: zodResolver(courseSchema),
@@ -59,8 +62,12 @@ export function CourseForm({ open, onOpenChange, course, mode }: CourseFormProps
       }
       onOpenChange(false)
       form.reset()
-    } catch (error: any) {
-      setFormError(error?.message || "An error occurred. Please try again.")
+    } catch (error: unknown) {
+      if (error && typeof error === 'object' && 'message' in error) {
+        setFormError((error as { message?: string }).message || "An error occurred. Please try again.")
+      } else {
+        setFormError("An error occurred. Please try again.")
+      }
     }
   }
 
@@ -134,9 +141,30 @@ export function CourseForm({ open, onOpenChange, course, mode }: CourseFormProps
               name="semesterId"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Semester ID</FormLabel>
+                  <FormLabel>Semester</FormLabel>
                   <FormControl>
-                    <Input type="number" placeholder="Enter semester ID" {...field} />
+                    {semestersLoading ? (
+                      <div className="text-muted-foreground text-sm">Loading semesters...</div>
+                    ) : semestersError ? (
+                      <div className="text-destructive text-sm">Error loading semesters</div>
+                    ) : (
+                      <Select
+                        value={field.value ? String(field.value) : ""}
+                        onValueChange={(value) => field.onChange(Number(value))}
+                        disabled={isLoading}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select a semester" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {semesters?.map((semester) => (
+                            <SelectItem key={semester.id} value={String(semester.id)}>
+                              {semester.name} - {semester.universityYear}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
                   </FormControl>
                   <FormMessage />
                 </FormItem>

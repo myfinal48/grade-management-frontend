@@ -47,7 +47,6 @@ export function LevelForm({ open, onOpenChange, level, mode }: LevelFormProps) {
   })
 
   const onSubmit = async (data: LevelFormData) => {
-    try {
       if (mode === "create") {
         await createLevel.mutateAsync({ majorId: data.majorId, data })
       } else if (level) {
@@ -55,9 +54,6 @@ export function LevelForm({ open, onOpenChange, level, mode }: LevelFormProps) {
       }
       onOpenChange(false)
       form.reset()
-    } catch (error) {
-      // Error handling is done in the hooks
-    }
   }
 
   const isLoading = createLevel.isPending || updateLevel.isPending

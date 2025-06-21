@@ -1,10 +1,9 @@
-"use client";
 import { TeacherGrades } from "@/components/modules/dashboard/teacher/grades";
-import { useSession } from "next-auth/react";
+import { getAuthenticatedUser } from "@/lib/serverAuth";
 
-export default function TeacherGradesPage() {
-  const { data: session, status } = useSession();
-  if (status === "loading") return null;
-  const teacherId = session?.user?.id;
-  return <TeacherGrades teacherId={Number(teacherId)} />;
+export default async function TeacherGradesPage() {
+  const { session } = await getAuthenticatedUser({ allowedRoles: ["TEACHER"] });
+  const teacherId = session?.user?.id ? Number(session.user.id) : undefined;
+  if (!teacherId) return <div>Utilisateur non authentifié.</div>;
+  return <TeacherGrades teacherId={teacherId} />;
 } 

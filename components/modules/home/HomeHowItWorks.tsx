@@ -30,7 +30,7 @@ export function HomeHowItWorks() {
                     <p className="text-muted-foreground">Gérez vos résultats académiques en 3 étapes simples</p>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                    {howItWorks.map((step, index) => (
+                    {howItWorks.map((step) => (
                         <div key={step.step} className="text-center">
                             <div className="relative mb-6">
                                 <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-4">

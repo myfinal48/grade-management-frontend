@@ -65,10 +65,16 @@ export function LoginForm() {
                 })
                 router.push("/dashboard")
             }
-        } catch (error: any) {
-            toast.error("Authentication Failed", {
-                description: error.name === "CredentialsSignin" ? "Email ou mot de passe incorrect" : "Une erreur est survenue",
-            })
+        } catch (error: unknown) {
+            if (error && typeof error === 'object' && 'message' in error) {
+                toast.error("Authentication Failed", {
+                    description: (error as { message?: string }).message || "Une erreur est survenue. Veuillez réessayer.",
+                })
+            } else {
+                toast.error("Authentication Failed", {
+                    description: "Une erreur est survenue. Veuillez réessayer.",
+                })
+            }
         } finally {
             setLoading(false)
         }
@@ -154,7 +160,7 @@ export function LoginForm() {
                             <Info className="h-4 w-4 text-muted-foreground" />
                             <CardTitle className="text-lg">Comptes de démonstration</CardTitle>
                         </div>
-                        <CardDescription>Utilisez ces comptes pour tester l'application</CardDescription>
+                        <CardDescription>{"Utilisez ces comptes pour tester l'application"}</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-3">
                         {testAccounts.map((account, index) => {
