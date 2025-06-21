@@ -13,7 +13,6 @@ import {
   Book,
   Hash,
   LucideListChecks,
-  BarChart3,
 } from "lucide-react"
 
 export interface NavigationItem {
@@ -74,6 +73,7 @@ export const navigationConfig: NavigationItem[] = [
         icon: FileText,
         roles: [UserRoles.ADMIN],
     },
+  
     // Teacher specific
     {
         title: "Cours",
@@ -92,12 +92,6 @@ export const navigationConfig: NavigationItem[] = [
         href: "/dashboard/evaluations",
         icon: FileText,
         roles: [UserRoles.TEACHER],
-    },
-    {
-        title: "Générer relevé de notes PDF",
-        href: "/dashboard/pdf-transcripts",
-        icon: BarChart3,
-        roles: [UserRoles.ADMIN],
     },
     // Student specific
     {

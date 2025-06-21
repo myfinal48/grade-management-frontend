@@ -9,7 +9,7 @@ interface TranscriptsErrorProps {
   onRetry: () => void
 }
 
-export function TranscriptsError({ error, onRetry }: TranscriptsErrorProps) {
+export function TranscriptsError({ error, onRetry }: Readonly<TranscriptsErrorProps>) {
   return (
     <div className="flex items-center justify-center py-12">
       <Card className="w-full max-w-md">
@@ -17,13 +17,13 @@ export function TranscriptsError({ error, onRetry }: TranscriptsErrorProps) {
           <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-destructive/10">
             <AlertCircle className="h-6 w-6 text-destructive" />
           </div>
-          <CardTitle>Something went wrong</CardTitle>
-          <CardDescription>{error.message || "Failed to load transcripts. Please try again."}</CardDescription>
+          <CardTitle>Une erreur est produite</CardTitle>
+          <CardDescription>{error.message || "Échec du chargement des relevés. Veuillez réessayer."}</CardDescription>
         </CardHeader>
         <CardContent className="text-center">
           <Button onClick={onRetry} variant="outline">
             <RefreshCw className="mr-2 h-4 w-4" />
-            Try Again
+            Réessayer
           </Button>
         </CardContent>
       </Card>

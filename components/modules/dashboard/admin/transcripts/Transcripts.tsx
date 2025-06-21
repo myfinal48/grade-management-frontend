@@ -1,9 +1,13 @@
 "use client"
 
 import { useState } from "react"
-import { useTranscripts } from "@/hooks/useTranscripts"
-import { TranscriptsHeader, TranscriptFilters, TranscriptsGrid, TranscriptsLoading, TranscriptsError } from "@/components/modules/dashboard/admin/transcripts"
+import { useTranscripts, useExportMultipleTranscriptsPDF } from "@/hooks/useTranscripts"
+import { TranscriptsHeader } from "./TranscriptsHeader"
+import { TranscriptsGrid } from "./TranscriptsGrid"
+import { TranscriptsLoading } from "./TranscriptsLoading"
+import { TranscriptsError } from "./TranscriptsError"
 import type { TranscriptFilters as TTranscriptFilters } from "@/types/transcript"
+import { TranscriptFilterComponent } from "./TranscriptFilters"
 
 export function Transcripts() {
   const [filters, setFilters] = useState<TTranscriptFilters>({
@@ -13,6 +17,7 @@ export function Transcripts() {
   })
 
   const [hasSearched, setHasSearched] = useState(false)
+  const exportMultiple = useExportMultipleTranscriptsPDF()
 
   const { data: transcripts, isLoading, error, refetch } = useTranscripts(filters, hasSearched)
 
@@ -29,15 +34,14 @@ export function Transcripts() {
   }
 
   const handleExportAll = () => {
-    // TODO: Implement export functionality
-    console.log("Exporting all transcripts...")
+    exportMultiple.mutate(filters)
   }
 
   if (!hasSearched) {
     return (
       <div className="space-y-6">
         <TranscriptsHeader totalCount={0} />
-        <TranscriptFilters
+        <TranscriptFilterComponent
           filters={filters}
           onFiltersChange={handleFiltersChange}
           onSearch={handleSearch}
@@ -45,9 +49,10 @@ export function Transcripts() {
         />
         <div className="flex flex-col items-center justify-center py-12 text-center">
           <div className="mx-auto max-w-md">
-            <h3 className="text-lg font-semibold">Ready to search</h3>
+            <h3 className="text-lg font-semibold">Prêt à rechercher</h3>
             <p className="text-muted-foreground">
-              Set your filters above and click &quot;Search Transcripts&quot; to view student transcripts.
+              Définissez vos filtres ci-dessus et cliquez sur Rechercher les Relevés pour consulter les relevés de
+              notes des étudiants.
             </p>
           </div>
         </div>
@@ -63,7 +68,7 @@ export function Transcripts() {
     return (
       <div className="space-y-6">
         <TranscriptsHeader totalCount={0} />
-        <TranscriptFilters
+        <TranscriptFilterComponent
           filters={filters}
           onFiltersChange={handleFiltersChange}
           onSearch={handleSearch}
@@ -77,11 +82,12 @@ export function Transcripts() {
   return (
     <div className="space-y-6">
       <TranscriptsHeader
-        totalCount={transcripts?.length || 0}
+        totalCount={transcripts?.length ?? 0}
         onExportAll={transcripts && transcripts.length > 0 ? handleExportAll : undefined}
+        isExporting={exportMultiple.isPending}
       />
 
-      <TranscriptFilters
+      <TranscriptFilterComponent
         filters={filters}
         onFiltersChange={handleFiltersChange}
         onSearch={handleSearch}
