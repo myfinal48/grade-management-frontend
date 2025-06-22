@@ -7,7 +7,8 @@ import { TranscriptsGrid } from "./TranscriptsGrid"
 import { TranscriptsLoading } from "./TranscriptsLoading"
 import { TranscriptsError } from "./TranscriptsError"
 import type { TranscriptFilters as TTranscriptFilters } from "@/types/transcript"
-import { TranscriptFilterComponent } from "./TranscriptFilters"
+import { TranscriptFilter } from "./TranscriptFilters"
+
 
 export function Transcripts() {
   const [filters, setFilters] = useState<TTranscriptFilters>({
@@ -41,7 +42,7 @@ export function Transcripts() {
     return (
       <div className="space-y-6">
         <TranscriptsHeader totalCount={0} />
-        <TranscriptFilterComponent
+        <TranscriptFilter
           filters={filters}
           onFiltersChange={handleFiltersChange}
           onSearch={handleSearch}
@@ -68,7 +69,7 @@ export function Transcripts() {
     return (
       <div className="space-y-6">
         <TranscriptsHeader totalCount={0} />
-        <TranscriptFilterComponent
+        <TranscriptFilter
           filters={filters}
           onFiltersChange={handleFiltersChange}
           onSearch={handleSearch}
@@ -87,7 +88,7 @@ export function Transcripts() {
         isExporting={exportMultiple.isPending}
       />
 
-      <TranscriptFilterComponent
+      <TranscriptFilter
         filters={filters}
         onFiltersChange={handleFiltersChange}
         onSearch={handleSearch}

@@ -30,12 +30,10 @@ export default function UnauthorizedPage() {
               <ArrowLeft className="mr-2 h-4 w-4" />
               Retour
             </Button>
-            <Button asChild className="w-full">
               <Link href="/dashboard">
                 <Home className="mr-2 h-4 w-4" />
                 Tableau de bord
               </Link>
-            </Button>
           </div>
         </CardContent>
       </Card>

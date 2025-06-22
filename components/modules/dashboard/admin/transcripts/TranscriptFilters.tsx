@@ -26,7 +26,7 @@ interface TranscriptFiltersProps {
   isLoading?: boolean
 }
 
-export function TranscriptFilterComponent({ filters, onFiltersChange, onSearch, isLoading }: Readonly<TranscriptFiltersProps>) {
+export function TranscriptFilter({ filters, onFiltersChange, onSearch, isLoading }: Readonly<TranscriptFiltersProps>) {
   const form = useForm<TranscriptFiltersFormData>({
     resolver: zodResolver(transcriptFiltersSchema),
     defaultValues: {
