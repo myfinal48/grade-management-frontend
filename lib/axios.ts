@@ -4,9 +4,7 @@ import axios, {
     type InternalAxiosRequestConfig,
 } from "axios"
 import { getSession } from "next-auth/react"
-import getEnv from "./env";
-
-
+import {getEnv} from "@/lib/env";
 
 export const apiClient: AxiosInstance = axios.create({
     baseURL: getEnv().apiUrl,
