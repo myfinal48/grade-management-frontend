@@ -1,15 +1,23 @@
 "use client"
 
-import { FileText, Download } from "lucide-react"
+import { FileText, Download, Building } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import type { University } from "@/types/university"
 
 interface TranscriptsHeaderProps {
   totalCount: number
   onExportAll?: () => void
   isExporting?: boolean
+  selectedUniversity?: University
 }
 
-export function TranscriptsHeader({ totalCount, onExportAll, isExporting }: Readonly<TranscriptsHeaderProps>) {
+export function TranscriptsHeader({
+  totalCount,
+  onExportAll,
+  isExporting,
+  selectedUniversity,
+}: TranscriptsHeaderProps) {
   return (
     <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
       <div>
@@ -17,15 +25,23 @@ export function TranscriptsHeader({ totalCount, onExportAll, isExporting }: Read
           <FileText className="h-8 w-8" />
           Gestion des Relevés de Notes
         </h1>
-        <p className="text-muted-foreground">
-          Consulter et gérer les relevés de notes des étudiants ({totalCount} trouvé{totalCount > 1 ? "s" : ""})
-        </p>
+        <div className="flex items-center gap-2 mt-1">
+          <p className="text-muted-foreground">
+            Consulter et gérer les relevés de notes des étudiants ({totalCount} trouvé{totalCount > 1 ? "s" : ""})
+          </p>
+          {selectedUniversity && (
+            <Badge variant="outline" className="flex items-center gap-1">
+              <Building className="h-3 w-3" />
+              {selectedUniversity.name}
+            </Badge>
+          )}
+        </div>
       </div>
       {totalCount > 0 && onExportAll && (
         <div className="flex gap-2">
           <Button onClick={onExportAll} variant="outline" size="default" disabled={isExporting}>
             <Download className="mr-2 h-4 w-4" />
-            {isExporting ? "Exportation..." : "Exporter en PDF"}
+            {isExporting ? "Exportation..." : "Exporter PDF"}
           </Button>
         </div>
       )}

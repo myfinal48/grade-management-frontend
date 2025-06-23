@@ -25,7 +25,8 @@ export function useTranscripts(filters: TranscriptFilters, enabled = true) {
 
 export function useExportMultipleTranscriptsPDF() {
   return useMutation({
-    mutationFn: (filters: TranscriptFilters) => transcriptsService.exportMultipleTranscriptsPDF(filters),
+    mutationFn: ({ filters, universityId }: { filters: TranscriptFilters; universityId?: number }) =>
+      transcriptsService.exportMultipleTranscriptsPDF(filters, universityId),
     onSuccess: (blob) => {
       // Vérifier que le blob est valide
       if (!blob || blob.size === 0) {
@@ -76,6 +77,68 @@ export function useExportMultipleTranscriptsPDF() {
           break
         case 500:
           errorMessage = "Erreur serveur lors de la génération des relevés. Veuillez réessayer plus tard."
+          break
+        default:
+          errorMessage = error.response?.data?.message ?? error.message ?? errorMessage
+      }
+
+      toast.error(errorMessage)
+    },
+  })
+}
+
+export function useExportSingleTranscriptPDF() {
+  return useMutation({
+    mutationFn: ({
+      studentId,
+      semesterId,
+      universityYear,
+      universityId,
+    }: {
+      studentId: number
+      semesterId: number
+      universityYear: string
+      universityId?: number
+    }) => transcriptsService.exportSingleTranscriptPDF(studentId, semesterId, universityYear, universityId),
+    onSuccess: (blob) => {
+      // Vérifier que le blob est valide
+      if (!blob || blob.size === 0) {
+        toast.error("Le fichier exporté est vide. Veuillez réessayer.")
+        return
+      }
+
+      // Create download link
+      const url = window.URL.createObjectURL(blob)
+      const link = document.createElement("a")
+      link.href = url
+      link.download = "releve-notes.pdf"
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      window.URL.revokeObjectURL(url)
+
+      toast.success("Relevé exporté avec succès")
+    },
+    onError: (error: AxiosError<ApiError>) => {
+      console.error("Export single transcript error:", error)
+
+      let errorMessage = "Échec de l'exportation du relevé"
+
+      switch (error.response?.status) {
+        case 400:
+          errorMessage = "Paramètres invalides. Vérifiez l'ID étudiant et semestre."
+          break
+        case 401:
+          errorMessage = "Session expirée. Veuillez vous reconnecter."
+          break
+        case 403:
+          errorMessage = "Vous n'avez pas l'autorisation d'exporter ce relevé."
+          break
+        case 404:
+          errorMessage = "Relevé non trouvé pour cet étudiant et semestre."
+          break
+        case 500:
+          errorMessage = "Erreur serveur lors de la génération du relevé."
           break
         default:
           errorMessage = error.response?.data?.message ?? error.message ?? errorMessage
