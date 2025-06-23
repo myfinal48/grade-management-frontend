@@ -33,7 +33,7 @@ export function HomeTestimonials() {
             <div className="max-w-7xl mx-auto">
                 <div className="text-center mb-12">
                     <h2 className="text-3xl font-bold text-foreground mb-4">Ce que disent nos utilisateurs</h2>
-                    <p className="text-muted-foreground">Témoignages d'étudiants, enseignants et administrateurs</p>
+                    <p className="text-muted-foreground">{"Témoignages d'étudiants, enseignants et administrateurs"}</p>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     {testimonials.map((testimonial, index) => (
@@ -61,7 +61,7 @@ export function HomeTestimonials() {
                                 </div>
                             </CardHeader>
                             <CardContent>
-                                <p className="text-muted-foreground italic">"{testimonial.content}"</p>
+                                <p className="text-muted-foreground italic">&quot;{testimonial.content}&quot;</p>
                             </CardContent>
                         </Card>
                     ))}

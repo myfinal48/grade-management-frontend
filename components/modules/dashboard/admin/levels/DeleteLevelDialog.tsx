@@ -23,12 +23,8 @@ export function DeleteLevelDialog({ open, onOpenChange, level }: DeleteLevelDial
   const deleteLevel = useDeleteLevel()
 
   const handleDelete = async () => {
-    try {
       await deleteLevel.mutateAsync(level.id)
       onOpenChange(false)
-    } catch (error) {
-      // Error handling is done in the hook
-    }
   }
 
   return (
@@ -37,7 +33,7 @@ export function DeleteLevelDialog({ open, onOpenChange, level }: DeleteLevelDial
         <AlertDialogHeader>
           <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
           <AlertDialogDescription>
-            This action cannot be undone. This will permanently delete the level <strong>"{level.name}"</strong> from
+            This action cannot be undone. This will permanently delete the level <strong>&quot;{level.name}&quot;</strong> from
             the system.
           </AlertDialogDescription>
         </AlertDialogHeader>

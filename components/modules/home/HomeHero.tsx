@@ -22,7 +22,7 @@ export function HomeHero() {
                     </Link>
                     <Link href="/login">
                         <Button size="lg" variant="outline">
-                            J'ai déjà un compte
+                            {"J'ai déjà un compte"}
                         </Button>
                     </Link>
                 </div>

@@ -1,5 +1,5 @@
 import { apiClient } from "@/lib/axios";
-import getEnv from "@/lib/env";
+import { getEnv } from "@/lib/env";
 
 // Define profile types
 export type Profile = {

@@ -50,7 +50,7 @@ export function HomeFooter() {
                         <ul className="space-y-2 text-sm text-muted-foreground">
                             <li>
                                 <Link href="#" className="hover:text-primary">
-                                    Centre d'aide
+                                    {"Centre d'aide"}
                                 </Link>
                             </li>
                             <li>
@@ -60,7 +60,7 @@ export function HomeFooter() {
                             </li>
                             <li>
                                 <Link href="#" className="hover:text-primary">
-                                    Conditions d'utilisation
+                                    {"Conditions d'utilisation"}
                                 </Link>
                             </li>
                             <li>

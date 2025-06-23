@@ -3,14 +3,13 @@
 import { useState, useMemo } from "react"
 import { useLevels } from "@/hooks/useLevels"
 import { useMajors } from "@/hooks/useMajors"
-import { LevelsGrid, LevelsError, LevelsHeader, LevelsLoading, LevelForm } from "@/components/modules/dashboard/admin/levels"
+import { LevelsGrid, LevelsError, LevelsHeader, LevelsLoading } from "@/components/modules/dashboard/admin/levels"
 import { Button } from "@/components/ui/button"
 import { Plus } from "lucide-react"
 
 
 export function Levels() {
   const [searchQuery, setSearchQuery] = useState("")
-  const [showCreateDialog, setShowCreateDialog] = useState(false)
   const { data: levels, isLoading, error, refetch } = useLevels()
   const { data: majors } = useMajors()
 
@@ -51,7 +50,6 @@ export function Levels() {
       {/* Floating Add Button */}
       <div className="fixed bottom-6 right-6 z-50">
         <Button
-          onClick={() => setShowCreateDialog(true)}
           size="lg"
           className="rounded-full shadow-lg hover:shadow-xl transition-shadow"
         >
@@ -59,8 +57,6 @@ export function Levels() {
           <span className="sr-only">Add Level</span>
         </Button>
       </div>
-
-      {/* <LevelForm open={showCreateDialog} onOpenChange={setShowCreateDialog} mode="create" /> */}
     </div>
   )
 }
