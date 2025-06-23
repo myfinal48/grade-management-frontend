@@ -18,6 +18,7 @@ import { useCourses } from "@/hooks/useCourses"
 import { useState } from "react"
 import { useSemesters } from "@/hooks/useSemesters"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { FormLoadingState, FormErrorState } from "@/components/global"
 
 const courseSchema = z.object({
   code: z.string().min(1, "Code is required").max(20, "Code must be less than 20 characters"),
@@ -144,9 +145,9 @@ export function CourseForm({ open, onOpenChange, course, mode }: CourseFormProps
                   <FormLabel>Semester</FormLabel>
                   <FormControl>
                     {semestersLoading ? (
-                      <div className="text-muted-foreground text-sm">Loading semesters...</div>
+                      <FormLoadingState message="Chargement des semestres..." />
                     ) : semestersError ? (
-                      <div className="text-destructive text-sm">Error loading semesters</div>
+                      <FormErrorState message="Erreur lors du chargement des semestres" />
                     ) : (
                       <Select
                         value={field.value ? String(field.value) : ""}
