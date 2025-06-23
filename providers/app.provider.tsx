@@ -1,5 +1,6 @@
 import {ThemeProvider , QueryProvider} from "@/providers";
 import { Toaster } from "@/components/ui/sonner";
+import { SessionProvider } from "next-auth/react";
 
 export function AppProvider({ children }: Readonly<{ children: React.ReactNode; }>) {
     return (
@@ -9,7 +10,9 @@ export function AppProvider({ children }: Readonly<{ children: React.ReactNode; 
             enableSystem
             disableTransitionOnChange
         >
-            <QueryProvider>{children}</QueryProvider>
+            <SessionProvider>
+                <QueryProvider>{children}</QueryProvider>
+            </SessionProvider>
             <Toaster position={"bottom-right"} richColors={true} closeButton={true} />
         </ThemeProvider>
     )

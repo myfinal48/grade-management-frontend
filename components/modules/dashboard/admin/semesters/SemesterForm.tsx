@@ -61,7 +61,6 @@ export function SemesterForm({ open, onOpenChange, semester, mode }: SemesterFor
   })
 
   const onSubmit = async (data: SemesterFormData) => {
-    try {
       if (mode === "create") {
         await createSemester.mutateAsync({ levelId: data.levelId, data })
       } else if (semester) {
@@ -69,9 +68,6 @@ export function SemesterForm({ open, onOpenChange, semester, mode }: SemesterFor
       }
       onOpenChange(false)
       form.reset()
-    } catch (error) {
-      // Error handling is done in the hooks
-    }
   }
 
   const isLoading = createSemester.isPending || updateSemester.isPending

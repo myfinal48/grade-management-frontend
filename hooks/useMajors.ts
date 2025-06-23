@@ -32,10 +32,12 @@ export function useCreateMajor() {
         description: "Major created successfully",
       })
     },
-    onError: (error: any) => {
-      toast.error("Error",{
-        description: error.response?.data?.message || "Failed to create major",
-      })
+    onError: (error: unknown) => {
+      let message = "Failed to create major";
+      if (error && typeof error === 'object' && 'response' in error && error.response && typeof error.response === 'object' && 'data' in error.response && error.response.data && typeof error.response.data === 'object' && 'message' in error.response.data) {
+        message = (error.response.data as { message?: string }).message || message;
+      }
+      toast.error("Error", { description: message });
     },
   })
 }
@@ -50,10 +52,12 @@ export function useUpdateMajor() {
         description: "Major updated successfully",
       })
     },
-    onError: (error: any) => {
-      toast.error("Error",{
-        description: error.response?.data?.message || "Failed to update major",
-      })
+    onError: (error: unknown) => {
+      let message = "Failed to update major";
+      if (error && typeof error === 'object' && 'response' in error && error.response && typeof error.response === 'object' && 'data' in error.response && error.response.data && typeof error.response.data === 'object' && 'message' in error.response.data) {
+        message = (error.response.data as { message?: string }).message || message;
+      }
+      toast.error("Error", { description: message });
     },
   })
 }
@@ -68,10 +72,12 @@ export function useDeleteMajor() {
         description: "Major deleted successfully",
       })
     },
-    onError: (error: any) => {
-      toast("Error",{
-        description: error.response?.data?.message || "Failed to delete major",
-      })
+    onError: (error: unknown) => {
+      let message = "Failed to delete major";
+      if (error && typeof error === 'object' && 'response' in error && error.response && typeof error.response === 'object' && 'data' in error.response && error.response.data && typeof error.response.data === 'object' && 'message' in error.response.data) {
+        message = (error.response.data as { message?: string }).message || message;
+      }
+      toast.error("Error", { description: message });
     },
   })
 }

@@ -39,8 +39,12 @@ export function useCreateSemester() {
       queryClient.invalidateQueries({ queryKey: [SemestersCacheKeys.Semesters] })
       toast.success("Semester created successfully")
     },
-    onError: (error: any) => {
-      toast.error(error.response?.data?.message || "Failed to create semester")
+    onError: (error: unknown) => {
+      let message = "Failed to create semester";
+      if (error && typeof error === 'object' && 'response' in error && error.response && typeof error.response === 'object' && 'data' in error.response && error.response.data && typeof error.response.data === 'object' && 'message' in error.response.data) {
+        message = (error.response.data as { message?: string }).message || message;
+      }
+      toast.error(message);
     },
   })
 }
@@ -55,8 +59,12 @@ export function useUpdateSemester() {
       queryClient.invalidateQueries({ queryKey: [SemestersCacheKeys.Semesters] })
       toast.success("Semester updated successfully")
     },
-    onError: (error: any) => {
-      toast.error(error.response?.data?.message || "Failed to update semester")
+    onError: (error: unknown) => {
+      let message = "Failed to update semester";
+      if (error && typeof error === 'object' && 'response' in error && error.response && typeof error.response === 'object' && 'data' in error.response && error.response.data && typeof error.response.data === 'object' && 'message' in error.response.data) {
+        message = (error.response.data as { message?: string }).message || message;
+      }
+      toast.error(message);
     },
   })
 }
@@ -70,8 +78,12 @@ export function useDeleteSemester() {
       queryClient.invalidateQueries({ queryKey: [SemestersCacheKeys.Semesters] })
       toast.success("Semester deleted successfully")
     },
-    onError: (error: any) => {
-      toast.error(error.response?.data?.message || "Failed to delete semester")
+    onError: (error: unknown) => {
+      let message = "Failed to delete semester";
+      if (error && typeof error === 'object' && 'response' in error && error.response && typeof error.response === 'object' && 'data' in error.response && error.response.data && typeof error.response.data === 'object' && 'message' in error.response.data) {
+        message = (error.response.data as { message?: string }).message || message;
+      }
+      toast.error(message);
     },
   })
 }

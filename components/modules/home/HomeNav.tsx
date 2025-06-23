@@ -17,7 +17,7 @@ export function HomeNav() {
                             <Button variant="outline">Connexion</Button>
                         </Link>
                         <Link href="/register">
-                            <Button>S'inscrire</Button>
+                            <Button>{"S'inscrire"}</Button>
                         </Link>
                     </div>
                 </div>
