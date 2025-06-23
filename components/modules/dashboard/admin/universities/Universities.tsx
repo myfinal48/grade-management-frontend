@@ -2,13 +2,13 @@
 
 import { useState, useMemo } from "react"
 import { useUniversities } from "@/hooks/useUniversities"
-import { UniversitiesHeader } from "./UniversitiesHeader"
-import { UniversitiesGrid } from "./UniversitiesGrid"
-import { UniversitiesLoading } from "./UniversitiesLoading"
-import { UniversitiesError } from "./UniversitiesError"
+import { UniversitiesHeader } from "@/components/modules/dashboard/admin/universities/UniversitiesHeader"
+import { UniversitiesGrid } from "@/components/modules/dashboard/admin/universities/UniversitiesGrid"
+import { UniversitiesLoading } from "@/components/modules/dashboard/admin/universities/UniversitiesLoading"
+import { UniversitiesError } from "@/components/modules/dashboard/admin/universities/UniversitiesError"
 import { Button } from "@/components/ui/button"
 import { Plus } from "lucide-react"
-import { UniversityForm } from "./UniversityForm"
+import { UniversityForm } from "@/components/modules/dashboard/admin/universities/UniversityForm"
 
 export function Universities() {
   const [searchQuery, setSearchQuery] = useState("")

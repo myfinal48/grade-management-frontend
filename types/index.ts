@@ -8,11 +8,10 @@ export type UserRole = (typeof UserRoles)[keyof typeof UserRoles];
 
 
 export type NoteDto = {
-  codeUE: string;
   matiere: string;
-  credits: number;
   note: number;
-  mention: string;
+  coefficient: number;
+  credits: number;
 };
 
 export type ReleveDto = {
@@ -36,6 +35,10 @@ export type ReleveResponse = {
   message?: string;
 };
 
+export interface ApiError {
+  message?: string
+  status?: number
+}
 
 export interface UserResponseData{
   id:number

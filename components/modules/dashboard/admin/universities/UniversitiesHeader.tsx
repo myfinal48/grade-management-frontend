@@ -4,7 +4,7 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Plus, Search, Building } from "lucide-react"
-import { UniversityForm } from "./UniversityForm"
+import { UniversityForm } from "@/components/modules/dashboard/admin/universities/UniversityForm"
 
 interface UniversitiesHeaderProps {
   searchQuery: string

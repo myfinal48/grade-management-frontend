@@ -1,6 +1,6 @@
 "use client"
 
-import { UniversityCard } from "./UniversityCard"
+import { UniversityCard } from "@/components/modules/dashboard/admin/universities/UniversityCard"
 import type { University } from "@/types/university"
 
 interface UniversitiesGridProps {

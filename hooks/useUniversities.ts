@@ -3,14 +3,12 @@ import { universityService } from "@/services/universityService"
 import type { CreateUniversityRequest, UpdateUniversityRequest } from "@/types/university"
 import { toast } from "sonner"
 import { AxiosError } from "axios"
+import { ApiError } from "@/types"
 
 
 const UNIVERSITIES_QUERY_KEY = ["universities"]
 
-interface ApiError {
-  message?: string
-  status?: number
-}
+
 
 export function useUniversities() {
   return useQuery({
