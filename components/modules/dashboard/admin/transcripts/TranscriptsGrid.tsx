@@ -7,14 +7,15 @@ interface TranscriptsGridProps {
   transcripts: Transcript[]
 }
 
-export function TranscriptsGrid({ transcripts }: TranscriptsGridProps) {
+export function TranscriptsGrid({ transcripts }: Readonly<TranscriptsGridProps>) {
   if (transcripts.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-12 text-center">
         <div className="mx-auto max-w-md">
-          <h3 className="text-lg font-semibold">No transcripts found</h3>
+          <h3 className="text-lg font-semibold">Aucun relevé trouvé</h3>
           <p className="text-muted-foreground">
-            No transcripts match your search criteria. Try adjusting your filters and search again.
+            Aucun relevé ne correspond à vos critères de recherche. Essayez ajuster vos filtres et recherchez à
+            nouveau.
           </p>
         </div>
       </div>

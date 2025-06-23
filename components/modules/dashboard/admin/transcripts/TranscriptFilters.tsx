@@ -26,7 +26,7 @@ interface TranscriptFiltersProps {
   isLoading?: boolean
 }
 
-export function TranscriptFilters({ filters, onFiltersChange, onSearch, isLoading }: TranscriptFiltersProps) {
+export function TranscriptFilter({ filters, onFiltersChange, onSearch, isLoading }: Readonly<TranscriptFiltersProps>) {
   const form = useForm<TranscriptFiltersFormData>({
     resolver: zodResolver(transcriptFiltersSchema),
     defaultValues: {
@@ -38,7 +38,7 @@ export function TranscriptFilters({ filters, onFiltersChange, onSearch, isLoadin
 
   const addStudentId = () => {
     const studentIdInput = form.getValues("studentIdInput")
-    const id = Number.parseInt(studentIdInput?.trim() || "")
+    const id = Number.parseInt(studentIdInput?.trim() ?? "")
     if (id && !filters.studentIds.includes(id)) {
       onFiltersChange({
         ...filters,
@@ -57,7 +57,7 @@ export function TranscriptFilters({ filters, onFiltersChange, onSearch, isLoadin
 
   const addSemesterId = () => {
     const semesterIdInput = form.getValues("semesterIdInput")
-    const id = Number.parseInt(semesterIdInput?.trim() || "")
+    const id = Number.parseInt(semesterIdInput?.trim() ?? "")
     if (id && !filters.semesterIds.includes(id)) {
       onFiltersChange({
         ...filters,
@@ -104,13 +104,13 @@ export function TranscriptFilters({ filters, onFiltersChange, onSearch, isLoadin
           <div>
             <CardTitle className="flex items-center gap-2">
               <Filter className="h-5 w-5" />
-              Transcript Filters
+              Filtres des Relevés
             </CardTitle>
-            <CardDescription>Filter transcripts by student IDs, semester IDs, and university year</CardDescription>
+            <CardDescription>Filtrer les relevés par ID étudiant, ID semestre et année universitaire</CardDescription>
           </div>
           {hasFilters && (
             <Button variant="outline" size="sm" onClick={clearAllFilters}>
-              Clear All
+              Effacer Tout
             </Button>
           )}
         </div>
@@ -118,19 +118,19 @@ export function TranscriptFilters({ filters, onFiltersChange, onSearch, isLoadin
       <CardContent className="space-y-6">
         <Form {...form}>
           <div className="space-y-6">
-            {/* Student IDs */}
+            {/* IDs Étudiants */}
             <div className="space-y-2">
               <FormField
                 control={form.control}
                 name="studentIdInput"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Student IDs</FormLabel>
+                    <FormLabel>IDs Étudiants</FormLabel>
                     <div className="flex gap-2">
                       <FormControl>
                         <Input
                           type="number"
-                          placeholder="Enter student ID"
+                          placeholder="Saisir l'ID étudiant"
                           {...field}
                           onKeyDown={(e) => {
                             if (e.key === "Enter") {
@@ -142,7 +142,7 @@ export function TranscriptFilters({ filters, onFiltersChange, onSearch, isLoadin
                         />
                       </FormControl>
                       <Button type="button" variant="outline" onClick={addStudentId}>
-                        Add
+                        Ajouter
                       </Button>
                     </div>
                     <FormMessage />
@@ -153,7 +153,7 @@ export function TranscriptFilters({ filters, onFiltersChange, onSearch, isLoadin
                 <div className="flex flex-wrap gap-2">
                   {filters.studentIds.map((id) => (
                     <Badge key={id} variant="secondary" className="flex items-center gap-1">
-                      Student {id}
+                      Étudiant {id}
                       <X
                         className="h-3 w-3 cursor-pointer hover:text-destructive"
                         onClick={() => removeStudentId(id)}
@@ -164,19 +164,19 @@ export function TranscriptFilters({ filters, onFiltersChange, onSearch, isLoadin
               )}
             </div>
 
-            {/* Semester IDs */}
+            {/* IDs Semestres */}
             <div className="space-y-2">
               <FormField
                 control={form.control}
                 name="semesterIdInput"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Semester IDs</FormLabel>
+                    <FormLabel>IDs Semestres</FormLabel>
                     <div className="flex gap-2">
                       <FormControl>
                         <Input
                           type="number"
-                          placeholder="Enter semester ID"
+                          placeholder="Saisir l'ID semestre"
                           {...field}
                           onKeyDown={(e) => {
                             if (e.key === "Enter") {
@@ -188,7 +188,7 @@ export function TranscriptFilters({ filters, onFiltersChange, onSearch, isLoadin
                         />
                       </FormControl>
                       <Button type="button" variant="outline" onClick={addSemesterId}>
-                        Add
+                        Ajouter
                       </Button>
                     </div>
                     <FormMessage />
@@ -199,7 +199,7 @@ export function TranscriptFilters({ filters, onFiltersChange, onSearch, isLoadin
                 <div className="flex flex-wrap gap-2">
                   {filters.semesterIds.map((id) => (
                     <Badge key={id} variant="secondary" className="flex items-center gap-1">
-                      Semester {id}
+                      Semestre {id}
                       <X
                         className="h-3 w-3 cursor-pointer hover:text-destructive"
                         onClick={() => removeSemesterId(id)}
@@ -210,16 +210,16 @@ export function TranscriptFilters({ filters, onFiltersChange, onSearch, isLoadin
               )}
             </div>
 
-            {/* University Year */}
+            {/* Année Universitaire */}
             <FormField
               control={form.control}
               name="universityYear"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>University Year</FormLabel>
+                  <FormLabel>Année Universitaire</FormLabel>
                   <FormControl>
                     <Input
-                      placeholder="e.g., 2024-2025"
+                      placeholder="ex: 2024-2025"
                       {...field}
                       value={filters.universityYear}
                       onChange={(e) => {
@@ -233,10 +233,10 @@ export function TranscriptFilters({ filters, onFiltersChange, onSearch, isLoadin
               )}
             />
 
-            {/* Search Button */}
+            {/* Bouton de Recherche */}
             <Button onClick={onSearch} disabled={!hasFilters || isLoading} className="w-full">
               <Search className="mr-2 h-4 w-4" />
-              {isLoading ? "Searching..." : "Search Transcripts"}
+              {isLoading ? "Recherche..." : "Rechercher les Relevés"}
             </Button>
           </div>
         </Form>

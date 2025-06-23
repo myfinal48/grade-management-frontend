@@ -7,6 +7,7 @@ import {
   Settings,
   FileText,
   Calendar,
+  LucideIcon,
   UserCheck,
   School,
   Book,
@@ -16,11 +17,11 @@ import {
 import type { ComponentType, SVGProps } from "react"
 
 export interface NavigationItem {
-  title: string
-  href: string
-  icon: ComponentType<SVGProps<SVGSVGElement>>
-  badge?: string
-  roles: UserRole[]
+    title: string
+    href: string
+    icon: LucideIcon
+    badge?: string
+    roles: UserRole[]
 }
 
 export const navigationConfig: NavigationItem[] = [
@@ -68,11 +69,12 @@ export const navigationConfig: NavigationItem[] = [
       roles: [UserRoles.ADMIN],
     },
     {
-        title: "Transcripts",
+        title: "Relevés de notes",
         href: "/dashboard/transcripts",
         icon: FileText,
         roles: [UserRoles.ADMIN],
     },
+  
     // Teacher specific
     {
         title: "Cours",
