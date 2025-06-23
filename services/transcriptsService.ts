@@ -25,8 +25,8 @@ export const transcriptsService = {
     return response.data
   },
 
-  // Export multiple transcripts as ZIP
-  exportMultipleTranscriptsPDF: async (filters: TranscriptFilters): Promise<Blob> => {
+  // Export multiple transcripts as ZIP with university info
+  exportMultipleTranscriptsPDF: async (filters: TranscriptFilters, universityId?: number): Promise<Blob> => {
     const params = new URLSearchParams()
 
     // Add studentIds as separate parameters
@@ -44,8 +44,14 @@ export const transcriptsService = {
       params.append("universityYear", filters.universityYear)
     }
 
-    console.log("Exporting multiple transcripts:", {
+    // Add university ID if provided
+    if (universityId) {
+      params.append("universityId", universityId.toString())
+    }
+
+    console.log("Exporting multiple transcripts with university info:", {
       filters,
+      universityId,
       url: `/pdf-transcript/generate-multiple?${params.toString()}`,
     })
 
@@ -55,6 +61,42 @@ export const transcriptsService = {
         Accept: "application/octet-stream, application/zip",
       },
       timeout: 120000,
+    })
+
+    return response.data
+  },
+
+  // Export single transcript with university info
+  exportSingleTranscriptPDF: async (
+    studentId: number,
+    semesterId: number,
+    universityYear: string,
+    universityId?: number,
+  ): Promise<Blob> => {
+    const params = new URLSearchParams()
+    params.append("studentId", studentId.toString())
+    params.append("semesterId", semesterId.toString())
+    params.append("universityYear", universityYear)
+
+    // Add university ID if provided
+    if (universityId) {
+      params.append("universityId", universityId.toString())
+    }
+
+    console.log("Exporting single transcript with university info:", {
+      studentId,
+      semesterId,
+      universityYear,
+      universityId,
+      url: `/pdf-transcript/generate?${params.toString()}`,
+    })
+
+    const response = await apiClient.get(`/pdf-transcript/generate?${params.toString()}`, {
+      responseType: "blob",
+      headers: {
+        Accept: "application/pdf",
+      },
+      timeout: 60000,
     })
 
     return response.data
