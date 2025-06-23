@@ -3,6 +3,7 @@ import { useMutation, useQuery } from "@tanstack/react-query"
 import { CoursesCacheKeys } from "./const"
 import { toast } from "sonner"
 import { queryClient } from "@/providers"
+import { CourseRequestData } from "@/types/course"
 
 export const useCourses = ({ courseId, teacherId }: { courseId?: number, teacherId?: number } = {}) => {
   // Liste des cours
@@ -38,7 +39,7 @@ export const useCourses = ({ courseId, teacherId }: { courseId?: number, teacher
 
   // Edition
   const updateCourse = useMutation({
-    mutationFn: (data: any) => courseService.update(courseId as number, data),
+    mutationFn: (data: CourseRequestData) => courseService.update(courseId as number, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [CoursesCacheKeys.Courses] })
       toast.success("Succès", { description: "Cours modifié avec succès" })

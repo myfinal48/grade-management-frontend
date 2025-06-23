@@ -7,13 +7,14 @@ import {
   Settings,
   FileText,
   Calendar,
-    LucideIcon,
+  LucideIcon,
   UserCheck,
   School,
   Book,
   Hash,
   LucideListChecks,
 } from "lucide-react"
+import type { ComponentType, SVGProps } from "react"
 
 export interface NavigationItem {
     title: string
@@ -90,6 +91,12 @@ export const navigationConfig: NavigationItem[] = [
     {
         title: "Évaluations",
         href: "/dashboard/evaluations",
+        icon: FileText,
+        roles: [UserRoles.TEACHER],
+    },
+    {
+        title: "Notes",
+        href: "/dashboard/grades",
         icon: FileText,
         roles: [UserRoles.TEACHER],
     },

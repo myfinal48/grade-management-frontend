@@ -23,12 +23,8 @@ export function DeleteSemesterDialog({ open, onOpenChange, semester }: DeleteSem
   const deleteSemester = useDeleteSemester()
 
   const handleDelete = async () => {
-    try {
       await deleteSemester.mutateAsync(semester.id)
       onOpenChange(false)
-    } catch (error) {
-      // Error handling is done in the hook
-    }
   }
 
   return (
@@ -37,7 +33,7 @@ export function DeleteSemesterDialog({ open, onOpenChange, semester }: DeleteSem
         <AlertDialogHeader>
           <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
           <AlertDialogDescription>
-            This action cannot be undone. This will permanently delete the semester <strong>"{semester.name}"</strong>{" "}
+            This action cannot be undone. This will permanently delete the semester <strong>&quot;{semester.name}&quot;</strong>{" "}
             from the system.
           </AlertDialogDescription>
         </AlertDialogHeader>

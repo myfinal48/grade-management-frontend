@@ -23,12 +23,8 @@ export function DeleteMajorDialog({ open, onOpenChange, major }: DeleteMajorDial
   const deleteMajor = useDeleteMajor()
 
   const handleDelete = async () => {
-    try {
       await deleteMajor.mutateAsync(major.id)
       onOpenChange(false)
-    } catch (error) {
-      // Error handling is done in the hook
-    }
   }
 
   return (
@@ -37,7 +33,7 @@ export function DeleteMajorDialog({ open, onOpenChange, major }: DeleteMajorDial
         <AlertDialogHeader>
           <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
           <AlertDialogDescription>
-            This action cannot be undone. This will permanently delete the major <strong>"{major.name}"</strong> from
+            This action cannot be undone. This will permanently delete the major <strong>&quot;{major.name}&quot;</strong> from
             the system.
           </AlertDialogDescription>
         </AlertDialogHeader>

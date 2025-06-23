@@ -3,8 +3,9 @@ import { useMutation, useQuery } from "@tanstack/react-query"
 import { GradesCacheKeys } from "./const"
 import { toast } from "sonner"
 import { queryClient } from "@/providers"
+import { GradeRequestData } from "@/types/grade"
 
-export const useGrades = ({ gradeId, studentId }: { gradeId?: number; studentId?: number } = {}) => {
+export const useGrades = ({ gradeId, studentId, teacherId }: { gradeId?: number; studentId?: number; teacherId?: number } = {}) => {
   // Liste des notes
   const getGrades = useQuery({
     queryKey: [GradesCacheKeys.Grades],
@@ -23,6 +24,13 @@ export const useGrades = ({ gradeId, studentId }: { gradeId?: number; studentId?
     queryKey: [GradesCacheKeys.Grades, studentId],
     queryFn: () => gradeService.getByStudentId(studentId as number),
     enabled: !!studentId,
+  })
+
+  // Liste des notes d'un enseignant
+  const getGradesByTeacher = useQuery({
+    queryKey: [GradesCacheKeys.Grades, teacherId],
+    queryFn: () => gradeService.getByTeacherId(teacherId as number),
+    enabled: !!teacherId,
   })
 
   // Création
@@ -45,7 +53,7 @@ export const useGrades = ({ gradeId, studentId }: { gradeId?: number; studentId?
 
   // Edition
   const updateGrade = useMutation({
-    mutationFn: (data: any) => gradeService.update(gradeId as number, data),
+    mutationFn: (data: GradeRequestData) => gradeService.update(gradeId as number, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [GradesCacheKeys.Grades] })
       toast.success("Succès", { description: "Note modifiée avec succès" })
@@ -56,6 +64,7 @@ export const useGrades = ({ gradeId, studentId }: { gradeId?: number; studentId?
     getGrades,
     getGrade,
     getGradesByStudent,
+    getGradesByTeacher,
     createGrade,
     updateGrade,
     deleteGrade,

@@ -23,7 +23,6 @@ import {
 } from "@/components/ui/select"
 import {
   Dialog,
-  DialogTrigger,
   DialogContent,
   DialogHeader,
   DialogTitle,
@@ -40,7 +39,7 @@ export function CourseCard({ course }: CourseCardProps) {
   const [showEditDialog, setShowEditDialog] = useState(false)
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const [showAssignDialog, setShowAssignDialog] = useState(false)
-  const { deleteCourse, assignTeacher } = useCourses({ courseId: course.id })
+  const { assignTeacher } = useCourses({ courseId: course.id })
   const { getUsers } = useUsers({ role: UserRoles.TEACHER })
   const [selectedTeacherId, setSelectedTeacherId] = useState<number | null>(null)
 
@@ -54,7 +53,7 @@ export function CourseCard({ course }: CourseCardProps) {
   }
 
   // Pour affichage enseignant assigné si info présente
-  // @ts-ignore
+  // @ts-expect-error: teacherName peut ne pas exister sur certains objets course
   const teacherName = course.teacherName || null
 
   const handleAssign = () => {

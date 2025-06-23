@@ -44,7 +44,6 @@ export function MajorForm({ open, onOpenChange, major, mode }: MajorFormProps) {
   })
 
   const onSubmit = async (data: MajorFormData) => {
-    try {
       if (mode === "create") {
         await createMajor.mutateAsync(data)
       } else if (major) {
@@ -52,9 +51,6 @@ export function MajorForm({ open, onOpenChange, major, mode }: MajorFormProps) {
       }
       onOpenChange(false)
       form.reset()
-    } catch (error) {
-      // Error handling is done in the hooks
-    }
   }
 
   const isLoading = createMajor.isPending || updateMajor.isPending

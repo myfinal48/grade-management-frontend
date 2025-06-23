@@ -50,7 +50,7 @@ export default function StudentDashboard() {
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold">4</div>
-                        <p className="text-xs text-muted-foreground">Aujourd'hui</p>
+                        <p className="text-xs text-muted-foreground">{"Aujourd'hui"}</p>
                     </CardContent>
                 </Card>
             </div>

@@ -31,10 +31,12 @@ export function useCreateLevel() {
         description: "Level created successfully",
       })
     },
-    onError: (error: any) => {
-      toast.error("Error",{
-        description: error.response?.data?.message || "Failed to create level",
-      })
+    onError: (error: unknown) => {
+      let message = "Failed to create level";
+      if (error && typeof error === 'object' && 'response' in error && error.response && typeof error.response === 'object' && 'data' in error.response && error.response.data && typeof error.response.data === 'object' && 'message' in error.response.data) {
+        message = (error.response.data as { message?: string }).message || message;
+      }
+      toast.error("Error", { description: message });
     },
   })
 }
@@ -48,10 +50,12 @@ export function useUpdateLevel() {
         description: "Level updated successfully",
       })
     },
-    onError: (error: any) => {
-      toast("Error",{
-        description: error.response?.data?.message || "Failed to update level",
-      })
+    onError: (error: unknown) => {
+      let message = "Failed to update level";
+      if (error && typeof error === 'object' && 'response' in error && error.response && typeof error.response === 'object' && 'data' in error.response && error.response.data && typeof error.response.data === 'object' && 'message' in error.response.data) {
+        message = (error.response.data as { message?: string }).message || message;
+      }
+      toast.error("Error", { description: message });
     },
   })
 }
@@ -65,10 +69,12 @@ export function useDeleteLevel() {
         description: "Level deleted successfully",
       })
     },
-    onError: (error: any) => {
-      toast.error("Error",{
-        description: error.response?.data?.message || "Failed to delete level",
-      })
+    onError: (error: unknown) => {
+      let message = "Failed to delete level";
+      if (error && typeof error === 'object' && 'response' in error && error.response && typeof error.response === 'object' && 'data' in error.response && error.response.data && typeof error.response.data === 'object' && 'message' in error.response.data) {
+        message = (error.response.data as { message?: string }).message || message;
+      }
+      toast.error("Error", { description: message });
     },
   })
 }
