@@ -14,7 +14,7 @@ export function UniversitiesGrid({ universities }: Readonly<UniversitiesGridProp
         <div className="mx-auto max-w-md">
           <h3 className="text-lg font-semibold">Aucune université trouvée</h3>
           <p className="text-muted-foreground">
-            Aucune université ne correspond à vos critères de recherche. Essayez d&qpos;ajuster votre recherche ou créez une
+            Aucune université ne correspond à vos critères de recherche. Essayez d&apos;ajuster votre recherche ou créez une
             nouvelle université.
           </p>
         </div>
