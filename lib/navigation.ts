@@ -37,6 +37,12 @@ export const navigationConfig: NavigationItem[] = [
         icon: Users,
         roles: [UserRoles.ADMIN],
     },
+      {
+        title: "Universités",
+        href: "/dashboard/universities",
+        icon: FileText,
+        roles: [UserRoles.ADMIN],
+    },
     {
         title: "Filieres",
         href: "/dashboard/majors",
@@ -73,12 +79,7 @@ export const navigationConfig: NavigationItem[] = [
         icon: FileText,
         roles: [UserRoles.ADMIN],
     },
-     {
-        title: "Universités",
-        href: "/dashboard/universities",
-        icon: FileText,
-        roles: [UserRoles.ADMIN],
-    },
+   
   
     // Teacher specific
     {
