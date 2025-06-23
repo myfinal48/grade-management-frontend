@@ -7,7 +7,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Badge } from "@/components/ui/badge"
 import { MoreHorizontal, Edit, Trash2, MapPin, Phone, Globe, Building } from "lucide-react"
 import type { University } from "@/types/university"
-import { UniversityForm } from "./UniversityForm"
+import { UniversityForm } from "@/components/modules/dashboard/admin/universities/UniversityForm"
 import { DeleteUniversityDialog } from "@/components/modules/dashboard/admin/universities/DeleteUniversityDialog"
 
 
