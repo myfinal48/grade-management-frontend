@@ -44,24 +44,12 @@ export function useExportMultipleTranscriptsPDF() {
       document.body.removeChild(link)
       window.URL.revokeObjectURL(url)
 
-      toast.success("Relevés exportés avec succès")
+      toast.success("Relevés PDF exportés avec succès")
     },
     onError: (error: AxiosError<ApiError>) => {
-      console.error("Export multiple transcripts error:", {
-        status: error.response?.status,
-        statusText: error.response?.statusText,
-        data: error.response?.data,
-        message: error.message,
-        config: {
-          url: error.config?.url,
-          method: error.config?.method,
-          params: error.config?.params,
-        },
-      })
+      console.error("Export multiple transcripts PDF error:", error)
+      let errorMessage = "Échec de l'exportation des relevés PDF"
 
-      let errorMessage = "Échec de l'exportation des relevés"
-
-      // Handle different error types
       switch (error.response?.status) {
         case 400:
           errorMessage = "Paramètres de requête invalides. Veuillez vérifier vos filtres."
@@ -76,7 +64,76 @@ export function useExportMultipleTranscriptsPDF() {
           errorMessage = "Aucun relevé trouvé correspondant à vos critères."
           break
         case 500:
-          errorMessage = "Erreur serveur lors de la génération des relevés. Veuillez réessayer plus tard."
+          errorMessage = "Erreur serveur lors de la génération des relevés PDF."
+          break
+        default:
+          errorMessage = error.response?.data?.message ?? error.message ?? errorMessage
+      }
+
+      toast.error(errorMessage)
+    },
+  })
+}
+
+export function useExportMultipleTranscriptsExcel() {
+  return useMutation({
+    mutationFn: (filters: TranscriptFilters) => transcriptsService.exportMultipleTranscriptsExcel(filters),
+    onSuccess: (blob) => {
+      console.log("🎉 Excel export hook success:", {
+        blobSize: blob.size,
+        blobType: blob.type,
+      })
+
+      // Vérifier que le blob est valide
+      if (!blob || blob.size === 0) {
+        toast.error("Le fichier Excel exporté est vide. Veuillez réessayer.")
+        return
+      }
+
+      // Create download link with timestamp
+      const timestamp = new Date().toISOString().slice(0, 19).replace(/[:-]/g, "")
+      const url = window.URL.createObjectURL(blob)
+      const link = document.createElement("a")
+      link.href = url
+      link.download = `releves-notes-${timestamp}.xlsx`
+
+      // Ajouter au DOM, cliquer, puis nettoyer
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      window.URL.revokeObjectURL(url)
+
+      toast.success(`Relevés Excel exportés avec succès (${Math.round(blob.size / 1024)} KB)`)
+    },
+    onError: (error: AxiosError<ApiError>) => {
+      console.error("❌ Export multiple transcripts Excel error:", {
+        message: error.message,
+        status: error.response?.status,
+        statusText: error.response?.statusText,
+        data: error.response?.data,
+        url: error.config?.url,
+      })
+
+      let errorMessage = "Échec de l'exportation des relevés Excel"
+
+      switch (error.response?.status) {
+        case 400:
+          errorMessage = "Paramètres de requête invalides. Veuillez vérifier vos filtres."
+          break
+        case 401:
+          errorMessage = "Session expirée. Veuillez vous reconnecter."
+          break
+        case 403:
+          errorMessage = "Vous n'avez pas l'autorisation d'exporter les relevés."
+          break
+        case 404:
+          errorMessage = "Aucun relevé trouvé correspondant à vos critères."
+          break
+        case 500:
+          errorMessage = "Erreur serveur lors de la génération des relevés Excel."
+          break
+        case 504:
+          errorMessage = "Timeout - L'export prend trop de temps. Réduisez le nombre de relevés."
           break
         default:
           errorMessage = error.response?.data?.message ?? error.message ?? errorMessage
@@ -117,12 +174,12 @@ export function useExportSingleTranscriptPDF() {
       document.body.removeChild(link)
       window.URL.revokeObjectURL(url)
 
-      toast.success("Relevé exporté avec succès")
+      toast.success("Relevé PDF exporté avec succès")
     },
     onError: (error: AxiosError<ApiError>) => {
-      console.error("Export single transcript error:", error)
+      console.error("Export single transcript PDF error:", error)
 
-      let errorMessage = "Échec de l'exportation du relevé"
+      let errorMessage = "Échec de l'exportation du relevé PDF"
 
       switch (error.response?.status) {
         case 400:
@@ -138,7 +195,7 @@ export function useExportSingleTranscriptPDF() {
           errorMessage = "Relevé non trouvé pour cet étudiant et semestre."
           break
         case 500:
-          errorMessage = "Erreur serveur lors de la génération du relevé."
+          errorMessage = "Erreur serveur lors de la génération du relevé PDF."
           break
         default:
           errorMessage = error.response?.data?.message ?? error.message ?? errorMessage
