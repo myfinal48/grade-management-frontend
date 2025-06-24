@@ -35,9 +35,15 @@ export type ReleveResponse = {
   message?: string;
 };
 
+
+
 export interface ApiError {
   message?: string
   status?: number
+  code?: string
+  timestamp?: string
+  error?: string
+  details?: string
 }
 
 export interface UserResponseData{

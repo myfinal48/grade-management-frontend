@@ -1,15 +1,15 @@
 "use client"
 
 import { useState } from "react"
-import { useTranscripts, useExportMultipleTranscriptsPDF } from "@/hooks/useTranscripts"
 import { useUniversities } from "@/hooks/useUniversities"
-import { TranscriptsHeader } from "./TranscriptsHeader"
-import { TranscriptsGrid } from "./TranscriptsGrid"
-import { TranscriptsLoading } from "./TranscriptsLoading"
-import { TranscriptsError } from "./TranscriptsError"
+import { TranscriptsHeader } from "@/components/modules/dashboard/admin/transcripts/TranscriptsHeader"
+import { TranscriptsGrid } from "@/components/modules/dashboard/admin/transcripts/TranscriptsGrid"
+import { TranscriptsLoading } from "@/components/modules/dashboard/admin/transcripts/TranscriptsLoading"
+import { TranscriptsError } from "@/components/modules/dashboard/admin/transcripts/TranscriptsError"
 import { UniversitySelector } from "./UniversitySelector"
 import type { TranscriptFilters as TTranscriptFilters } from "@/types/transcript"
-import { TranscriptFilters } from "./TranscriptFilters"
+import { useTranscripts, useExportMultipleTranscriptsPDF, useExportMultipleTranscriptsExcel } from "@/hooks/useTranscripts"
+import { TranscriptFilterComponent } from "./TranscriptFilters"
 
 export function Transcripts() {
   const [filters, setFilters] = useState<TTranscriptFilters>({
@@ -20,10 +20,11 @@ export function Transcripts() {
 
   const [selectedUniversityId, setSelectedUniversityId] = useState<number | undefined>(undefined)
   const [hasSearched, setHasSearched] = useState(false)
-  const exportMultiple = useExportMultipleTranscriptsPDF()
 
   const { data: transcripts, isLoading, error, refetch } = useTranscripts(filters, hasSearched)
   const { data: universities } = useUniversities()
+  const exportPDF = useExportMultipleTranscriptsPDF()
+  const exportExcel = useExportMultipleTranscriptsExcel()
 
   const handleSearch = () => {
     setHasSearched(true)
@@ -37,18 +38,18 @@ export function Transcripts() {
     }
   }
 
-  const handleExportAll = () => {
-    console.log("Exporting with university ID:", selectedUniversityId)
-    exportMultiple.mutate({
-      filters,
-      universityId: selectedUniversityId,
-    })
-  }
+  const selectedUniversity = universities?.find((u) => u.id === selectedUniversityId)
+  const isExporting = exportPDF.isPending || exportExcel.isPending
 
   if (!hasSearched) {
     return (
       <div className="space-y-6">
-        <TranscriptsHeader totalCount={0} />
+        <TranscriptsHeader
+          totalCount={0}
+          selectedUniversity={selectedUniversity}
+          filters={filters}
+          isExporting={isExporting}
+        />
 
         {/* Sélecteur d'université */}
         <UniversitySelector
@@ -57,7 +58,7 @@ export function Transcripts() {
           onUniversityChange={setSelectedUniversityId}
         />
 
-        <TranscriptFilters
+        <TranscriptFilterComponent
           filters={filters}
           onFiltersChange={handleFiltersChange}
           onSearch={handleSearch}
@@ -67,7 +68,7 @@ export function Transcripts() {
           <div className="mx-auto max-w-md">
             <h3 className="text-lg font-semibold">Prêt à rechercher</h3>
             <p className="text-muted-foreground">
-              Sélectionnez une université, définissez vos filtres ci-dessus et cliquez sur &apos;Rechercher les Relevés&apos; pour
+              Sélectionnez une université, définissez vos filtres ci-dessus et cliquez sur Rechercher les Relevés pour
               consulter les relevés de notes des étudiants.
             </p>
           </div>
@@ -83,7 +84,12 @@ export function Transcripts() {
   if (error) {
     return (
       <div className="space-y-6">
-        <TranscriptsHeader totalCount={0} />
+        <TranscriptsHeader
+          totalCount={0}
+          selectedUniversity={selectedUniversity}
+          filters={filters}
+          isExporting={isExporting}
+        />
 
         <UniversitySelector
           universities={universities || []}
@@ -91,7 +97,7 @@ export function Transcripts() {
           onUniversityChange={setSelectedUniversityId}
         />
 
-        <TranscriptFilters
+        <TranscriptFilterComponent
           filters={filters}
           onFiltersChange={handleFiltersChange}
           onSearch={handleSearch}
@@ -106,9 +112,9 @@ export function Transcripts() {
     <div className="space-y-6">
       <TranscriptsHeader
         totalCount={transcripts?.length ?? 0}
-        onExportAll={transcripts && transcripts.length > 0 ? handleExportAll : undefined}
-        isExporting={exportMultiple.isPending}
-        selectedUniversity={universities?.find((u) => u.id === selectedUniversityId)}
+        selectedUniversity={selectedUniversity}
+        filters={filters}
+        isExporting={isExporting}
       />
 
       <UniversitySelector
@@ -117,7 +123,7 @@ export function Transcripts() {
         onUniversityChange={setSelectedUniversityId}
       />
 
-      <TranscriptFilters
+      <TranscriptFilterComponent
         filters={filters}
         onFiltersChange={handleFiltersChange}
         onSearch={handleSearch}
@@ -128,4 +134,3 @@ export function Transcripts() {
     </div>
   )
 }
-export default Transcripts
