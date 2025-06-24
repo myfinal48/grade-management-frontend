@@ -116,15 +116,25 @@ export const transcriptsService = {
       }
 
       return response.data
-    } catch (error: string | any) {
-      console.error("❌ Excel export error:", {
-        message: error.message,
-        status: error.response?.status,
-        statusText: error.response?.statusText,
-        data: error.response?.data,
-        url: error.config?.url,
-        headers: error.config?.headers,
-      })
+   // ...existing code...
+    } catch (error: unknown) {
+      if (error && typeof error === "object" && "message" in error) {
+        console.error("❌ Excel export error:", {
+          message: error.message,
+          // @ts-expect-error: response peut exister sur l'objet error
+          status: error.response?.status,
+          // @ts-expect-error: response peut exister sur l'objet error
+          statusText: error.response?.statusText,
+          // @ts-expect-error: response peut exister sur l'objet error
+          data: error.response?.data,
+          // @ts-expect-error: config peut exister sur l'objet error
+          url: error.config?.url,
+          // @ts-expect-error: config peut exister sur l'objet error
+          headers: error.config?.headers,
+        })
+      } else {
+        console.error("❌ Excel export error:", error)
+      }
       throw error
     }
   },
