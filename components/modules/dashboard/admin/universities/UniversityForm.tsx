@@ -22,6 +22,7 @@ import { useCreateUniversity, useUpdateUniversity } from "@/hooks/useUniversitie
 import { Upload, X } from "lucide-react"
 import { toast } from "sonner"
 import { useForm } from "react-hook-form"
+import Image from "next/image";
 
 
 const universitySchema = z.object({
@@ -198,7 +199,7 @@ export function UniversityForm({ open, onOpenChange, university, mode }: Readonl
               {/* Current logo or preview */}
               {(previewUrl || currentLogoUrl) && (
                 <div className="relative w-32 h-32 border rounded-lg overflow-hidden">
-                  <img src={previewUrl ?? currentLogoUrl ?? ""} alt="Logo" className="w-full h-full object-cover" />
+                  <Image src={previewUrl ?? currentLogoUrl ?? ""} alt="Logo" className="w-full h-full object-cover" />
                   <Button
                     type="button"
                     variant="destructive"

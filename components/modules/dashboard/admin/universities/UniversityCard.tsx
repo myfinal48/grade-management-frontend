@@ -9,6 +9,8 @@ import { MoreHorizontal, Edit, Trash2, MapPin, Phone, Globe, Building } from "lu
 import type { University } from "@/types/university"
 import { UniversityForm } from "@/components/modules/dashboard/admin/universities/UniversityForm"
 import { DeleteUniversityDialog } from "@/components/modules/dashboard/admin/universities/DeleteUniversityDialog"
+import {getEnv} from "@/lib/env";
+import Image from "next/image";
 
 
 interface UniversityCardProps {
@@ -19,7 +21,7 @@ export function UniversityCard({ university }: Readonly<UniversityCardProps>) {
   const [showEditDialog, setShowEditDialog] = useState(false)
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
 
-  const logoUrl = university.logoUrl ? `${process.env.NEXT_PUBLIC_API_URL}/${university.logoUrl}` : null
+  const logoUrl = university.logoUrl ? `${getEnv().baseUrl}/${university.logoUrl}` : null
 
   return (
     <>
@@ -29,7 +31,7 @@ export function UniversityCard({ university }: Readonly<UniversityCardProps>) {
             <div className="space-y-2 flex-1">
               <div className="flex items-start gap-3">
                 {logoUrl ? (
-                  <img
+                  <Image
                     src={logoUrl || "/placeholder.svg"}
                     alt={`Logo ${university.name}`}
                     className="w-12 h-12 object-cover rounded-lg border"
