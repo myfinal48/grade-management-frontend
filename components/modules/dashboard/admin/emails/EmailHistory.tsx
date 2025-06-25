@@ -13,6 +13,7 @@ import type { EmailHistoryItem } from "@/types/email"
 import { useState } from "react"
 import { toast } from "sonner"
 import { Dialog as ConfirmDialog, DialogContent as ConfirmDialogContent, DialogHeader as ConfirmDialogHeader, DialogTitle as ConfirmDialogTitle, DialogFooter as ConfirmDialogFooter } from "@/components/ui/dialog"
+import { EmptyState } from "@/components/global/EmptyState"
 
 export function EmailHistory() {
   const { data: emails, isLoading, error, refetch } = useEmailHistory()
@@ -33,13 +34,11 @@ export function EmailHistory() {
 
   if (!emails || emails.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-12 text-center">
-        <Mail className="h-12 w-12 text-muted-foreground mb-4" />
-        <h3 className="text-lg font-semibold mb-2">Aucun email envoyé</h3>
-        <p className="text-muted-foreground">
-          L&apos;historique des emails envoyés apparaîtra ici une fois que vous aurez commencé à envoyer des messages.
-        </p>
-      </div>
+      <EmptyState
+        title="Aucun email envoyé"
+        message="L'historique des emails envoyés apparaîtra ici une fois que vous aurez commencé à envoyer des messages."
+        icon={Mail}
+      />
     )
   }
 

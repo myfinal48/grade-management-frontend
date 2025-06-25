@@ -84,63 +84,12 @@ export function EmailTemplates() {
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {templates.map((template: EmailTemplate) => (
-            <Card key={template.id} className="relative">
-              <CardHeader className="pb-3">
-                <div className="flex items-start justify-between">
-                  <div className="space-y-1">
-                    <CardTitle className="text-base flex items-center gap-2">
-                      <FileText className="h-4 w-4" />
-                      {template.name}
-                    </CardTitle>
-                    <CardDescription className="line-clamp-1">{template.recipient}</CardDescription>
-                  </div>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="sm">
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => setEditingTemplate(template)}>
-                        <Edit className="h-4 w-4 mr-2" />
-                        Modifier
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => setDeletingTemplate(template)} className="text-destructive">
-                        <Trash2 className="h-4 w-4 mr-2" />
-                        Supprimer
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  <p className="text-sm text-muted-foreground line-clamp-3">{template.body}</p>
-
-                  {template.variables && template.variables.length > 0 && (
-                    <div className="space-y-2">
-                      <p className="text-xs font-medium text-muted-foreground">Variables:</p>
-                      <div className="flex flex-wrap gap-1">
-                        {template.variables.slice(0, 3).map((variable: string) => (
-                          <Badge key={variable} variant="outline" className="text-xs">
-                            {`{{${variable}}}`}
-                          </Badge>
-                        ))}
-                        {template.variables.length > 3 && (
-                          <Badge variant="outline" className="text-xs">
-                            +{template.variables.length - 3}
-                          </Badge>
-                        )}
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="text-xs text-muted-foreground">
-                    Créé {formatDistanceToNow(new Date(template.createdAt), { addSuffix: true, locale: fr })}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+            <EmailTemplateCard
+              key={template.id}
+              template={template}
+              onEdit={() => setEditingTemplate(template)}
+              onDelete={() => setDeletingTemplate(template)}
+            />
           ))}
         </div>
       )}
@@ -235,5 +184,65 @@ function EmailTemplatesError({ onRetry }: { onRetry: () => void }) {
         Réessayer
       </Button>
     </div>
+  )
+}
+
+function EmailTemplateCard({ template, onEdit, onDelete }: { template: EmailTemplate, onEdit: () => void, onDelete: () => void }) {
+  return (
+    <Card className="relative">
+      <CardHeader className="pb-3">
+        <div className="flex items-start justify-between">
+          <div className="space-y-1">
+            <CardTitle className="text-base flex items-center gap-2">
+              <FileText className="h-4 w-4" />
+              {template.name}
+            </CardTitle>
+            <CardDescription className="line-clamp-1">{template.recipient}</CardDescription>
+          </div>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="sm">
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={onEdit}>
+                <Edit className="h-4 w-4 mr-2" />
+                Modifier
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={onDelete} className="text-destructive">
+                <Trash2 className="h-4 w-4 mr-2" />
+                Supprimer
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-3">
+          <p className="text-sm text-muted-foreground line-clamp-3">{template.body}</p>
+          {template.variables && template.variables.length > 0 && (
+            <div className="space-y-2">
+              <p className="text-xs font-medium text-muted-foreground">Variables:</p>
+              <div className="flex flex-wrap gap-1">
+                {template.variables.slice(0, 3).map((variable: string) => (
+                  <Badge key={variable} variant="outline" className="text-xs">
+                    {`{{${variable}}}`}
+                  </Badge>
+                ))}
+                {template.variables.length > 3 && (
+                  <Badge variant="outline" className="text-xs">
+                    +{template.variables.length - 3}
+                  </Badge>
+                )}
+              </div>
+            </div>
+          )}
+          <div className="text-xs text-muted-foreground">
+            Créé {formatDistanceToNow(new Date(template.createdAt), { addSuffix: true, locale: fr })}
+          </div>
+        </div>
+      </CardContent>
+    </Card>
   )
 }

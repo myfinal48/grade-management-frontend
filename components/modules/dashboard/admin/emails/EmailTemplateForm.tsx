@@ -14,12 +14,11 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
 import { FileText, Plus, X } from "lucide-react"
 import { useCreateEmailTemplate, useUpdateEmailTemplate } from "@/hooks/useEmails"
 import type { EmailTemplate } from "@/types/email"
+import { useEmailTemplateForm } from "@/hooks/useEmailTemplateForm"
 
 const templateSchema = z.object({
   name: z.string().min(1, "Le nom est requis").max(100, "Le nom doit faire moins de 100 caractères"),
@@ -43,14 +42,11 @@ export function EmailTemplateForm({ open, onOpenChange, template, mode }: Readon
   const createTemplate = useCreateEmailTemplate()
   const updateTemplate = useUpdateEmailTemplate()
 
-  const form = useForm<TemplateFormData>({
-    resolver: zodResolver(templateSchema),
-    defaultValues: {
-      name: template?.name ?? "",
-      recipient: template?.recipient ?? "",
-      body: template?.body ?? "",
-      variableInput: "",
-    },
+  const form = useEmailTemplateForm({
+    name: template?.name ?? "",
+    recipient: template?.recipient ?? "",
+    body: template?.body ?? "",
+    variableInput: "",
   })
 
   const addVariable = () => {
