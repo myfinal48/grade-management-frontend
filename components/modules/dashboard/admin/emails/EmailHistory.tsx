@@ -3,7 +3,6 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Skeleton } from "@/components/ui/skeleton"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Mail, Clock, CheckCircle, XCircle, Paperclip, RefreshCw, Trash2 } from "lucide-react"
 import { useEmailHistory, useDeleteEmailHistory, useUpdateEmailHistory } from "@/hooks/useEmails"
@@ -14,6 +13,7 @@ import { useState } from "react"
 import { toast } from "sonner"
 import { Dialog as ConfirmDialog, DialogContent as ConfirmDialogContent, DialogHeader as ConfirmDialogHeader, DialogTitle as ConfirmDialogTitle, DialogFooter as ConfirmDialogFooter } from "@/components/ui/dialog"
 import { EmptyState } from "@/components/global/EmptyState"
+import { Skeleton } from "@/components/ui/skeleton"
 
 export function EmailHistory() {
   const { data: emails, isLoading, error, refetch } = useEmailHistory()

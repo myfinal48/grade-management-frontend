@@ -4,7 +4,6 @@ import { useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Skeleton } from "@/components/ui/skeleton"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import {
   AlertDialog,
@@ -22,6 +21,7 @@ import { EmailTemplateForm } from "./EmailTemplateForm"
 import type { EmailTemplate } from "@/types/email"
 import { formatDistanceToNow } from "date-fns"
 import { fr } from "date-fns/locale"
+import { StatsSkeleton } from "@/components/ui/loading-skeletons"
 
 export function EmailTemplates() {
   const [showCreateForm, setShowCreateForm] = useState(false)
@@ -43,7 +43,7 @@ export function EmailTemplates() {
   }
 
   if (isLoading) {
-    return <EmailTemplatesLoading />
+    return <StatsSkeleton items={6} />
   }
 
   if (error) {
@@ -125,50 +125,6 @@ export function EmailTemplates() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </div>
-  )
-}
-
-function EmailTemplatesLoading() {
-  return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <div>
-          <Skeleton className="h-6 w-48" />
-          <Skeleton className="h-4 w-32 mt-1" />
-        </div>
-        <div className="flex gap-2">
-          <Skeleton className="h-9 w-24" />
-          <Skeleton className="h-9 w-32" />
-        </div>
-      </div>
-
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {Array.from({ length: 6 }).map((_, i) => (
-          <Card key={i}>
-            <CardHeader className="pb-3">
-              <div className="flex items-start justify-between">
-                <div className="space-y-2">
-                  <Skeleton className="h-5 w-32" />
-                  <Skeleton className="h-4 w-48" />
-                </div>
-                <Skeleton className="h-8 w-8" />
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                <Skeleton className="h-4 w-full" />
-                <Skeleton className="h-4 w-3/4" />
-                <div className="flex gap-1">
-                  <Skeleton className="h-5 w-16" />
-                  <Skeleton className="h-5 w-20" />
-                </div>
-                <Skeleton className="h-3 w-24" />
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
     </div>
   )
 }
