@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Mail, Clock, CheckCircle, XCircle, Paperclip, RefreshCw, Edit, Trash2 } from "lucide-react"
+import { Mail, Clock, CheckCircle, XCircle, Paperclip, RefreshCw, Trash2 } from "lucide-react"
 import { useEmailHistory, useDeleteEmailHistory, useUpdateEmailHistory } from "@/hooks/useEmails"
 import { formatDistanceToNow } from "date-fns"
 import { fr } from "date-fns/locale"
@@ -79,9 +79,6 @@ export function EmailHistory() {
                     {email.status === "pending" && <Clock className="h-3 w-3 mr-1" />}
                     {email.status === "sent" ? "Envoyé" : email.status === "failed" ? "Échec" : "En attente"}
                   </Badge>
-                  <Button size="icon" variant="ghost" onClick={() => setEditingId(email.id)} title="Modifier">
-                    <Edit className="h-4 w-4" />
-                  </Button>
                   <Button size="icon" variant="ghost" onClick={() => setShowDeleteConfirm(email.id)} title="Supprimer" disabled={deleteEmail.isPending}>
                     <Trash2 className="h-4 w-4 text-destructive" />
                   </Button>
