@@ -75,6 +75,12 @@ export const navigationConfig: NavigationItem[] = [
         icon: Users,
         roles: [UserRoles.ADMIN],
     },
+     {
+        title: "Envoyer un Email",
+        href: "/dashboard/emails",
+        icon: FileText,
+        roles: [UserRoles.ADMIN],
+    },
    
   
     // Teacher specific

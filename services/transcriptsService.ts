@@ -109,14 +109,7 @@ export const transcriptsService = {
         blobType: response.data.type,
         headers: response.headers,
       })
-
-      // Vérifier que le blob n'est pas vide
-      if (response.data.size === 0) {
-        throw new Error("Le fichier Excel exporté est vide")
-      }
-
       return response.data
-   // ...existing code...
     } catch (error: unknown) {
       if (error && typeof error === "object" && "message" in error) {
         console.error("❌ Excel export error:", {

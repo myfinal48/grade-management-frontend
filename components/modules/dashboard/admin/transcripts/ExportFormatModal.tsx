@@ -39,23 +39,16 @@ export function ExportFormatModal({
 
   const handleExport = async () => {
     if (!selectedFormat) return
-
-    try {
-      if (selectedFormat === "pdf") {
-        await exportPDF.mutateAsync({
-          filters,
-          universityId: selectedUniversity?.id,
-        })
-      } else if (selectedFormat === "excel") {
-        await exportExcel.mutateAsync(filters)
-      }
-
-      onOpenChange(false)
-      setSelectedFormat(null)
-    } catch (error) {
-      // Error handling is done in the hooks
-      console.error("Export failed:", error)
+    if (selectedFormat === "pdf") {
+      await exportPDF.mutateAsync({
+        filters,
+        universityId: selectedUniversity?.id,
+      })
+    } else if (selectedFormat === "excel") {
+      await exportExcel.mutateAsync(filters)
     }
+    onOpenChange(false)
+    setSelectedFormat(null)
   }
 
   const isLoading = exportPDF.isPending || exportExcel.isPending
