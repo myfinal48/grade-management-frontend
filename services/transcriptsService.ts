@@ -109,7 +109,6 @@ export const transcriptsService = {
         blobType: response.data.type,
         headers: response.headers,
       })
-
       return response.data
     } catch (error: unknown) {
       if (error && typeof error === "object" && "message" in error) {
