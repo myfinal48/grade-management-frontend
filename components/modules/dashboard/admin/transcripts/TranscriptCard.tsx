@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { User, GraduationCap, Calendar, Award, FileText, Eye } from "lucide-react"
 import type { Transcript } from "@/types/transcript"
-import { TranscriptGradesTable } from "@/components/modules/dashboard/admin/transcripts/TranscriptGradesTable"
+import { TranscriptGradesTable } from "@/components/modules/dashboard/admin/transcripts"
 import { useState } from "react"
 
 interface TranscriptCardProps {
