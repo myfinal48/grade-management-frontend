@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
-import { X, Search, Filter } from "lucide-react"
+import { X, Search, Filter, AlertTriangle, Plus } from "lucide-react"
 import type { TranscriptFilters } from "@/types/transcript"
 
 const transcriptFiltersSchema = z.object({
@@ -26,7 +26,7 @@ interface TranscriptFiltersProps {
   isLoading?: boolean
 }
 
-export function TranscriptFilters({ filters, onFiltersChange, onSearch, isLoading }: Readonly<TranscriptFiltersProps>) {
+export function TranscriptFilterComponent({ filters, onFiltersChange, onSearch, isLoading }: Readonly<TranscriptFiltersProps>) {
   const form = useForm<TranscriptFiltersFormData>({
     resolver: zodResolver(transcriptFiltersSchema),
     defaultValues: {
@@ -87,6 +87,15 @@ export function TranscriptFilters({ filters, onFiltersChange, onSearch, isLoadin
     })
   }
 
+  const addExampleData = () => {
+    onFiltersChange({
+      studentIds: [48230000, 48230001, 48230002],
+      semesterIds: [1, 2],
+      universityYear: "2024/2025",
+    })
+    form.setValue("universityYear", "2024/2025")
+  }
+
   const handleUniversityYearChange = (value: string) => {
     onFiltersChange({
       ...filters,
@@ -97,6 +106,8 @@ export function TranscriptFilters({ filters, onFiltersChange, onSearch, isLoadin
   const hasFilters =
     filters.studentIds.length > 0 || filters.semesterIds.length > 0 || filters.universityYear.length > 0
 
+  const canSearch = filters.studentIds.length > 0 || filters.semesterIds.length > 0
+
   return (
     <Card>
       <CardHeader>
@@ -105,17 +116,41 @@ export function TranscriptFilters({ filters, onFiltersChange, onSearch, isLoadin
             <CardTitle className="flex items-center gap-2">
               <Filter className="h-5 w-5" />
               Filtres des Relevés
+              <Badge variant={hasFilters ? "default" : "secondary"}>
+                {filters.studentIds.length + filters.semesterIds.length} filtres
+              </Badge>
             </CardTitle>
             <CardDescription>Filtrer les relevés par ID étudiant, ID semestre et année universitaire</CardDescription>
           </div>
-          {hasFilters && (
-            <Button variant="outline" size="sm" onClick={clearAllFilters}>
-              Effacer Tout
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" onClick={addExampleData}>
+              <Plus className="mr-2 h-4 w-4" />
+              Exemple
             </Button>
-          )}
+            {hasFilters && (
+              <Button variant="outline" size="sm" onClick={clearAllFilters}>
+                Effacer Tout
+              </Button>
+            )}
+          </div>
         </div>
       </CardHeader>
       <CardContent className="space-y-6">
+        {/* Avertissement si pas de filtres */}
+        {!canSearch && (
+          <div className="bg-amber-50 p-3 rounded-lg border border-amber-200">
+            <div className="flex items-start gap-2">
+              <AlertTriangle className="h-4 w-4 text-amber-600 mt-0.5" />
+              <div>
+                <p className="font-medium text-amber-900">Filtres requis</p>
+                <p className="text-sm text-amber-700">
+                  Vous devez ajouter au moins un ID étudiant ou un ID semestre pour effectuer une recherche.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
         <Form {...form}>
           <div className="space-y-6">
             {/* IDs Étudiants */}
@@ -125,12 +160,12 @@ export function TranscriptFilters({ filters, onFiltersChange, onSearch, isLoadin
                 name="studentIdInput"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>IDs Étudiants</FormLabel>
+                    <FormLabel>IDs Étudiants ({filters.studentIds.length})</FormLabel>
                     <div className="flex gap-2">
                       <FormControl>
                         <Input
                           type="number"
-                          placeholder="Saisir l'ID étudiant"
+                          placeholder="Ex: 48230000"
                           {...field}
                           onKeyDown={(e) => {
                             if (e.key === "Enter") {
@@ -171,12 +206,12 @@ export function TranscriptFilters({ filters, onFiltersChange, onSearch, isLoadin
                 name="semesterIdInput"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>IDs Semestres</FormLabel>
+                    <FormLabel>IDs Semestres ({filters.semesterIds.length})</FormLabel>
                     <div className="flex gap-2">
                       <FormControl>
                         <Input
                           type="number"
-                          placeholder="Saisir l'ID semestre"
+                          placeholder="Ex: 1"
                           {...field}
                           onKeyDown={(e) => {
                             if (e.key === "Enter") {
@@ -234,7 +269,7 @@ export function TranscriptFilters({ filters, onFiltersChange, onSearch, isLoadin
             />
 
             {/* Bouton de Recherche */}
-            <Button onClick={onSearch} disabled={!hasFilters || isLoading} className="w-full">
+            <Button onClick={onSearch} disabled={!canSearch || isLoading} className="w-full">
               <Search className="mr-2 h-4 w-4" />
               {isLoading ? "Recherche..." : "Rechercher les Relevés"}
             </Button>
