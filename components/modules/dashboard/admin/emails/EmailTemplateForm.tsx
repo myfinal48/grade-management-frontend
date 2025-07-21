@@ -14,20 +14,17 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
-import * as z from "zod"
 import { FileText, Plus, X } from "lucide-react"
 import { useCreateEmailTemplate, useUpdateEmailTemplate } from "@/hooks/useEmails"
 import type { EmailTemplate } from "@/types/email"
 import { useEmailTemplateForm } from "@/hooks/useEmailTemplateForm"
 
-const templateSchema = z.object({
-  name: z.string().min(1, "Le nom est requis").max(100, "Le nom doit faire moins de 100 caractères"),
-  recipient: z.string().min(1, "Le sujet est requis").max(200, "Le sujet doit faire moins de 200 caractères"),
-  body: z.string().min(1, "Le contenu est requis").max(5000, "Le contenu doit faire moins de 5000 caractères"),
-  variableInput: z.string().optional(),
-})
-
-type TemplateFormData = z.infer<typeof templateSchema>
+type TemplateFormData = {
+  name: string;
+  recipient: string;
+  body: string;
+  variableInput?: string;
+}
 
 interface EmailTemplateFormProps {
   open: boolean

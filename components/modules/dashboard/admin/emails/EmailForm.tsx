@@ -26,7 +26,7 @@ const emailSchema = z.object({
   to: z.string().email("Adresse email invalide"),
   subject: z.string().min(1, "Le sujet est requis").max(200, "Le sujet doit faire moins de 200 caractères"),
   body: z.string().min(1, "Le contenu est requis").max(5000, "Le contenu doit faire moins de 5000 caractères"),
-  withAttachment: z.boolean().default(false),
+  withAttachment: z.boolean(),
 })
 
 type EmailFormData = z.infer<typeof emailSchema>
@@ -47,7 +47,7 @@ export function EmailForm({
   defaultSubject = "",
   defaultBody = "",
   defaultFile,
-}: EmailFormProps) {
+}: Readonly<EmailFormProps>) {
   const [selectedFile, setSelectedFile] = useState<File | null>(defaultFile || null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -94,6 +94,7 @@ export function EmailForm({
 
         await sendEmailWithAttachment.mutateAsync({
           to: data.to,
+          recipient: data.to,
           subject: data.subject,
           body: data.body,
           file: selectedFile,
@@ -101,7 +102,7 @@ export function EmailForm({
       } else {
         await sendSimpleEmail.mutateAsync({
           to: data.to,
-          subject: data.subject,
+          recipient: data.to,
           body: data.body,
         })
       }
