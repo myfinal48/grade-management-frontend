@@ -4,20 +4,27 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+import { Form } from "@/components/ui/form"
 import { X, Search, Filter, AlertTriangle, Plus } from "lucide-react"
+import { SearchableSelect } from "@/components/ui/searchable-select"
+import { useUsers } from "@/hooks/useUsers"
+import { useSemesters } from "@/hooks/useSemesters"
+import { UserRoles } from "@/types"
 import type { TranscriptFilters } from "@/types/transcript"
 
 const transcriptFiltersSchema = z.object({
-  studentIdInput: z.string().optional(),
-  semesterIdInput: z.string().optional(),
   universityYear: z.string().optional(),
 })
 
 type TranscriptFiltersFormData = z.infer<typeof transcriptFiltersSchema>
+
+const universityYears = [
+  { value: "2023/2024", label: "2023/2024" },
+  { value: "2024/2025", label: "2024/2025" },
+  { value: "2025/2026", label: "2025/2026" },
+]
 
 interface TranscriptFiltersProps {
   filters: TranscriptFilters
@@ -27,24 +34,36 @@ interface TranscriptFiltersProps {
 }
 
 export function TranscriptFilterComponent({ filters, onFiltersChange, onSearch, isLoading }: Readonly<TranscriptFiltersProps>) {
+  const { getUsers } = useUsers({ role: UserRoles.STUDENT })
+  const { data: semesters } = useSemesters()
+  const users = getUsers.data
+  
   const form = useForm<TranscriptFiltersFormData>({
     resolver: zodResolver(transcriptFiltersSchema),
     defaultValues: {
-      studentIdInput: "",
-      semesterIdInput: "",
       universityYear: filters.universityYear || "",
     },
   })
 
-  const addStudentId = () => {
-    const studentIdInput = form.getValues("studentIdInput")
-    const id = Number.parseInt(studentIdInput?.trim() ?? "")
+  const studentOptions = (users || []).map(user => ({
+    value: user.id.toString(),
+    label: `${user.firstName} ${user.lastName} (${user.registrationNumber})`,
+    searchText: `${user.firstName} ${user.lastName} ${user.registrationNumber} ${user.email}`,
+  }))
+
+  const semesterOptions = (semesters || []).map(semester => ({
+    value: semester.id.toString(),
+    label: `${semester.name} - ${semester.levelName || 'N/A'}`,
+    searchText: `${semester.name} ${semester.levelName || ''}`,
+  }))
+
+  const addStudentId = (studentId: string) => {
+    const id = Number.parseInt(studentId)
     if (id && !filters.studentIds.includes(id)) {
       onFiltersChange({
         ...filters,
         studentIds: [...filters.studentIds, id],
       })
-      form.setValue("studentIdInput", "")
     }
   }
 
@@ -55,15 +74,13 @@ export function TranscriptFilterComponent({ filters, onFiltersChange, onSearch, 
     })
   }
 
-  const addSemesterId = () => {
-    const semesterIdInput = form.getValues("semesterIdInput")
-    const id = Number.parseInt(semesterIdInput?.trim() ?? "")
+  const addSemesterId = (semesterId: string) => {
+    const id = Number.parseInt(semesterId)
     if (id && !filters.semesterIds.includes(id)) {
       onFiltersChange({
         ...filters,
         semesterIds: [...filters.semesterIds, id],
       })
-      form.setValue("semesterIdInput", "")
     }
   }
 
@@ -81,8 +98,6 @@ export function TranscriptFilterComponent({ filters, onFiltersChange, onSearch, 
       universityYear: "",
     })
     form.reset({
-      studentIdInput: "",
-      semesterIdInput: "",
       universityYear: "",
     })
   }
@@ -93,7 +108,6 @@ export function TranscriptFilterComponent({ filters, onFiltersChange, onSearch, 
       semesterIds: [1, 2],
       universityYear: "2024/2025",
     })
-    form.setValue("universityYear", "2024/2025")
   }
 
   const handleUniversityYearChange = (value: string) => {
@@ -136,7 +150,6 @@ export function TranscriptFilterComponent({ filters, onFiltersChange, onSearch, 
         </div>
       </CardHeader>
       <CardContent className="space-y-6">
-        {/* Avertissement si pas de filtres */}
         {!canSearch && (
           <div className="bg-amber-50 p-3 rounded-lg border border-amber-200">
             <div className="flex items-start gap-2">
@@ -153,122 +166,79 @@ export function TranscriptFilterComponent({ filters, onFiltersChange, onSearch, 
 
         <Form {...form}>
           <div className="space-y-6">
-            {/* IDs Étudiants */}
             <div className="space-y-2">
-              <FormField
-                control={form.control}
-                name="studentIdInput"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>IDs Étudiants ({filters.studentIds.length})</FormLabel>
-                    <div className="flex gap-2">
-                      <FormControl>
-                        <Input
-                          type="number"
-                          placeholder="Ex: 48230000"
-                          {...field}
-                          onKeyDown={(e) => {
-                            if (e.key === "Enter") {
-                              e.preventDefault()
-                              addStudentId()
-                            }
-                          }}
-                          min={0}
-                        />
-                      </FormControl>
-                      <Button type="button" variant="outline" onClick={addStudentId}>
-                        Ajouter
-                      </Button>
-                    </div>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <div>
+                <label className="text-sm font-medium">Étudiants ({filters.studentIds.length})</label>
+                <SearchableSelect
+                  options={studentOptions}
+                  onValueChange={addStudentId}
+                  placeholder="Sélectionner un étudiant..."
+                  searchPlaceholder="Rechercher un étudiant..."
+                  emptyText="Aucun étudiant trouvé."
+                  className="w-full mt-1"
+                />
+              </div>
               {filters.studentIds.length > 0 && (
                 <div className="flex flex-wrap gap-2">
-                  {filters.studentIds.map((id) => (
-                    <Badge key={id} variant="secondary" className="flex items-center gap-1">
-                      Étudiant {id}
-                      <X
-                        className="h-3 w-3 cursor-pointer hover:text-destructive"
-                        onClick={() => removeStudentId(id)}
-                      />
-                    </Badge>
-                  ))}
+                  {filters.studentIds.map((id) => {
+                    const student = users?.find(u => u.id === id)
+                    return (
+                      <Badge key={id} variant="secondary" className="flex items-center gap-1">
+                        {student ? `${student.firstName} ${student.lastName}` : `Étudiant ${id}`}
+                        <X
+                          className="h-3 w-3 cursor-pointer hover:text-destructive"
+                          onClick={() => removeStudentId(id)}
+                        />
+                      </Badge>
+                    )
+                  })}
                 </div>
               )}
             </div>
 
-            {/* IDs Semestres */}
             <div className="space-y-2">
-              <FormField
-                control={form.control}
-                name="semesterIdInput"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>IDs Semestres ({filters.semesterIds.length})</FormLabel>
-                    <div className="flex gap-2">
-                      <FormControl>
-                        <Input
-                          type="number"
-                          placeholder="Ex: 1"
-                          {...field}
-                          onKeyDown={(e) => {
-                            if (e.key === "Enter") {
-                              e.preventDefault()
-                              addSemesterId()
-                            }
-                          }}
-                          min={0}
-                        />
-                      </FormControl>
-                      <Button type="button" variant="outline" onClick={addSemesterId}>
-                        Ajouter
-                      </Button>
-                    </div>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <div>
+                <label className="text-sm font-medium">Semestres ({filters.semesterIds.length})</label>
+                <SearchableSelect
+                  options={semesterOptions}
+                  onValueChange={addSemesterId}
+                  placeholder="Sélectionner un semestre..."
+                  searchPlaceholder="Rechercher un semestre..."
+                  emptyText="Aucun semestre trouvé."
+                  className="w-full mt-1"
+                />
+              </div>
               {filters.semesterIds.length > 0 && (
                 <div className="flex flex-wrap gap-2">
-                  {filters.semesterIds.map((id) => (
-                    <Badge key={id} variant="secondary" className="flex items-center gap-1">
-                      Semestre {id}
-                      <X
-                        className="h-3 w-3 cursor-pointer hover:text-destructive"
-                        onClick={() => removeSemesterId(id)}
-                      />
-                    </Badge>
-                  ))}
+                  {filters.semesterIds.map((id) => {
+                    const semester = semesters?.find(s => s.id === id)
+                    return (
+                      <Badge key={id} variant="secondary" className="flex items-center gap-1">
+                        {semester ? semester.name : `Semestre ${id}`}
+                        <X
+                          className="h-3 w-3 cursor-pointer hover:text-destructive"
+                          onClick={() => removeSemesterId(id)}
+                        />
+                      </Badge>
+                    )
+                  })}
                 </div>
               )}
             </div>
 
-            {/* Année Universitaire */}
-            <FormField
-              control={form.control}
-              name="universityYear"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Année Universitaire</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="ex: 2024-2025"
-                      {...field}
-                      value={filters.universityYear}
-                      onChange={(e) => {
-                        field.onChange(e)
-                        handleUniversityYearChange(e.target.value)
-                      }}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div>
+              <label className="text-sm font-medium">Année Universitaire</label>
+              <SearchableSelect
+                options={universityYears}
+                value={filters.universityYear}
+                onValueChange={handleUniversityYearChange}
+                placeholder="Sélectionner une année..."
+                searchPlaceholder="Rechercher une année..."
+                emptyText="Aucune année trouvée."
+                className="w-full mt-1"
+              />
+            </div>
 
-            {/* Bouton de Recherche */}
             <Button onClick={onSearch} disabled={!canSearch || isLoading} className="w-full">
               <Search className="mr-2 h-4 w-4" />
               {isLoading ? "Recherche..." : "Rechercher les Relevés"}

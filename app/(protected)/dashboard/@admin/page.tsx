@@ -1,7 +1,22 @@
+"use client"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Users, BookOpen, BarChart3, Settings } from "lucide-react"
+import { Users, BookOpen, GraduationCap, Building2 } from "lucide-react"
+import { useUsers } from "@/hooks/useUsers"
+import { useCourses } from "@/hooks/useCourses"
+import { useMajors } from "@/hooks/useMajors"
+import { useLevels } from "@/hooks/useLevels"
 
 export default function AdminDashboard() {
+    const { getUsers } = useUsers()
+    const { getCourses } = useCourses()
+    const { data: majors, isLoading: majorsLoading } = useMajors()
+    const { data: levels, isLoading: levelsLoading } = useLevels()
+    
+    const totalUsers = getUsers.data?.length || 0
+    const totalCourses = getCourses.data?.length || 0
+    const totalMajors = majors?.length || 0
+    const totalLevels = levels?.length || 0
+
     return (
         <div className="space-y-6">
             <div>
@@ -16,8 +31,8 @@ export default function AdminDashboard() {
                         <Users className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">1,234</div>
-                        <p className="text-xs text-muted-foreground">+20.1% par rapport au mois dernier</p>
+                        <div className="text-2xl font-bold">{getUsers.isLoading ? "..." : totalUsers}</div>
+                        <p className="text-xs text-muted-foreground">Utilisateurs enregistrés</p>
                     </CardContent>
                 </Card>
 
@@ -27,30 +42,30 @@ export default function AdminDashboard() {
                         <BookOpen className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">89</div>
-                        <p className="text-xs text-muted-foreground">+5 nouveaux cours ce mois</p>
+                        <div className="text-2xl font-bold">{getCourses.isLoading ? "..." : totalCourses}</div>
+                        <p className="text-xs text-muted-foreground">Cours disponibles</p>
                     </CardContent>
                 </Card>
 
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">{"Taux d'engagement"}</CardTitle>
-                        <BarChart3 className="h-4 w-4 text-muted-foreground" />
+                        <CardTitle className="text-sm font-medium">Filières</CardTitle>
+                        <Building2 className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">87%</div>
-                        <p className="text-xs text-muted-foreground">+2.5% par rapport au mois dernier</p>
+                        <div className="text-2xl font-bold">{majorsLoading ? "..." : totalMajors}</div>
+                        <p className="text-xs text-muted-foreground">Filières disponibles</p>
                     </CardContent>
                 </Card>
 
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Système</CardTitle>
-                        <Settings className="h-4 w-4 text-muted-foreground" />
+                        <CardTitle className="text-sm font-medium">Niveaux</CardTitle>
+                        <GraduationCap className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">99.9%</div>
-                        <p className="text-xs text-muted-foreground">Temps de fonctionnement</p>
+                        <div className="text-2xl font-bold">{levelsLoading ? "..." : totalLevels}</div>
+                        <p className="text-xs text-muted-foreground">Niveaux académiques</p>
                     </CardContent>
                 </Card>
             </div>

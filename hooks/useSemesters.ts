@@ -9,7 +9,7 @@ export function useSemesters() {
   return useQuery({
     queryKey: [SemestersCacheKeys.Semesters],
     queryFn: semestersService.getAllSemesters,
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 5 * 60 * 1000,
   })
 }
 

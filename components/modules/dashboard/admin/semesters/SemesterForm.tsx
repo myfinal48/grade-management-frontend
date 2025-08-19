@@ -15,6 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
+import { useEffect } from "react"
 import type { Semester } from "@/types/semester"
 import { useCreateSemester, useUpdateSemester } from "@/hooks/useSemesters"
 import { useLevels } from "@/hooks/useLevels"
@@ -52,13 +53,35 @@ export function SemesterForm({ open, onOpenChange, semester, mode }: SemesterFor
   const form = useForm<SemesterFormData>({
     resolver: zodResolver(semesterSchema),
     defaultValues: {
-      name: semester?.name || "",
-      startDate: semester?.startDate || "",
-      endDate: semester?.endDate || "",
-      universityYear: semester?.universityYear || "",
-      levelId: semester?.levelId || 0,
+      name: "",
+      startDate: "",
+      endDate: "",
+      universityYear: "",
+      levelId: 0,
     },
   })
+
+  useEffect(() => {
+    if (open) {
+      if (semester) {
+        form.reset({
+          name: semester.name || "",
+          startDate: semester.startDate || "",
+          endDate: semester.endDate || "",
+          universityYear: semester.universityYear || "",
+          levelId: semester.levelId || 0,
+        })
+      } else {
+        form.reset({
+          name: "",
+          startDate: "",
+          endDate: "",
+          universityYear: "",
+          levelId: 0,
+        })
+      }
+    }
+  }, [semester, form, open])
 
   const onSubmit = async (data: SemesterFormData) => {
       if (mode === "create") {

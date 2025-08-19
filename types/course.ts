@@ -4,6 +4,9 @@ export interface Course {
   name: string;
   description: number;
   credit: number;
+  semesterName:string
+  teacherId: number;
+  teacherName: string;
 }
 
 export interface CourseRequestData {

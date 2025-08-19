@@ -5,15 +5,20 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Plus, Search } from "lucide-react"
 import { LevelForm } from "./LevelForm"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { useMajors } from "@/hooks/useMajors"
 
 interface LevelsHeaderProps {
   searchQuery: string
   onSearchChange: (query: string) => void
   totalCount: number
+  majorFilter: string
+  onMajorFilterChange: (majorId: string) => void
 }
 
-export function LevelsHeader({ searchQuery, onSearchChange, totalCount }: LevelsHeaderProps) {
+export function LevelsHeader({ searchQuery, onSearchChange, totalCount, majorFilter, onMajorFilterChange }: LevelsHeaderProps) {
   const [showCreateDialog, setShowCreateDialog] = useState(false)
+  const { data: majors } = useMajors()
 
   return (
     <>
@@ -40,6 +45,19 @@ export function LevelsHeader({ searchQuery, onSearchChange, totalCount }: Levels
             className="pl-8"
           />
         </div>
+        <Select value={majorFilter} onValueChange={onMajorFilterChange}>
+          <SelectTrigger className="w-[200px]">
+            <SelectValue placeholder="Filter by major" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All majors</SelectItem>
+            {majors?.map((major) => (
+              <SelectItem key={major.id} value={String(major.id)}>
+                {major.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       <LevelForm open={showCreateDialog} onOpenChange={setShowCreateDialog} mode="create" />

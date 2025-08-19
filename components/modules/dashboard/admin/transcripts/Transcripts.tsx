@@ -32,7 +32,6 @@ export function Transcripts() {
 
   const handleFiltersChange = (newFilters: TTranscriptFilters) => {
     setFilters(newFilters)
-    // Reset search state when filters change
     if (hasSearched) {
       setHasSearched(false)
     }
@@ -51,7 +50,6 @@ export function Transcripts() {
           isExporting={isExporting}
         />
 
-        {/* Sélecteur d'université */}
         <UniversitySelector
           universities={universities || []}
           selectedUniversityId={selectedUniversityId}

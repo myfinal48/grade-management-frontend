@@ -2,7 +2,7 @@ export interface Level {
   id: number
   name: string
   majorId: number
-  majorName?: string // For display purposes
+  majorName?: string
 }
 
 export interface CreateLevelRequest {

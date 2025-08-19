@@ -93,7 +93,6 @@ export function UniversityForm({ open, onOpenChange, university, mode }: Readonl
   }
 
   const onSubmit = async (data: UniversityFormData) => {
-    try {
       if (mode === "create") {
         await createUniversity.mutateAsync({
           ...data,
@@ -109,15 +108,11 @@ export function UniversityForm({ open, onOpenChange, university, mode }: Readonl
       onOpenChange(false)
       form.reset()
       removeFile()
-    } catch (error) {
-
-        console.error("Error submitting form:", error)
-    }
+    
   }
 
   const isLoading = createUniversity.isPending || updateUniversity.isPending
 
-  // Get current logo URL for edit mode
   const currentLogoUrl =
     university?.logoUrl && !selectedFile ? `${process.env.NEXT_PUBLIC_API_URL}/${university.logoUrl}` : null
 
@@ -199,7 +194,7 @@ export function UniversityForm({ open, onOpenChange, university, mode }: Readonl
               {/* Current logo or preview */}
               {(previewUrl || currentLogoUrl) && (
                 <div className="relative w-32 h-32 border rounded-lg overflow-hidden">
-                  <Image src={previewUrl ?? currentLogoUrl ?? ""} alt="Logo" className="w-full h-full object-cover" />
+                  <Image src={previewUrl ?? currentLogoUrl ?? ""} alt="Logo" width={128} height={128} className="w-full h-full object-cover" />
                   <Button
                     type="button"
                     variant="destructive"

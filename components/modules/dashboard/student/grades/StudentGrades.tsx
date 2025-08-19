@@ -31,13 +31,11 @@ export function StudentGrades() {
   const { getGradesByStudent } = useGrades({ studentId });
   const { data: grades, isLoading, error, refetch } = getGradesByStudent;
 
-  // Filtrage
   const [selectedCourse, setSelectedCourse] = useState<string>("ALL");
   const [search, setSearch] = useState("");
   const [selectedGrade, setSelectedGrade] = useState<GradeResponseData | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
 
-  // Extraire la liste unique des matières à partir des notes
   const courses = useMemo(() => {
     if (!grades) return [];
     const unique = new Map<number, { id: number; name: string }>();
@@ -49,7 +47,6 @@ export function StudentGrades() {
     return Array.from(unique.values());
   }, [grades]);
 
-  // Filtrer les notes selon la matière et la recherche
   const filteredGrades = useMemo(() => {
     if (!grades) return [];
     return grades.filter((g: GradeResponseData) => {
@@ -62,7 +59,6 @@ export function StudentGrades() {
     });
   }, [grades, selectedCourse, search]);
 
-  // Préparer les données pour le chart
   const chartData = useMemo(() => {
     if (!grades) return [];
     return grades.map((g: GradeResponseData) => ({
@@ -115,7 +111,6 @@ export function StudentGrades() {
         <CardTitle>Mes notes</CardTitle>
       </CardHeader>
       <CardContent>
-        {/* Diagramme lignes */}
         <div className="mb-8">
           <ChartContainer
             config={{
@@ -134,7 +129,6 @@ export function StudentGrades() {
           </ChartContainer>
         </div>
 
-        {/* Filtres */}
         <div className="flex flex-col md:flex-row gap-4 mb-4">
           <div className="w-full md:w-1/3">
             <Select value={selectedCourse} onValueChange={setSelectedCourse}>
@@ -161,7 +155,6 @@ export function StudentGrades() {
           </div>
         </div>
 
-        {/* Tableau des notes */}
         <Table>
           <TableHeader>
             <TableRow>
@@ -193,7 +186,6 @@ export function StudentGrades() {
           </TableBody>
         </Table>
 
-        {/* Dialog détails note */}
         <Dialog open={dialogOpen} onOpenChange={handleDialogClose}>
           <DialogContent className="max-w-lg">
             <DialogHeader>

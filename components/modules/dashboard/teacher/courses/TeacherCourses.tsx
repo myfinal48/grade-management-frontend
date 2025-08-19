@@ -1,19 +1,51 @@
 "use client";
 import { useCourses } from "@/hooks/useCourses";
+import { useSemesters } from "@/hooks/useSemesters";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { BookOpen } from "lucide-react";
 import { GridSkeleton } from "@/components/ui/loading-skeletons";
+import { useState, useMemo } from "react";
 
 export function TeacherCourses({ teacherId }: { teacherId: number }) {
+  const [semesterFilter, setSemesterFilter] = useState("all");
   const { getByTeacherId } = useCourses({ teacherId });
+  const { data: semesters } = useSemesters();
   const { data: courses, isLoading, error, refetch } = getByTeacherId;
+  
+  const filteredCourses = useMemo(() => {
+    if (!courses) return [];
+    if (semesterFilter === "all") return courses;
+    
+    return courses.filter(course => {
+      const semester = semesters?.find(s => s.name === course.semesterName);
+      return semester && String(semester.id) === semesterFilter;
+    });
+  }, [courses, semesterFilter, semesters]);
 
   return (
     <Card>
-      <CardHeader className="flex flex-row items-center gap-2">
-        <BookOpen className="w-6 h-6" />
-        <CardTitle>Mes cours assignés</CardTitle>
+      <CardHeader>
+        <div className="flex flex-row items-center gap-2 mb-4">
+          <BookOpen className="w-6 h-6" />
+          <CardTitle>Mes cours assignés</CardTitle>
+        </div>
+        <div className="flex items-center gap-2">
+          <Select value={semesterFilter} onValueChange={setSemesterFilter}>
+            <SelectTrigger className="w-[200px]">
+              <SelectValue placeholder="Filtrer par semestre" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Tous les semestres</SelectItem>
+              {semesters?.map((semester) => (
+                <SelectItem key={semester.id} value={String(semester.id)}>
+                  {semester.name} - {semester.universityYear}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
       </CardHeader>
       <CardContent>
         {isLoading && (
@@ -29,8 +61,8 @@ export function TeacherCourses({ teacherId }: { teacherId: number }) {
         )}
         {!isLoading && !error && (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {courses && courses.length > 0 ? (
-              courses.map(course => (
+            {filteredCourses && filteredCourses.length > 0 ? (
+              filteredCourses.map(course => (
                 <Card key={course.id}>
                   <CardHeader>
                     <CardTitle>{course.name}</CardTitle>

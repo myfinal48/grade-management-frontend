@@ -9,7 +9,7 @@ export function useLevels() {
   return useQuery({
     queryKey: [LevelsCacheKeys.Levels],
     queryFn: levelsService.getAllLevels,
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 5 * 60 * 1000,
   })
 }
 

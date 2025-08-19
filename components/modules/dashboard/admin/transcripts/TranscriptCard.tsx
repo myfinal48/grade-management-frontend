@@ -91,7 +91,6 @@ export function TranscriptCard({ transcript }: Readonly<TranscriptCardProps>) {
       </CardHeader>
 
       <CardContent className="space-y-6">
-        {/* Informations Académiques */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="space-y-1">
             <p className="text-sm font-medium text-muted-foreground">Filière</p>
@@ -113,7 +112,6 @@ export function TranscriptCard({ transcript }: Readonly<TranscriptCardProps>) {
 
         <Separator />
 
-        {/* Performance Académique */}
         <div className="space-y-4">
           <h4 className="font-semibold flex items-center gap-2">
             <Award className="h-4 w-4" />
@@ -147,14 +145,12 @@ export function TranscriptCard({ transcript }: Readonly<TranscriptCardProps>) {
             </div>
           </div>
 
-          {/* Badges de Statut */}
           <div className="flex gap-2">
             <Badge className={getMentionColor(transcript.generalMention)}>{transcript.generalMention}</Badge>
             <Badge className={getResultColor(transcript.result)}>{transcript.result}</Badge>
           </div>
         </div>
 
-        {/* Tableau des Notes */}
         {showGrades && (
           <>
             <Separator />

@@ -63,7 +63,6 @@ export function GradeForm({ open, onOpenChange, initialData, mode, gradeId, teac
     },
   });
 
-  // Reset form when initialData changes
   useEffect(() => {
     if (initialData) {
       form.reset({

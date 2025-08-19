@@ -10,7 +10,7 @@ export function useMajors() {
   return useQuery({
     queryKey: [MajorsCacheKeys.Majors],
     queryFn: majorsService.getAllMajors,
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 5 * 60 * 1000,
   })
 }
 

@@ -1,5 +1,6 @@
 "use client";
 import { useUsers } from "@/hooks/useUsers";
+import { useAuth } from "@/hooks/useAuth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
@@ -30,15 +31,22 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { UserRoles } from "@/types";
 
-// Schémas de validation
 const createUserSchema = z.object({
   username: z.string().min(3, "Le nom d'utilisateur doit contenir au moins 3 caractères"),
   email: z.string().email("Email invalide"),
   password: z.string().min(6, "Le mot de passe doit contenir au moins 6 caractères"),
   firstName: z.string().min(2, "Le prénom doit contenir au moins 2 caractères"),
   lastName: z.string().min(2, "Le nom doit contenir au moins 2 caractères"),
-  registrationNumber: z.string().min(1, "Le matricule est requis"),
+  registrationNumber: z.string(),
   role: z.enum([UserRoles.ADMIN, UserRoles.TEACHER, UserRoles.STUDENT] as const)
+}).refine((data) => {
+  if (data.role === UserRoles.STUDENT && !data.registrationNumber.trim()) {
+    return false;
+  }
+  return true;
+}, {
+  message: "Le matricule est requis pour les étudiants",
+  path: ["registrationNumber"]
 });
 
 const updateUserSchema = z.object({
@@ -46,8 +54,16 @@ const updateUserSchema = z.object({
   email: z.string().email("Email invalide"),
   firstName: z.string().min(2, "Le prénom doit contenir au moins 2 caractères"),
   lastName: z.string().min(2, "Le nom doit contenir au moins 2 caractères"),
-  registrationNumber: z.string().min(1, "Le matricule est requis"),
+  registrationNumber: z.string(),
   role: z.enum([UserRoles.ADMIN, UserRoles.TEACHER, UserRoles.STUDENT] as const)
+}).refine((data) => {
+  if (data.role === UserRoles.STUDENT && !data.registrationNumber.trim()) {
+    return false;
+  }
+  return true;
+}, {
+  message: "Le matricule est requis pour les étudiants",
+  path: ["registrationNumber"]
 });
 
 type CreateUserFormData = z.infer<typeof createUserSchema>;
@@ -55,7 +71,9 @@ type UpdateUserFormData = z.infer<typeof updateUserSchema>;
 
 export function AdminUsers() {
   const { getUsers, deleteUser, updateUser, createUser } = useUsers();
+  const { session } = useAuth();
   const { data: users, isLoading, error, refetch } = getUsers;
+  const currentUserId = session?.user?.id ? Number(session.user.id) : null;
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [editUser, setEditUser] = useState<User | null>(null);
   const [showCreateDialog, setShowCreateDialog] = useState(false);
@@ -63,7 +81,6 @@ export function AdminUsers() {
   const [roleFilter, setRoleFilter] = useState<string>("ALL");
   const [search, setSearch] = useState("");
 
-  // Formulaires React Hook Form
   const createForm = useForm<CreateUserFormData>({
     resolver: zodResolver(createUserSchema),
     defaultValues: {
@@ -89,7 +106,6 @@ export function AdminUsers() {
     }
   });
 
-  // Filtrage côté front-end
   const filteredUsers = (users || []).filter(user => {
     const matchRole = roleFilter === "ALL" ? true : user.role === roleFilter;
     const matchSearch =
@@ -356,9 +372,11 @@ export function AdminUsers() {
                             <DropdownMenuItem onClick={e => { e.stopPropagation(); handleEdit(user); }}>
                               <Edit className="h-4 w-4 mr-2" />Éditer
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={e => { e.stopPropagation(); handleDelete(user.id); }} variant="destructive">
-                              <Trash2 className="h-4 w-4 mr-2" />Supprimer
-                            </DropdownMenuItem>
+                            {currentUserId !== null && currentUserId !== user.id && (
+                              <DropdownMenuItem onClick={e => { e.stopPropagation(); handleDelete(user.id); }} variant="destructive">
+                                <Trash2 className="h-4 w-4 mr-2" />Supprimer
+                              </DropdownMenuItem>
+                            )}
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </TableCell>
@@ -374,7 +392,6 @@ export function AdminUsers() {
         )}
       </CardContent>
 
-      {/* Modal d'édition */}
       <Dialog open={!!editUser} onOpenChange={(open) => {
         if (!open) {
           handleCloseEditDialog();
@@ -487,7 +504,6 @@ export function AdminUsers() {
         </DialogContent>
       </Dialog>
       
-      {/* Modal de suppression */}
       <AlertDialog open={deleteId !== null} onOpenChange={open => { if (!open) setDeleteId(null); }}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -505,7 +521,6 @@ export function AdminUsers() {
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Modal d'infos utilisateur */}
       <Dialog open={!!showUserInfo} onOpenChange={open => { if (!open) setShowUserInfo(null); }}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
@@ -514,7 +529,6 @@ export function AdminUsers() {
           </DialogHeader>
           {showUserInfo && (
             <div className="space-y-6">
-              {/* Avatar et nom */}
               <div className="flex items-center space-x-4">
                 <Avatar className="h-16 w-16">
                   <AvatarFallback className="text-lg font-semibold">
@@ -533,7 +547,6 @@ export function AdminUsers() {
 
               <Separator />
 
-              {/* Tableau des informations */}
               <Table>
                 <TableBody>
                   <TableRow>

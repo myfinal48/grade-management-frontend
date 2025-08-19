@@ -4,14 +4,11 @@ import { Button } from "@/components/ui/button"
 import {
     DropdownMenu,
     DropdownMenuContent,
-    DropdownMenuGroup,
-    DropdownMenuItem,
     DropdownMenuLabel,
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { LogoutButton } from "@/components/global/logout-button"
-import { User, Settings, HelpCircle } from "lucide-react"
 import type { AuthSession } from "@/types/next-auth"
 
 interface UserNavProps {
@@ -48,21 +45,6 @@ export function UserNav({ session }: Readonly<UserNavProps>) {
                         <p className="text-xs leading-none text-muted-foreground">{user.role}</p>
                     </div>
                 </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuGroup>
-                    <DropdownMenuItem>
-                        <User className="mr-2 h-4 w-4" />
-                        <span>Profil</span>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem>
-                        <Settings className="mr-2 h-4 w-4" />
-                        <span>Paramètres</span>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem>
-                        <HelpCircle className="mr-2 h-4 w-4" />
-                        <span>Aide</span>
-                    </DropdownMenuItem>
-                </DropdownMenuGroup>
                 <DropdownMenuSeparator />
                 <div className="p-1">
                     <LogoutButton />

@@ -20,29 +20,23 @@ export function TeacherGrades({ teacherId }: { teacherId: number }) {
   const { data: grades, isLoading, error, refetch } = getGradesByTeacher;
   const { getByTeacherId } = useCourses({ teacherId });
 
-  // Dialog state
   const [showDialog, setShowDialog] = useState(false);
   const [editGrade, setEditGrade] = useState<GradeResponseData | null>(null);
-  // Recherche et filtre
   const [search, setSearch] = useState<string>("");
   const [selectedCourseId, setSelectedCourseId] = useState<string>("ALL");
 
-  // Liste des cours pour le filtre
   const courses: (Course | CourseResponseData)[] = getByTeacherId.data || [];
 
-  // Ouvre le dialog pour création
   const handleAdd = () => {
     setEditGrade(null);
     setShowDialog(true);
   };
 
-  // Ouvre le dialog pour édition
   const handleEdit = (grade: GradeResponseData) => {
     setEditGrade(grade);
     setShowDialog(true);
   };
 
-  // Filtrage des notes selon recherche et cours
   const filteredGrades: GradeResponseData[] = (grades || []).filter((grade) => {
     const student = grade.student;
     const course = grade.course as Course | CourseResponseData | undefined;
@@ -70,7 +64,6 @@ export function TeacherGrades({ teacherId }: { teacherId: number }) {
         </Button>
       </CardHeader>
       <CardContent>
-        {/* Zone de recherche et filtre */}
         <div className="flex flex-col md:flex-row gap-2 mb-4 items-center">
           <div className="flex items-center gap-2 w-full md:w-auto">
             <Search className="h-4 w-4 text-muted-foreground" />

@@ -2,21 +2,17 @@ import { apiClient } from "@/lib/axios"
 import type { Transcript, TranscriptFilters } from "@/types/transcript"
 
 export const transcriptsService = {
-  // Get transcripts with filters
   getTranscripts: async (filters: TranscriptFilters): Promise<Transcript[]> => {
     const params = new URLSearchParams()
 
-    // Add studentIds as separate parameters
     filters.studentIds.forEach((id) => {
       params.append("studentIds", id.toString())
     })
 
-    // Add semesterIds as separate parameters
     filters.semesterIds.forEach((id) => {
       params.append("semesterIds", id.toString())
     })
 
-    // Add universityYear
     if (filters.universityYear) {
       params.append("universityYear", filters.universityYear)
     }
@@ -25,35 +21,24 @@ export const transcriptsService = {
     return response.data
   },
 
-  // Export multiple transcripts as ZIP (PDF)
   exportMultipleTranscriptsPDF: async (filters: TranscriptFilters, universityId?: number): Promise<Blob> => {
     const params = new URLSearchParams()
 
-    // Add studentIds as separate parameters
     filters.studentIds.forEach((id) => {
       params.append("studentIds", id.toString())
     })
 
-    // Add semesterIds as separate parameters
     filters.semesterIds.forEach((id) => {
       params.append("semesterIds", id.toString())
     })
 
-    // Add universityYear
     if (filters.universityYear) {
       params.append("universityYear", filters.universityYear)
     }
 
-    // Add university ID if provided
     if (universityId) {
       params.append("universityId", universityId.toString())
     }
-
-    console.log("Exporting multiple transcripts PDF with university info:", {
-      filters,
-      universityId,
-      url: `/pdf-transcript/generate-multiple?${params.toString()}`,
-    })
 
     const response = await apiClient.get(`/pdf-transcript/generate-multiple?${params.toString()}`, {
       responseType: "blob",
@@ -66,31 +51,20 @@ export const transcriptsService = {
     return response.data
   },
 
-  // Export multiple transcripts as Excel
   exportMultipleTranscriptsExcel: async (filters: TranscriptFilters): Promise<Blob> => {
     const params = new URLSearchParams()
 
-    // Add studentIds as separate parameters
     filters.studentIds.forEach((id) => {
       params.append("studentIds", id.toString())
     })
 
-    // Add semesterIds as separate parameters
     filters.semesterIds.forEach((id) => {
       params.append("semesterIds", id.toString())
     })
 
-    // Add universityYear
     if (filters.universityYear) {
       params.append("universityYear", filters.universityYear)
     }
-
-    console.log("🔍 Exporting multiple transcripts Excel:", {
-      filters,
-      url: `/export/transcripts?${params.toString()}`,
-      fullUrl: `${apiClient.defaults.baseURL}/export/transcripts?${params.toString()}`,
-      params: params.toString(),
-    })
 
     try {
       const response = await apiClient.get(`/export/transcripts?${params.toString()}`, {
@@ -102,13 +76,6 @@ export const transcriptsService = {
         timeout: 120000, // 2 minutes
       })
 
-      console.log("✅ Excel export successful:", {
-        status: response.status,
-        statusText: response.statusText,
-        blobSize: response.data.size,
-        blobType: response.data.type,
-        headers: response.headers,
-      })
       return response.data
     } catch (error: unknown) {
       if (error && typeof error === "object" && "message" in error) {
@@ -125,14 +92,11 @@ export const transcriptsService = {
           // @ts-expect-error: config peut exister sur l'objet error
           headers: error.config?.headers,
         })
-      } else {
-        console.error("❌ Excel export error:", error)
-      }
+      } 
       throw error
     }
   },
 
-  // Export single transcript with university info
   exportSingleTranscriptPDF: async (
     studentId: number,
     semesterId: number,
@@ -144,7 +108,6 @@ export const transcriptsService = {
     params.append("semesterId", semesterId.toString())
     params.append("universityYear", universityYear)
 
-    // Add university ID if provided
     if (universityId) {
       params.append("universityId", universityId.toString())
     }

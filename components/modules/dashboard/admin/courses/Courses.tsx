@@ -9,17 +9,27 @@ import { CoursesGrid } from "./CoursesGrid"
 
 export function Courses() {
   const [searchQuery, setSearchQuery] = useState("")
+  const [teacherFilter, setTeacherFilter] = useState("all")
   const { getCourses } = useCourses()
   const { data: courses, isLoading, error, refetch } = getCourses
 
   const filteredCourses = useMemo(() => {
     if (!courses) return []
-    if (!searchQuery.trim()) return courses
-    const query = searchQuery.toLowerCase()
-    return courses.filter(
-      (course) => course.name.toLowerCase().includes(query) || course.code.toLowerCase().includes(query)
-    )
-  }, [courses, searchQuery])
+    let filtered = courses
+    
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase()
+      filtered = filtered.filter(
+        (course) => course.name.toLowerCase().includes(query) || course.code.toLowerCase().includes(query)
+      )
+    }
+    
+    if (teacherFilter !== "all") {
+      filtered = filtered.filter((course) => String(course.teacherId) === teacherFilter)
+    }
+    
+    return filtered
+  }, [courses, searchQuery, teacherFilter])
 
   if (isLoading) {
     return <CoursesLoading />
@@ -31,7 +41,13 @@ export function Courses() {
 
   return (
     <div className="space-y-6">
-      <CoursesHeader searchQuery={searchQuery} onSearchChange={setSearchQuery} totalCount={courses?.length || 0} />
+      <CoursesHeader 
+        searchQuery={searchQuery} 
+        onSearchChange={setSearchQuery} 
+        totalCount={courses?.length || 0}
+        teacherFilter={teacherFilter}
+        onTeacherFilterChange={setTeacherFilter}
+      />
       <CoursesGrid courses={filteredCourses} />
     </div>
   )

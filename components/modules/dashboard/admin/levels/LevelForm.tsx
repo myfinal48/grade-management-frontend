@@ -15,6 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
+import { useEffect } from "react"
 import type { Level } from "@/types/level"
 import { useCreateLevel, useUpdateLevel } from "@/hooks/useLevels"
 import { useMajors } from "@/hooks/useMajors"
@@ -41,10 +42,24 @@ export function LevelForm({ open, onOpenChange, level, mode }: LevelFormProps) {
   const form = useForm<LevelFormData>({
     resolver: zodResolver(levelSchema),
     defaultValues: {
-      name: level?.name || "",
-      majorId: level?.majorId || 0,
+      name: "",
+      majorId: 0,
     },
   })
+
+  useEffect(() => {
+    if (level) {
+      form.reset({
+        name: level.name || "",
+        majorId: level.majorId || 0,
+      })
+    } else {
+      form.reset({
+        name: "",
+        majorId: 0,
+      })
+    }
+  }, [level, form])
 
   const onSubmit = async (data: LevelFormData) => {
       if (mode === "create") {
