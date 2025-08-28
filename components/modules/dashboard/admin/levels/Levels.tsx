@@ -10,10 +10,10 @@ import { Plus } from "lucide-react"
 
 export function Levels() {
   const [searchQuery, setSearchQuery] = useState("")
+  const [majorFilter, setMajorFilter] = useState("all")
   const { data: levels, isLoading, error, refetch } = useLevels()
   const { data: majors } = useMajors()
 
-  // Enhance levels with major names
   const enhancedLevels = useMemo(() => {
     if (!levels || !majors) return levels || []
 
@@ -25,14 +25,21 @@ export function Levels() {
 
   const filteredLevels = useMemo(() => {
     if (!enhancedLevels) return []
-
-    if (!searchQuery.trim()) return enhancedLevels
-
-    const query = searchQuery.toLowerCase()
-    return enhancedLevels.filter(
-      (level) => level.name.toLowerCase().includes(query) || level.majorName?.toLowerCase().includes(query),
-    )
-  }, [enhancedLevels, searchQuery])
+    let filtered = enhancedLevels
+    
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase()
+      filtered = filtered.filter(
+        (level) => level.name.toLowerCase().includes(query) || level.majorName?.toLowerCase().includes(query),
+      )
+    }
+    
+    if (majorFilter !== "all") {
+      filtered = filtered.filter((level) => String(level.majorId) === majorFilter)
+    }
+    
+    return filtered
+  }, [enhancedLevels, searchQuery, majorFilter])
 
   if (isLoading) {
     return <LevelsLoading />
@@ -44,10 +51,15 @@ export function Levels() {
 
   return (
     <div className="space-y-6 relative">
-      <LevelsHeader searchQuery={searchQuery} onSearchChange={setSearchQuery} totalCount={levels?.length || 0} />
+      <LevelsHeader 
+        searchQuery={searchQuery} 
+        onSearchChange={setSearchQuery} 
+        totalCount={levels?.length || 0}
+        majorFilter={majorFilter}
+        onMajorFilterChange={setMajorFilter}
+      />
       <LevelsGrid levels={filteredLevels} />
 
-      {/* Floating Add Button */}
       <div className="fixed bottom-6 right-6 z-50">
         <Button
           size="lg"

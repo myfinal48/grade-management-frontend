@@ -23,12 +23,9 @@ export function DeleteUniversityDialog({ open, onOpenChange, university }: Reado
   const deleteUniversity = useDeleteUniversity()
 
   const handleDelete = async () => {
-    try {
       await deleteUniversity.mutateAsync(university.id)
       onOpenChange(false)
-    } catch (error) {
-        console.error("Failed to delete university:", error)
-    }
+   
   }
 
   return (

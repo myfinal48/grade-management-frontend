@@ -33,12 +33,9 @@ export function EmailTemplates() {
 
   const handleDelete = async () => {
     if (deletingTemplate) {
-      try {
         await deleteTemplate.mutateAsync(deletingTemplate.id)
         setDeletingTemplate(null)
-      } catch (error) {
-        console.error("Delete template error:", error)
-      }
+      
     }
   }
 

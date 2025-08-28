@@ -11,6 +11,7 @@ import { DeleteCourseDialog } from "@/components/modules/dashboard/admin/courses
 import { CourseForm } from "./CourseForm"
 import { useCourses } from "@/hooks/useCourses"
 import { useUsers } from "@/hooks/useUsers"
+import { useSemesters } from "@/hooks/useSemesters"
 import { UserRoles } from "@/types"
 import {
   Select,
@@ -41,7 +42,11 @@ export function CourseCard({ course }: CourseCardProps) {
   const [showAssignDialog, setShowAssignDialog] = useState(false)
   const { assignTeacher } = useCourses({ courseId: course.id })
   const { getUsers } = useUsers({ role: UserRoles.TEACHER })
+  const { data: semesters } = useSemesters()
   const [selectedTeacherId, setSelectedTeacherId] = useState<number | null>(null)
+
+  const semesterName = course.semesterName
+  const semesterId = semesters?.find(s => s.name === semesterName)?.id ?? 1
 
   const courseForForm = {
     id: course.id,
@@ -49,11 +54,9 @@ export function CourseCard({ course }: CourseCardProps) {
     name: course.name,
     description: String(course.description ?? ""),
     credit: course.credit,
-    semesterId: 1,
+    semesterId,
   }
 
-  // Pour affichage enseignant assigné si info présente
-  // @ts-expect-error: teacherName peut ne pas exister sur certains objets course
   const teacherName = course.teacherName || null
 
   const handleAssign = () => {
@@ -119,7 +122,6 @@ export function CourseCard({ course }: CourseCardProps) {
 
       <DeleteCourseDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog} course={course} />
 
-      {/* Dialog d'assignation d'enseignant */}
       <Dialog open={showAssignDialog} onOpenChange={setShowAssignDialog}>
         <DialogContent>
           <DialogHeader>

@@ -5,16 +5,21 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Plus, Search } from "lucide-react"
 import { SemesterForm } from "@/components/modules/dashboard/admin/semesters"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { useLevels } from "@/hooks/useLevels"
 
 
 interface SemestersHeaderProps {
   searchQuery: string
   onSearchChange: (query: string) => void
   totalCount: number
+  levelFilter: string
+  onLevelFilterChange: (levelId: string) => void
 }
 
-export function SemestersHeader({ searchQuery, onSearchChange, totalCount }: SemestersHeaderProps) {
+export function SemestersHeader({ searchQuery, onSearchChange, totalCount, levelFilter, onLevelFilterChange }: SemestersHeaderProps) {
   const [showCreateDialog, setShowCreateDialog] = useState(false)
+  const { data: levels } = useLevels()
 
   return (
     <>
@@ -41,6 +46,19 @@ export function SemestersHeader({ searchQuery, onSearchChange, totalCount }: Sem
             className="pl-8"
           />
         </div>
+        <Select value={levelFilter} onValueChange={onLevelFilterChange}>
+          <SelectTrigger className="w-[200px]">
+            <SelectValue placeholder="Filter by level" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All levels</SelectItem>
+            {levels?.map((level) => (
+              <SelectItem key={level.id} value={String(level.id)}>
+                {level.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       <SemesterForm open={showCreateDialog} onOpenChange={setShowCreateDialog} mode="create" />

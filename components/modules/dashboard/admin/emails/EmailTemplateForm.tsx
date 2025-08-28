@@ -60,7 +60,6 @@ export function EmailTemplateForm({ open, onOpenChange, template, mode }: Readon
   }
 
   const onSubmit = async (data: TemplateFormData) => {
-    try {
       if (mode === "create") {
         await createTemplate.mutateAsync({
           name: data.name,
@@ -80,10 +79,7 @@ export function EmailTemplateForm({ open, onOpenChange, template, mode }: Readon
       onOpenChange(false)
       form.reset()
       setVariables([])
-    } catch (error) {
-        console.error("Error submitting template form:", error) 
-      // Error handling is done in the hooks
-    }
+   
   }
 
   const isLoading = createTemplate.isPending || updateTemplate.isPending
@@ -152,7 +148,6 @@ export function EmailTemplateForm({ open, onOpenChange, template, mode }: Readon
               )}
             />
 
-            {/* Variables */}
             <div className="space-y-2">
               <FormField
                 control={form.control}

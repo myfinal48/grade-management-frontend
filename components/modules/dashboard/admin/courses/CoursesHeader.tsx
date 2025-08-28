@@ -5,15 +5,21 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Plus, Search } from "lucide-react"
 import { CourseForm } from "./CourseForm"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { useUsers } from "@/hooks/useUsers"
+import { UserRoles } from "@/types"
 
 interface CoursesHeaderProps {
   searchQuery: string
   onSearchChange: (query: string) => void
   totalCount: number
+  teacherFilter: string
+  onTeacherFilterChange: (teacherId: string) => void
 }
 
-export function CoursesHeader({ searchQuery, onSearchChange, totalCount }: CoursesHeaderProps) {
+export function CoursesHeader({ searchQuery, onSearchChange, totalCount, teacherFilter, onTeacherFilterChange }: CoursesHeaderProps) {
   const [showCreateDialog, setShowCreateDialog] = useState(false)
+  const { getUsers } = useUsers({ role: UserRoles.TEACHER })
 
   return (
     <>
@@ -38,6 +44,19 @@ export function CoursesHeader({ searchQuery, onSearchChange, totalCount }: Cours
             className="pl-8"
           />
         </div>
+        <Select value={teacherFilter} onValueChange={onTeacherFilterChange}>
+          <SelectTrigger className="w-[200px]">
+            <SelectValue placeholder="Filter by teacher" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All teachers</SelectItem>
+            {getUsers.data?.map((teacher) => (
+              <SelectItem key={teacher.id} value={String(teacher.id)}>
+                {teacher.firstName} {teacher.lastName}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       <CourseForm open={showCreateDialog} onOpenChange={setShowCreateDialog} mode="create" />

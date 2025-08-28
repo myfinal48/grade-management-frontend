@@ -6,7 +6,6 @@ import { Skeleton } from "@/components/ui/skeleton"
 export function TranscriptsLoading() {
   return (
     <div className="space-y-6">
-      {/* Skeleton des filtres */}
       <Card>
         <CardHeader>
           <Skeleton className="h-6 w-48" />
@@ -29,7 +28,6 @@ export function TranscriptsLoading() {
         </CardContent>
       </Card>
 
-      {/* Skeleton des relevés */}
       {Array.from({ length: 2 }).map((_, i) => (
         <Card key={i}>
           <CardHeader>

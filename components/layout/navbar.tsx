@@ -1,5 +1,4 @@
-import { Bell, Search } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { Search } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { SidebarTrigger } from "@/components/ui/sidebar"
 import { UserNav } from "@/components/layout"
@@ -23,10 +22,6 @@ export function Navbar({ session }: Readonly<NavbarProps>) {
                     </div>
                 </div>
                 <div className="flex items-center gap-2">
-                    <Button variant="ghost" size="icon">
-                        <Bell className="h-4 w-4" />
-                        <span className="sr-only">Notifications</span>
-                    </Button>
                     <ModeToggle />
                     <UserNav session={session} />
                 </div>

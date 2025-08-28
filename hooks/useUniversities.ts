@@ -14,7 +14,7 @@ export function useUniversities() {
   return useQuery({
     queryKey: UNIVERSITIES_QUERY_KEY,
     queryFn: universityService.getAllUniversities,
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 5 * 60 * 1000,
   })
 }
 

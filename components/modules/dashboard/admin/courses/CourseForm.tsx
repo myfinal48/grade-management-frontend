@@ -15,7 +15,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
 import type { CourseRequestData } from "@/types/course"
 import { useCourses } from "@/hooks/useCourses"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useSemesters } from "@/hooks/useSemesters"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { FormLoadingState, FormErrorState } from "@/components/global"
@@ -45,13 +45,33 @@ export function CourseForm({ open, onOpenChange, course, mode }: CourseFormProps
   const form = useForm<CourseFormData>({
     resolver: zodResolver(courseSchema),
     defaultValues: {
-      code: course?.code || "",
-      name: course?.name || "",
-      description: course?.description || "",
-      credit: course?.credit ?? 1,
-      semesterId: course?.semesterId ?? 1,
+      code: "",
+      name: "",
+      description: "",
+      credit: 1,
+      semesterId: 1,
     },
   })
+
+  useEffect(() => {
+    if (course) {
+      form.reset({
+        code: course.code || "",
+        name: course.name || "",
+        description: course.description || "",
+        credit: course.credit ?? 1,
+        semesterId: course.semesterId ?? 1,
+      })
+    } else {
+      form.reset({
+        code: "",
+        name: "",
+        description: "",
+        credit: 1,
+        semesterId: 1,
+      })
+    }
+  }, [course, form])
 
   const onSubmit = async (data: CourseFormData) => {
     setFormError(null)

@@ -68,10 +68,9 @@ export function ExportFormatModal({
         </DialogHeader>
 
         <div className="space-y-6">
-          {/* Informations sur l'export */}
-          <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-            <h4 className="font-medium text-blue-900 mb-2">Informations sur l&apos;Export</h4>
-            <div className="space-y-2 text-sm text-blue-800">
+          <div className="bg-blue-50 dark:bg-blue-950 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
+            <h4 className="font-medium text-blue-900 dark:text-blue-100 mb-2">Informations sur l&apos;Export</h4>
+            <div className="space-y-2 text-sm text-blue-800 dark:text-blue-200">
               <div className="flex items-center gap-2">
                 <Users className="h-4 w-4" />
                 <span>{filters.studentIds.length} étudiant(s) sélectionné(s)</span>
@@ -93,14 +92,12 @@ export function ExportFormatModal({
             </div>
           </div>
 
-          {/* Options de format */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Option PDF */}
             <Card
               className={`cursor-pointer transition-all ${
                 selectedFormat === "pdf"
-                  ? "ring-2 ring-blue-500 bg-blue-50 border-blue-200"
-                  : "hover:bg-gray-50 border-gray-200"
+                  ? "ring-2 ring-blue-500 bg-blue-50 dark:bg-blue-950 border-blue-200 dark:border-blue-800"
+                  : "hover:bg-gray-50 dark:hover:bg-gray-800 border-gray-200 dark:border-gray-700"
               }`}
               onClick={() => setSelectedFormat("pdf")}
             >
@@ -134,12 +131,11 @@ export function ExportFormatModal({
               </CardContent>
             </Card>
 
-            {/* Option Excel */}
             <Card
               className={`cursor-pointer transition-all ${
                 selectedFormat === "excel"
-                  ? "ring-2 ring-green-500 bg-green-50 border-green-200"
-                  : "hover:bg-gray-50 border-gray-200"
+                  ? "ring-2 ring-green-500 bg-green-50 dark:bg-green-950 border-green-200 dark:border-green-800"
+                  : "hover:bg-gray-50 dark:hover:bg-gray-800 border-gray-200 dark:border-gray-700"
               }`}
               onClick={() => setSelectedFormat("excel")}
             >
@@ -174,14 +170,13 @@ export function ExportFormatModal({
             </Card>
           </div>
 
-          {/* Avertissement pour Excel */}
           {selectedFormat === "excel" && !selectedUniversity && (
-            <div className="bg-amber-50 p-3 rounded-lg border border-amber-200">
+            <div className="bg-amber-50 dark:bg-amber-950 p-3 rounded-lg border border-amber-200 dark:border-amber-800">
               <div className="flex items-start gap-2">
-                <Building className="h-4 w-4 text-amber-600 mt-0.5" />
+                <Building className="h-4 w-4 text-amber-600 dark:text-amber-400 mt-0.5" />
                 <div>
-                  <p className="font-medium text-amber-900">Aucune université sélectionnée</p>
-                  <p className="text-sm text-amber-700">
+                  <p className="font-medium text-amber-900 dark:text-amber-100">Aucune université sélectionnée</p>
+                  <p className="text-sm text-amber-700 dark:text-amber-300">
                     L&apos;export Excel ne nécessite pas d&apos;informations d&apos;université, mais vous pouvez en sélectionner une
                     pour les exports PDF futurs.
                   </p>

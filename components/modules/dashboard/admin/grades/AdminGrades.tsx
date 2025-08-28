@@ -51,12 +51,11 @@ export function AdminGrades() {
   const [selectedGrade, setSelectedGrade] = useState<GradeResponseData | null>(null);
   const [viewDetailsOpen, setViewDetailsOpen] = useState(false);
   
-  // États pour les filtres
   const [search, setSearch] = useState("");
   const [teacherFilter, setTeacherFilter] = useState<string>("ALL");
   const [courseFilter, setCourseFilter] = useState<string>("ALL");
+  const [studentFilter, setStudentFilter] = useState<string>("ALL");
 
-  // Extraction des données uniques pour les filtres
   const teachers = useMemo(() => {
     if (!grades) return [];
     const uniqueTeachers = new Set(grades.map(grade => grade.course?.teacherName).filter(Boolean));
@@ -69,7 +68,14 @@ export function AdminGrades() {
     return Array.from(uniqueCourses).sort();
   }, [grades]);
 
-  // Filtrage des notes
+  const students = useMemo(() => {
+    if (!grades) return [];
+    const uniqueStudents = new Set(grades.map(grade => 
+      grade.student ? `${grade.student.firstName} ${grade.student.lastName}` : null
+    ).filter(Boolean));
+    return Array.from(uniqueStudents).sort();
+  }, [grades]);
+
   const filteredGrades = useMemo(() => {
     if (!grades) return [];
     
@@ -84,10 +90,12 @@ export function AdminGrades() {
       
       const matchTeacher = teacherFilter === "ALL" || grade.course?.teacherName === teacherFilter;
       const matchCourse = courseFilter === "ALL" || grade.course?.name === courseFilter;
+      const matchStudent = studentFilter === "ALL" || 
+        (grade.student && `${grade.student.firstName} ${grade.student.lastName}` === studentFilter);
       
-      return matchSearch && matchTeacher && matchCourse;
+      return matchSearch && matchTeacher && matchCourse && matchStudent;
     });
-  }, [grades, search, teacherFilter, courseFilter]);
+  }, [grades, search, teacherFilter, courseFilter, studentFilter]);
 
   const handleDelete = async () => {
     if (selectedGradeId) {
@@ -140,7 +148,6 @@ export function AdminGrades() {
     <Card>
       <CardHeader>
         <CardTitle>Gestion des notes</CardTitle>
-        {/* Filtres et recherche */}
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div className="flex flex-col gap-2 md:flex-row md:items-center w-full">
             <div className="relative flex-1 max-w-sm">
@@ -152,7 +159,18 @@ export function AdminGrades() {
                 className="pl-10"
               />
             </div>
-            <div className="flex gap-2">
+            <div className="flex gap-2 flex-wrap">
+              <Select value={studentFilter} onValueChange={setStudentFilter}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Filtrer par étudiant" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="ALL">Tous les étudiants</SelectItem>
+                  {students.map(student => (
+                    <SelectItem key={student} value={student as string}>{student}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               <Select value={teacherFilter} onValueChange={setTeacherFilter}>
                 <SelectTrigger className="w-[180px]">
                   <SelectValue placeholder="Filtrer par professeur" />
@@ -281,7 +299,7 @@ export function AdminGrades() {
               ) : (
               <TableRow>
                 <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
-                  {search || teacherFilter !== "ALL" || courseFilter !== "ALL" 
+                  {search || teacherFilter !== "ALL" || courseFilter !== "ALL" || studentFilter !== "ALL"
                     ? "Aucune note trouvée avec les filtres actuels." 
                     : "Aucune note trouvée."}
                 </TableCell>
@@ -291,7 +309,6 @@ export function AdminGrades() {
         </Table>
       </CardContent>
       
-      {/* Modal de suppression */}
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -313,7 +330,6 @@ export function AdminGrades() {
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Modal de détails */}
       <Dialog open={viewDetailsOpen} onOpenChange={handleCloseViewDetails}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
@@ -322,7 +338,6 @@ export function AdminGrades() {
           </DialogHeader>
           {selectedGrade && (
             <div className="space-y-6">
-              {/* En-tête avec note */}
               <div className="flex items-center justify-between">
                 <div className="space-y-1">
                   <h3 className="text-lg font-semibold">
@@ -342,9 +357,7 @@ export function AdminGrades() {
 
               <Separator />
 
-              {/* Informations détaillées */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Informations étudiant */}
                 <div className="space-y-4">
                   <h4 className="font-semibold flex items-center gap-2">
                     <GraduationCap className="h-4 w-4" />
@@ -362,7 +375,6 @@ export function AdminGrades() {
                   </div>
                 </div>
 
-                {/* Informations cours */}
                 <div className="space-y-4">
                   <h4 className="font-semibold flex items-center gap-2">
                     <BookOpen className="h-4 w-4" />
@@ -389,7 +401,6 @@ export function AdminGrades() {
 
               <Separator />
 
-              {/* Informations temporelles */}
               <div className="space-y-4">
                 <h4 className="font-semibold flex items-center gap-2">
                   <Calendar className="h-4 w-4" />

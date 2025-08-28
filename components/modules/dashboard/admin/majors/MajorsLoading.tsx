@@ -6,7 +6,6 @@ import { Skeleton } from "@/components/ui/skeleton"
 export function MajorsLoading() {
   return (
     <div className="space-y-6">
-      {/* Header skeleton */}
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div className="space-y-2">
           <Skeleton className="h-8 w-64" />
@@ -15,12 +14,10 @@ export function MajorsLoading() {
         <Skeleton className="h-10 w-32" />
       </div>
 
-      {/* Search skeleton */}
       <div className="flex items-center space-x-2">
         <Skeleton className="h-10 w-full max-w-sm" />
       </div>
 
-      {/* Grid skeleton */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {Array.from({ length: 6 }).map((_, i) => (
           <Card key={i} className="h-full">

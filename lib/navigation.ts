@@ -103,13 +103,6 @@ export const navigationConfig: NavigationItem[] = [
         icon: UserCheck,
         roles: [UserRoles.STUDENT],
     },
-    // Common
-    // {
-    //     title: "Paramètres",
-    //     href: "/dashboard/settings",
-    //     icon: Settings,
-    //     roles: [UserRoles.ADMIN, UserRoles.TEACHER, UserRoles.STUDENT],
-    // },
 ]
 
 export function getNavigationForRole(role: UserRole): NavigationItem[] {

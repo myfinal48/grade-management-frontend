@@ -2,19 +2,16 @@ import { apiClient } from "@/lib/axios"
 import type { University, CreateUniversityRequest, UpdateUniversityRequest } from "@/types/university"
 
 export const universityService = {
-  // Get all universities
   getAllUniversities: async (): Promise<University[]> => {
     const response = await apiClient.get<University[]>("/university-info")
     return response.data
   },
 
-  // Get university by ID
   getUniversityById: async (id: number): Promise<University> => {
     const response = await apiClient.get<University>(`/university-info/${id}`)
     return response.data
   },
 
-  // Create new university
   createUniversity: async (data: CreateUniversityRequest): Promise<University> => {
     const formData = new FormData()
     formData.append("name", data.name)
@@ -34,7 +31,6 @@ export const universityService = {
     return response.data
   },
 
-  // Update university
   updateUniversity: async (data: UpdateUniversityRequest): Promise<University> => {
     const formData = new FormData()
     formData.append("id", data.id.toString())
@@ -55,7 +51,6 @@ export const universityService = {
     return response.data
   },
 
-  // Delete university
   deleteUniversity: async (id: number): Promise<void> => {
     await apiClient.delete(`/university-info/${id}`)
   },

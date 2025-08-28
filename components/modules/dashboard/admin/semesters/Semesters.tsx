@@ -15,11 +15,11 @@ import { Plus } from "lucide-react"
 
 export function Semesters() {
   const [searchQuery, setSearchQuery] = useState("")
+  const [levelFilter, setLevelFilter] = useState("all")
   const [showCreateDialog, setShowCreateDialog] = useState(false)
   const { data: semesters, isLoading, error, refetch } = useSemesters()
   const { data: levels } = useLevels()
 
-  // Enhance semesters with level names
   const enhancedSemesters = useMemo(() => {
     if (!semesters || !levels) return semesters || []
 
@@ -31,17 +31,24 @@ export function Semesters() {
 
   const filteredSemesters = useMemo(() => {
     if (!enhancedSemesters) return []
-
-    if (!searchQuery.trim()) return enhancedSemesters
-
-    const query = searchQuery.toLowerCase()
-    return enhancedSemesters.filter(
-      (semester) =>
-        semester.name.toLowerCase().includes(query) ||
-        semester.universityYear.toLowerCase().includes(query) ||
-        semester.levelName?.toLowerCase().includes(query),
-    )
-  }, [enhancedSemesters, searchQuery])
+    let filtered = enhancedSemesters
+    
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase()
+      filtered = filtered.filter(
+        (semester) =>
+          semester.name.toLowerCase().includes(query) ||
+          semester.universityYear.toLowerCase().includes(query) ||
+          semester.levelName?.toLowerCase().includes(query),
+      )
+    }
+    
+    if (levelFilter !== "all") {
+      filtered = filtered.filter((semester) => String(semester.levelId) === levelFilter)
+    }
+    
+    return filtered
+  }, [enhancedSemesters, searchQuery, levelFilter])
 
   if (isLoading) {
     return <SemestersLoading />
@@ -53,10 +60,15 @@ export function Semesters() {
 
   return (
     <div className="space-y-6 relative">
-      <SemestersHeader searchQuery={searchQuery} onSearchChange={setSearchQuery} totalCount={semesters?.length || 0} />
+      <SemestersHeader 
+        searchQuery={searchQuery} 
+        onSearchChange={setSearchQuery} 
+        totalCount={semesters?.length || 0}
+        levelFilter={levelFilter}
+        onLevelFilterChange={setLevelFilter}
+      />
       <SemestersGrid semesters={filteredSemesters} />
 
-      {/* Floating Add Button */}
       <div className="fixed bottom-6 right-6 z-50">
         <Button
           onClick={() => setShowCreateDialog(true)}

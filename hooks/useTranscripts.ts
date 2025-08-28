@@ -19,7 +19,7 @@ export function useTranscripts(filters: TranscriptFilters, enabled = true) {
     queryFn: () => transcriptsService.getTranscripts(filters),
     enabled:
       enabled && (filters.studentIds.length > 0 || filters.semesterIds.length > 0 || filters.universityYear.length > 0),
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 5 * 60 * 1000,
   })
 }
 
@@ -28,13 +28,11 @@ export function useExportMultipleTranscriptsPDF() {
     mutationFn: ({ filters, universityId }: { filters: TranscriptFilters; universityId?: number }) =>
       transcriptsService.exportMultipleTranscriptsPDF(filters, universityId),
     onSuccess: (blob) => {
-      // Vérifier que le blob est valide
       if (!blob || blob.size === 0) {
         toast.error("Le fichier exporté est vide. Veuillez réessayer.")
         return
       }
 
-      // Create download link
       const url = window.URL.createObjectURL(blob)
       const link = document.createElement("a")
       link.href = url
@@ -47,7 +45,6 @@ export function useExportMultipleTranscriptsPDF() {
       toast.success("Relevés PDF exportés avec succès")
     },
     onError: (error: AxiosError<ApiError>) => {
-      console.error("Export multiple transcripts PDF error:", error)
       let errorMessage = "Échec de l'exportation des relevés PDF"
 
       switch (error.response?.status) {
@@ -79,25 +76,17 @@ export function useExportMultipleTranscriptsExcel() {
   return useMutation({
     mutationFn: (filters: TranscriptFilters) => transcriptsService.exportMultipleTranscriptsExcel(filters),
     onSuccess: (blob) => {
-      console.log("🎉 Excel export hook success:", {
-        blobSize: blob.size,
-        blobType: blob.type,
-      })
-
-      // Vérifier que le blob est valide
       if (!blob || blob.size === 0) {
         toast.error("Le fichier Excel exporté est vide. Veuillez réessayer.")
         return
       }
 
-      // Create download link with timestamp
       const timestamp = new Date().toISOString().slice(0, 19).replace(/[:-]/g, "")
       const url = window.URL.createObjectURL(blob)
       const link = document.createElement("a")
       link.href = url
       link.download = `releves-notes-${timestamp}.xlsx`
 
-      // Ajouter au DOM, cliquer, puis nettoyer
       document.body.appendChild(link)
       link.click()
       document.body.removeChild(link)
@@ -106,13 +95,6 @@ export function useExportMultipleTranscriptsExcel() {
       toast.success(`Relevés Excel exportés avec succès (${Math.round(blob.size / 1024)} KB)`)
     },
     onError: (error: AxiosError<ApiError>) => {
-      console.error("❌ Export multiple transcripts Excel error:", {
-        message: error.message,
-        status: error.response?.status,
-        statusText: error.response?.statusText,
-        data: error.response?.data,
-        url: error.config?.url,
-      })
 
       let errorMessage = "Échec de l'exportation des relevés Excel"
 
@@ -158,13 +140,11 @@ export function useExportSingleTranscriptPDF() {
       universityId?: number
     }) => transcriptsService.exportSingleTranscriptPDF(studentId, semesterId, universityYear, universityId),
     onSuccess: (blob) => {
-      // Vérifier que le blob est valide
       if (!blob || blob.size === 0) {
         toast.error("Le fichier exporté est vide. Veuillez réessayer.")
         return
       }
 
-      // Create download link
       const url = window.URL.createObjectURL(blob)
       const link = document.createElement("a")
       link.href = url
@@ -177,7 +157,6 @@ export function useExportSingleTranscriptPDF() {
       toast.success("Relevé PDF exporté avec succès")
     },
     onError: (error: AxiosError<ApiError>) => {
-      console.error("Export single transcript PDF error:", error)
 
       let errorMessage = "Échec de l'exportation du relevé PDF"
 
