@@ -615,8 +615,8 @@ apiClient.interceptors.response.use(
 
 ### Monitoring
 - **Error Boundaries** : Gestion des erreurs React
-- **Loading States** : États de chargement cohérents
 - **Performance Metrics** : Métriques Web Vitals
+- **Loading States** : États de chargement cohérents
 
 
 ---
