@@ -1,5 +1,61 @@
 # 📚 Grade Management System - Documentation Fonctionnelle
 
+## 👥 Membres de l'équipe
+
+- Jean Vincent YOUMSSI TOGUEM
+- Jake Melvin TIOKOU
+- Belvinard POUADJEU
+- Hassan Mahamat DOGO
+- Loïc Luc KENMOE MBEUKEM
+
+## 🚀 Lancement du projet
+
+### Prérequis
+- Node.js (version 18 ou supérieure)
+- npm (version 9 ou supérieure) ou yarn
+
+### Installation
+1. Cloner le dépôt :
+   ```bash
+   git clone <url-du-depot>
+   cd grade-management-frontend
+   ```
+
+2. Installer les dépendances :
+   ```bash
+   npm install
+   # ou
+   yarn install
+   ```
+
+### Développement
+Pour lancer l'application en mode développement :
+```bash
+npm run dev
+# ou
+yarn dev
+```
+
+### Production
+Pour construire l'application pour la production :
+```bash
+npm run build
+# ou
+yarn build
+```
+
+Puis pour démarrer le serveur de production :
+```bash
+npm start
+# ou
+yarn start
+```
+
+### Variables d'environnement
+Créez un fichier `.env.local` à la racine du projet avec les variables nécessaires (consultez le fichier `.env.template` pour référence).
+
+## 📚 Documentation
+
 
 ## 🎯 Objectif Fonctionnel
 
