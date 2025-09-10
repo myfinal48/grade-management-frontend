@@ -49,11 +49,12 @@ export interface ApiError extends Error {
 }
 
 export function getErrorMessage(error: ApiError, fallbackMessage: string): string {
+    
     if (error?.data?.messages?.error) {
         return error.data.messages.error;
     }
     
-    if (error?.data?.messages) {
+    if (error?.data?.messages && typeof error.data.messages === 'object') {
         const messages = error.data.messages;
         const validationErrors = Object.keys(messages)
             .filter(key => key !== 'error' && messages[key])
@@ -71,6 +72,10 @@ export function getErrorMessage(error: ApiError, fallbackMessage: string): strin
     
     if (error?.data?.error) {
         return error.data.error;
+    }
+    
+    if (error?.message && error.message !== "API Error") {
+        return error.message;
     }
     
     return fallbackMessage;
@@ -100,6 +105,7 @@ apiClient.interceptors.response.use(
                 const err = new Error("Server error") as ApiError;
                 err.name = "ServerError";
                 err.status = 500;
+                err.data = error.response?.data as { messages?: { error?: string }; message?: string; error?: string };
                 console.error("Server Error:", error);
                 return Promise.reject(err);
             }
