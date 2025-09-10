@@ -5,7 +5,7 @@ import { useUsers } from "@/hooks/useUsers"
 import { useCourses } from "@/hooks/useCourses"
 import { useMajors } from "@/hooks/useMajors"
 import { useLevels } from "@/hooks/useLevels"
-import { HomeCard, HomeCardItem } from "./HomeCard"
+import { HomeCard, HomeCardItem } from "@/components/modules/dashboard/shared"
 
 export function AdminHome() {
     const { getUsers } = useUsers()
