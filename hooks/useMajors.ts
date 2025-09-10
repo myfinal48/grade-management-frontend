@@ -28,12 +28,13 @@ export function useCreateMajor() {
     mutationFn: (data: CreateMajorRequest) => majorsService.createMajor(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [MajorsCacheKeys.Majors] })
+      queryClient.invalidateQueries({ queryKey: [MajorsCacheKeys.Major] })
       toast.success("Success",{
-        description: "Major created successfully",
+        description: "Filiere créée avec succès",
       })
     },
     onError: (error: unknown) => {
-      let message = "Failed to create major";
+      let message = "Echec de la création de la filiere";
       if (error && typeof error === 'object' && 'response' in error && error.response && typeof error.response === 'object' && 'data' in error.response && error.response.data && typeof error.response.data === 'object' && 'message' in error.response.data) {
         message = (error.response.data as { message?: string }).message || message;
       }
@@ -46,14 +47,16 @@ export function useUpdateMajor() {
 
   return useMutation({
     mutationFn: ({ id, data }: { id: number; data: UpdateMajorRequest }) => majorsService.updateMajor(id, data),
-    onSuccess: () => {
+    onSuccess: (_, { id }) => {
       queryClient.invalidateQueries({ queryKey: [MajorsCacheKeys.Majors] })
+      queryClient.invalidateQueries({ queryKey: [MajorsCacheKeys.Major, id] })
+      queryClient.invalidateQueries({ queryKey: [MajorsCacheKeys.Major] })
       toast.success("Success",{
-        description: "Major updated successfully",
+        description: "Filiere mise à jour avec succès",
       })
     },
     onError: (error: unknown) => {
-      let message = "Failed to update major";
+      let message = "Echec de la mise à jour de la filiere";
       if (error && typeof error === 'object' && 'response' in error && error.response && typeof error.response === 'object' && 'data' in error.response && error.response.data && typeof error.response.data === 'object' && 'message' in error.response.data) {
         message = (error.response.data as { message?: string }).message || message;
       }
@@ -66,14 +69,16 @@ export function useDeleteMajor() {
 
   return useMutation({
     mutationFn: (id: number) => majorsService.deleteMajor(id),
-    onSuccess: () => {
+    onSuccess: (_, id) => {
       queryClient.invalidateQueries({ queryKey: [MajorsCacheKeys.Majors] })
+      queryClient.invalidateQueries({ queryKey: [MajorsCacheKeys.Major, id] })
+      queryClient.invalidateQueries({ queryKey: [MajorsCacheKeys.Major] })
       toast.success("Success",{
-        description: "Major deleted successfully",
+        description: "Filiere supprimée avec succès",
       })
     },
     onError: (error: unknown) => {
-      let message = "Failed to delete major";
+      let message = "Echec de la suppression de la filiere";
       if (error && typeof error === 'object' && 'response' in error && error.response && typeof error.response === 'object' && 'data' in error.response && error.response.data && typeof error.response.data === 'object' && 'message' in error.response.data) {
         message = (error.response.data as { message?: string }).message || message;
       }

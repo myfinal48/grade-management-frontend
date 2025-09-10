@@ -1,4 +1,5 @@
 "use client"
+import { useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -18,8 +19,8 @@ import type { Major } from "@/types/major"
 import { useCreateMajor, useUpdateMajor } from "@/hooks/useMajors"
 
 const majorSchema = z.object({
-  name: z.string().min(1, "Name is required").max(100, "Name must be less than 100 characters"),
-  description: z.string().min(1, "Description is required").max(500, "Description must be less than 500 characters"),
+  name: z.string().min(1, "Le nom est requis").max(100, "Le nom doit contenir moins de 100 caractères"),
+  description: z.string().min(10, "La description est requise (min. 10 caractères)").max(100, "La description doit contenir moins de 100 caractères"),
 })
 
 type MajorFormData = z.infer<typeof majorSchema>
@@ -31,26 +32,35 @@ interface MajorFormProps {
   mode: "create" | "edit"
 }
 
-export function MajorForm({ open, onOpenChange, major, mode }: MajorFormProps) {
+export function MajorForm({ open, onOpenChange, major, mode }: Readonly<MajorFormProps>) {
   const createMajor = useCreateMajor()
   const updateMajor = useUpdateMajor()
 
   const form = useForm<MajorFormData>({
     resolver: zodResolver(majorSchema),
     defaultValues: {
-      name: major?.name || "",
-      description: major?.description || "",
+      name: "",
+      description: "",
     },
   })
 
+  useEffect(() => {
+    if (open) {
+      form.reset({
+        name: major?.name || "",
+        description: major?.description || "",
+      })
+    }
+  }, [open, major, form])
+
   const onSubmit = async (data: MajorFormData) => {
-      if (mode === "create") {
-        await createMajor.mutateAsync(data)
-      } else if (major) {
-        await updateMajor.mutateAsync({ id: major.id, data })
-      }
-      onOpenChange(false)
-      form.reset()
+    if (mode === "create") {
+      await createMajor.mutateAsync(data)
+    } else if (major) {
+      await updateMajor.mutateAsync({ id: major.id, data })
+    }
+    onOpenChange(false)
+    form.reset()
   }
 
   const isLoading = createMajor.isPending || updateMajor.isPending
@@ -59,9 +69,13 @@ export function MajorForm({ open, onOpenChange, major, mode }: MajorFormProps) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>{mode === "create" ? "Create New Major" : "Edit Major"}</DialogTitle>
+          <DialogTitle>
+            {mode === "create" ? "Créer une nouvelle filière" : "Modifier la filière"}
+          </DialogTitle>
           <DialogDescription>
-            {mode === "create" ? "Add a new major to the system." : "Make changes to the major information."}
+            {mode === "create" 
+              ? "Ajouter une nouvelle filière au système." 
+              : "Modifier les informations de la filière."}
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -71,9 +85,9 @@ export function MajorForm({ open, onOpenChange, major, mode }: MajorFormProps) {
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Name</FormLabel>
+                  <FormLabel>Nom</FormLabel>
                   <FormControl>
-                    <Input placeholder="Enter major name" {...field} />
+                    <Input placeholder="Saisir le nom de la filière" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -86,18 +100,32 @@ export function MajorForm({ open, onOpenChange, major, mode }: MajorFormProps) {
                 <FormItem>
                   <FormLabel>Description</FormLabel>
                   <FormControl>
-                    <Textarea placeholder="Enter major description" className="resize-none" rows={3} {...field} />
+                    <Textarea 
+                      placeholder="Saisir la description de la filière" 
+                      className="resize-none" 
+                      rows={3} 
+                      {...field} 
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isLoading}>
-                Cancel
+              <Button 
+                type="button" 
+                variant="outline" 
+                onClick={() => onOpenChange(false)} 
+                disabled={isLoading}
+              >
+                Annuler
               </Button>
               <Button type="submit" disabled={isLoading}>
-                {isLoading ? "Saving..." : mode === "create" ? "Create" : "Update"}
+                {isLoading 
+                  ? "Enregistrement..." 
+                  : mode === "create" 
+                    ? "Créer" 
+                    : "Mettre à jour"}
               </Button>
             </DialogFooter>
           </form>

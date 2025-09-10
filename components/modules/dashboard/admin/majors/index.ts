@@ -1,1 +1,5 @@
 export *  from "./Majors"
+export * from "./MajorForm"
+export * from "./MajorDetails"
+export * from "./MajorsLoading"
+export * from "./MajorsHeader"
