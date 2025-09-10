@@ -11,7 +11,7 @@ export function MajorsHeader() {
   return (
     <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
       <div>
-        <h2 className="text-xl font-bold">Filières</h2>
+        <h2 className="text-xl font-bold tracking-tight">Filières</h2>
         <p className="text-muted-foreground">Gérez vos filières</p>
       </div>
       <div className="flex justify-end">

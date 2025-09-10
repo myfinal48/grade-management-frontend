@@ -30,7 +30,7 @@ export function AdminHome() {
     return (
         <div className="space-y-6">
             <div>
-                <h1 className="text-xl font-bold">Tableau de bord Administrateur</h1>
+                <h2 className="text-xl font-bold tracking-tight">Tableau de bord Administrateur</h2>
                 <p className="text-muted-foreground">Gérez votre plateforme éducative</p>
             </div>
 
