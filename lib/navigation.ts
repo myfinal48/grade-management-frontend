@@ -21,14 +21,14 @@ export interface NavigationItem {
 
 export const navigationConfig: NavigationItem[] = [
     {
-        title: "Tableau de bord",
+        title: "Accueil",
         href: "/dashboard",
         icon: LayoutDashboard,
         roles: [UserRoles.ADMIN, UserRoles.TEACHER, UserRoles.STUDENT],
     },
     // Admin specific
     {
-        title: "Filieres",
+        title: "Filières",
         href: "/dashboard/majors",
         icon: Book,
         roles: [UserRoles.ADMIN],
