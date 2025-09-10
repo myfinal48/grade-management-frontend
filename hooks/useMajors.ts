@@ -1,6 +1,8 @@
 import { useMutation, useQuery } from "@tanstack/react-query"
 import { majorsService } from "@/services/majorsService"
 import type { CreateMajorRequest, UpdateMajorRequest } from "@/types/major"
+import type { ApiError } from "@/lib/axios"
+import { getErrorMessage } from "@/lib/axios"
 import { toast } from "sonner"
 import { queryClient } from "@/providers"
 import { MajorsCacheKeys } from "./const"
@@ -33,12 +35,9 @@ export function useCreateMajor() {
         description: "Filiere créée avec succès",
       })
     },
-    onError: (error: unknown) => {
-      let message = "Echec de la création de la filiere";
-      if (error && typeof error === 'object' && 'response' in error && error.response && typeof error.response === 'object' && 'data' in error.response && error.response.data && typeof error.response.data === 'object' && 'message' in error.response.data) {
-        message = (error.response.data as { message?: string }).message || message;
-      }
-      toast.error("Error", { description: message });
+    onError: (error: ApiError) => {
+      const message = getErrorMessage(error, "Echec de la création de la filière");
+      toast.error("", { description: message });
     },
   })
 }
@@ -55,12 +54,9 @@ export function useUpdateMajor() {
         description: "Filiere mise à jour avec succès",
       })
     },
-    onError: (error: unknown) => {
-      let message = "Echec de la mise à jour de la filiere";
-      if (error && typeof error === 'object' && 'response' in error && error.response && typeof error.response === 'object' && 'data' in error.response && error.response.data && typeof error.response.data === 'object' && 'message' in error.response.data) {
-        message = (error.response.data as { message?: string }).message || message;
-      }
-      toast.error("Error", { description: message });
+    onError: (error: ApiError) => {
+      const message = getErrorMessage(error, "Echec de la mise à jour de la filière");
+      toast.error("", { description: message });
     },
   })
 }
@@ -77,12 +73,9 @@ export function useDeleteMajor() {
         description: "Filiere supprimée avec succès",
       })
     },
-    onError: (error: unknown) => {
-      let message = "Echec de la suppression de la filiere";
-      if (error && typeof error === 'object' && 'response' in error && error.response && typeof error.response === 'object' && 'data' in error.response && error.response.data && typeof error.response.data === 'object' && 'message' in error.response.data) {
-        message = (error.response.data as { message?: string }).message || message;
-      }
-      toast.error("Error", { description: message });
+    onError: (error: ApiError) => {
+      const message = getErrorMessage(error, "Echec de la suppression de la filière");
+      toast.error("", { description: message });
     },
   })
 }

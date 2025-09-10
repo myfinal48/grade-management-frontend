@@ -21,8 +21,8 @@ import { useCreateLevel, useUpdateLevel } from "@/hooks/useLevels"
 import { useMajors } from "@/hooks/useMajors"
 
 const levelSchema = z.object({
-  name: z.string().min(1, "Name is required").max(100, "Name must be less than 100 characters"),
-  majorId: z.number().min(1, "Major is required"),
+  name: z.string().min(2, "Le nom est requis (min 2 caractères)").max(100, "Le nom doit contenir moins de 100 caractères"),
+  majorId: z.coerce.number().min(1, "La filière est requise"),
 })
 
 type LevelFormData = z.infer<typeof levelSchema>
@@ -34,7 +34,7 @@ interface LevelFormProps {
   mode: "create" | "edit"
 }
 
-export function LevelForm({ open, onOpenChange, level, mode }: LevelFormProps) {
+export function LevelForm({ open, onOpenChange, level, mode }: Readonly<LevelFormProps>) {
   const createLevel = useCreateLevel()
   const updateLevel = useUpdateLevel()
   const { data: majors } = useMajors()
@@ -43,32 +43,26 @@ export function LevelForm({ open, onOpenChange, level, mode }: LevelFormProps) {
     resolver: zodResolver(levelSchema),
     defaultValues: {
       name: "",
-      majorId: 0,
+      majorId: undefined,
     },
   })
 
   useEffect(() => {
-    if (level) {
+    if (open) {
       form.reset({
-        name: level.name || "",
-        majorId: level.majorId || 0,
-      })
-    } else {
-      form.reset({
-        name: "",
-        majorId: 0,
+        name: level?.name || "",
+        majorId: level?.majorId,
       })
     }
-  }, [level, form])
+  }, [open, level, form])
 
   const onSubmit = async (data: LevelFormData) => {
-      if (mode === "create") {
-        await createLevel.mutateAsync({ majorId: data.majorId, data })
-      } else if (level) {
-        await updateLevel.mutateAsync({ id: level.id, data })
-      }
-      onOpenChange(false)
-      form.reset()
+    if (mode === "create") {
+      await createLevel.mutateAsync({ majorId: data.majorId, data })
+    } else if (level) {
+      await updateLevel.mutateAsync({ id: level.id, data })
+    }
+    onOpenChange(false)
   }
 
   const isLoading = createLevel.isPending || updateLevel.isPending
@@ -77,9 +71,13 @@ export function LevelForm({ open, onOpenChange, level, mode }: LevelFormProps) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>{mode === "create" ? "Create New Level" : "Edit Level"}</DialogTitle>
+          <DialogTitle>
+            {mode === "create" ? "Créer un nouveau niveau" : "Modifier le niveau"}
+          </DialogTitle>
           <DialogDescription>
-            {mode === "create" ? "Add a new level to the system." : "Make changes to the level information."}
+            {mode === "create"
+              ? "Ajouter un nouveau niveau au système."
+              : "Modifier les informations du niveau."}
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -89,9 +87,9 @@ export function LevelForm({ open, onOpenChange, level, mode }: LevelFormProps) {
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Name</FormLabel>
+                  <FormLabel>Nom</FormLabel>
                   <FormControl>
-                    <Input placeholder="Enter level name" {...field} />
+                    <Input placeholder="Saisir le nom du niveau" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -102,14 +100,14 @@ export function LevelForm({ open, onOpenChange, level, mode }: LevelFormProps) {
               name="majorId"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Major</FormLabel>
+                  <FormLabel>Filière</FormLabel>
                   <Select
-                    onValueChange={(value) => field.onChange(Number.parseInt(value))}
-                    value={field.value.toString()}
+                    onValueChange={field.onChange}
+                    value={field.value?.toString()}
                   >
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select a major" />
+                        <SelectValue placeholder="Sélectionner une filière" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
@@ -126,10 +124,10 @@ export function LevelForm({ open, onOpenChange, level, mode }: LevelFormProps) {
             />
             <DialogFooter>
               <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isLoading}>
-                Cancel
+                Annuler
               </Button>
               <Button type="submit" disabled={isLoading}>
-                {isLoading ? "Saving..." : mode === "create" ? "Create" : "Update"}
+                {isLoading ? "Enregistrement..." : mode === "create" ? "Créer" : "Mettre à jour"}
               </Button>
             </DialogFooter>
           </form>
