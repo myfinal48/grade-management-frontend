@@ -28,14 +28,13 @@ export function Transcripts() {
   const [hasSearched, setHasSearched] = useState(false)
   const [showExportModal, setShowExportModal] = useState(false)
 
-  const { data: transcripts, isLoading, error } = useTranscripts(filters, hasSearched)
+  const { data: transcripts, isLoading } = useTranscripts(filters, hasSearched)
   const { data: universities } = useUniversities()
   const { getUsers } = useUsers({ role: UserRoles.STUDENT })
   const { data: semesters } = useSemesters()
 
   const users = getUsers.data
 
-  // Prepare options for multi-select components
   const studentOptions = (users || []).map(user => ({
     value: user.id.toString(),
     label: `${user.firstName} ${user.lastName}`,
@@ -54,7 +53,6 @@ export function Transcripts() {
     searchText: university.name,
   }))
 
-  // Get unique university years from semesters data
   const universityYearOptions = Array.from(
     new Set((semesters || []).map(semester => semester.universityYear))
   ).map(year => ({
@@ -108,35 +106,11 @@ export function Transcripts() {
   const hasFilters = filters.studentIds.length > 0 || filters.semesterIds.length > 0 || filters.universityYear.length > 0 || selectedUniversityId
   const canSearch = filters.studentIds.length > 0 || filters.semesterIds.length > 0
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Chargement des relevés...</p>
-        </div>
-      </div>
-    )
-  }
-
-  if (error) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <div className="text-center">
-          <h3 className="text-lg font-semibold mb-2">Erreur de chargement</h3>
-          <p className="text-muted-foreground mb-4">Impossible de charger les relevés</p>
-          <Button onClick={() => window.location.reload()}>Réessayer</Button>
-        </div>
-      </div>
-    )
-  }
-
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Relevés de Notes</h1>
+          <h2 className="text-xl font-bold tracking-tight">Relevés de Notes</h2>
           <p className="text-muted-foreground">
             Gérer et consulter les relevés de notes des étudiants
           </p>
@@ -146,7 +120,6 @@ export function Transcripts() {
         </Badge>
       </div>
 
-      {/* Filters */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -238,7 +211,6 @@ export function Transcripts() {
             </div>
           </div>
 
-          {/* Action Buttons */}
           <div className="flex gap-2 pt-4 border-t">
             <Button 
               onClick={handleSearch} 
@@ -268,7 +240,6 @@ export function Transcripts() {
         </CardContent>
       </Card>
 
-      {/* Results Table - Always show */}
       <DataTable 
         columns={columns} 
         data={transcripts || []} 
@@ -276,7 +247,6 @@ export function Transcripts() {
         hasSearched={hasSearched}
       />
 
-      {/* Export Modal */}
       <ExportFormatModal
         open={showExportModal}
         onOpenChange={setShowExportModal}

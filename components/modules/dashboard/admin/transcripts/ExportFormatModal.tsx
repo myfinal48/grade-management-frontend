@@ -16,6 +16,7 @@ import { FileText, FileSpreadsheet, Download, Building, Users, Calendar } from "
 import type { TranscriptFilters } from "@/types/transcript"
 import type { University } from "@/types/university"
 import { useExportMultipleTranscriptsPDF, useExportMultipleTranscriptsExcel } from "@/hooks/useTranscripts"
+import { toast } from "sonner"
 
 interface ExportFormatModalProps {
   open: boolean
@@ -31,7 +32,7 @@ export function ExportFormatModal({
   filters,
   selectedUniversity,
   totalCount,
-}: ExportFormatModalProps) {
+}: Readonly<ExportFormatModalProps>) {
   const [selectedFormat, setSelectedFormat] = useState<"pdf" | "excel" | null>(null)
 
   const exportPDF = useExportMultipleTranscriptsPDF()
@@ -39,6 +40,10 @@ export function ExportFormatModal({
 
   const handleExport = async () => {
     if (!selectedFormat) return
+    if (filters.studentIds.length === 0 || filters.semesterIds.length === 0) {
+      toast.warning("Veuillez sélectionner au moins un étudiant et un semestre")
+      return
+    }
     if (selectedFormat === "pdf") {
       await exportPDF.mutateAsync({
         filters,

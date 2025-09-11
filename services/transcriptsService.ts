@@ -1,5 +1,41 @@
 import { apiClient } from "@/lib/axios"
+import type { AxiosError } from "axios"
 import type { Transcript, TranscriptFilters } from "@/types/transcript"
+
+function normalizeAndValidateFilters(filters: TranscriptFilters): TranscriptFilters {
+  const normalizedStudentIds = Array.from(
+    new Set(
+      (filters.studentIds || [])
+        .map((id) => Number(id))
+        .filter((id) => Number.isInteger(id) && id > 0),
+    ),
+  )
+
+  const normalizedSemesterIds = Array.from(
+    new Set(
+      (filters.semesterIds || [])
+        .map((id) => Number(id))
+        .filter((id) => Number.isInteger(id) && id > 0),
+    ),
+  )
+
+  const trimmedYear = (filters.universityYear || "").trim()
+  const year = trimmedYear.length > 0 ? trimmedYear : ""
+  const yearRegex = /^\d{4}-\d{4}$/
+  if (year && !yearRegex.test(year)) {
+    throw new Error("Format de l'année universitaire invalide. Utilisez AAAA-AAAA (ex: 2023-2024)")
+  }
+
+  if (normalizedStudentIds.length === 0 || normalizedSemesterIds.length === 0) {
+    throw new Error("Veuillez sélectionner au moins un étudiant et un semestre")
+  }
+
+  return {
+    studentIds: normalizedStudentIds,
+    semesterIds: normalizedSemesterIds,
+    universityYear: year,
+  }
+}
 
 export const transcriptsService = {
   getTranscripts: async (filters: TranscriptFilters): Promise<Transcript[]> => {
@@ -22,18 +58,20 @@ export const transcriptsService = {
   },
 
   exportMultipleTranscriptsPDF: async (filters: TranscriptFilters, universityId?: number): Promise<Blob> => {
+    const validFilters = normalizeAndValidateFilters(filters)
+
     const params = new URLSearchParams()
 
-    filters.studentIds.forEach((id) => {
+    validFilters.studentIds.forEach((id) => {
       params.append("studentIds", id.toString())
     })
 
-    filters.semesterIds.forEach((id) => {
+    validFilters.semesterIds.forEach((id) => {
       params.append("semesterIds", id.toString())
     })
 
-    if (filters.universityYear) {
-      params.append("universityYear", filters.universityYear)
+    if (validFilters.universityYear) {
+      params.append("universityYear", validFilters.universityYear)
     }
 
     if (universityId) {
@@ -52,26 +90,27 @@ export const transcriptsService = {
   },
 
   exportMultipleTranscriptsExcel: async (filters: TranscriptFilters): Promise<Blob> => {
+    const validFilters = normalizeAndValidateFilters(filters)
     const params = new URLSearchParams()
 
-    filters.studentIds.forEach((id) => {
+    validFilters.studentIds.forEach((id) => {
       params.append("studentIds", id.toString())
     })
 
-    filters.semesterIds.forEach((id) => {
+    validFilters.semesterIds.forEach((id) => {
       params.append("semesterIds", id.toString())
     })
 
-    if (filters.universityYear) {
-      params.append("universityYear", filters.universityYear)
+    if (validFilters.universityYear) {
+      params.append("universityYear", validFilters.universityYear)
     }
 
     try {
       const response = await apiClient.get(`/export/transcripts?${params.toString()}`, {
         responseType: "blob",
         headers: {
-          Accept: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-          "Content-Type": "application/json", // Pour la requête
+          Accept:
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/octet-stream",
         },
         timeout: 120000, // 2 minutes
       })
@@ -79,20 +118,16 @@ export const transcriptsService = {
       return response.data
     } catch (error: unknown) {
       if (error && typeof error === "object" && "message" in error) {
+        const anyErr = error as AxiosError
         console.error("❌ Excel export error:", {
-          message: error.message,
-          // @ts-expect-error: response peut exister sur l'objet error
-          status: error.response?.status,
-          // @ts-expect-error: response peut exister sur l'objet error
-          statusText: error.response?.statusText,
-          // @ts-expect-error: response peut exister sur l'objet error
-          data: error.response?.data,
-          // @ts-expect-error: config peut exister sur l'objet error
-          url: error.config?.url,
-          // @ts-expect-error: config peut exister sur l'objet error
-          headers: error.config?.headers,
+          message: (error as { message?: string }).message,
+          status: anyErr?.response?.status,
+          statusText: anyErr?.response?.statusText,
+          data: anyErr?.response?.data,
+          url: anyErr?.config?.url,
+          headers: anyErr?.config?.headers,
         })
-      } 
+      }
       throw error
     }
   },
