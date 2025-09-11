@@ -58,7 +58,7 @@ export const navigationConfig: NavigationItem[] = [
       roles: [UserRoles.ADMIN],
     },
     {
-        title: "Relevés de notes",
+        title: "Relevés",
         href: "/dashboard/transcripts",
         icon: FileArchive,
         roles: [UserRoles.ADMIN],
