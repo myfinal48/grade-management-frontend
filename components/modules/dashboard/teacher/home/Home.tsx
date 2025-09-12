@@ -2,26 +2,27 @@
 
 import { BookOpen, Users, FileText } from "lucide-react"
 import { useCourses } from "@/hooks/useCourses"
-import { useGrades } from "@/hooks/useGrades"
+import { useGradesByTeacher } from "@/hooks/useGrades"
 import { useSession } from "next-auth/react"
 import { HomeCard, HomeCardItem } from "@/components/modules/dashboard/shared"
+import type { GradeResponseData } from "@/types/grade"
 
 export function TeacherHome() {
     const { data: session } = useSession()
-    const teacherId = session?.user?.id ? Number(session.user.id) : undefined
+    const teacherId = session?.user?.id ? Number(session.user.id) : 0
     
     const { getCourses } = useCourses()
-    const { getGradesByTeacher } = useGrades({ teacherId })
+    const gradesQuery = useGradesByTeacher({ teacherId })
     
     const { data: allCourses, isLoading: coursesLoading } = getCourses
-    const { data: teacherGrades, isLoading: gradesLoading } = getGradesByTeacher
+    const { data: teacherGrades, isLoading: gradesLoading } = gradesQuery
     
     const teacherCourses = allCourses?.filter(course => 
         course.teacherId === teacherId
     ) || []
     
     const uniqueStudents = teacherGrades ? 
-        new Set(teacherGrades.map(grade => grade.student.id)).size : 0
+        new Set(teacherGrades.map((grade: GradeResponseData) => grade.student.id)).size : 0
     
     const totalGrades = teacherGrades?.length || 0
 

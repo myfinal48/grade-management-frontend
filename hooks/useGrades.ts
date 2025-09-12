@@ -31,10 +31,10 @@ export function useGradesByStudent(studentId: number) {
   })
 }
 
-export function useGradesByTeacher(teacherId: number) {
+export function useGradesByTeacher({ teacherId }: { teacherId?: number }) {
   return useQuery({
     queryKey: [GradesCacheKeys.Grades, "teacher", teacherId],
-    queryFn: () => gradeService.getByTeacherId(teacherId),
+    queryFn: () => gradeService.getByTeacherId(teacherId as number),
     enabled: !!teacherId,
   })
 }
