@@ -102,6 +102,7 @@ export function EmailForm({
         await sendSimpleEmail.mutateAsync({
           to: data.to,
           recipient: data.to,
+          subject: data.subject,
           body: data.body,
         })
       }

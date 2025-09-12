@@ -111,8 +111,8 @@ export const columns = ({ onDetails, onEdit, onDelete }: ColumnsProps): ColumnDe
               <Eye className="mr-2 h-4 w-4" />
               Détails
             </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => onEdit(course)}>
+            <DropdownMenuSeparator className="hidden" />
+            <DropdownMenuItem onClick={() => onEdit(course)} className="hidden">
               <Edit className="mr-2 h-4 w-4" />
               Modifier
             </DropdownMenuItem>
@@ -123,7 +123,7 @@ export const columns = ({ onDetails, onEdit, onDelete }: ColumnsProps): ColumnDe
             >
               <DropdownMenuItem 
                 onSelect={(e) => e.preventDefault()}
-                className="text-destructive"
+                className="text-destructive hidden"
               >
                 <Trash2 className="mr-2 h-4 w-4" />
                 Supprimer

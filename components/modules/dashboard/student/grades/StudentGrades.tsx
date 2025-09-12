@@ -60,7 +60,20 @@ export function StudentGrades() {
               <Recharts.CartesianGrid strokeDasharray="3 3" />
               <Recharts.XAxis dataKey="course" />
               <Recharts.YAxis domain={[0, 20]} />
-              <Recharts.Tooltip />
+              <Recharts.Tooltip
+                contentStyle={{
+                  background: 'hsl(var(--popover))',
+                  color: 'hsl(var(--popover-foreground))',
+                  border: '1px solid hsl(var(--border))',
+                }}
+                labelStyle={{
+                  color: 'hsl(var(--popover-foreground))',
+                }}
+                itemStyle={{
+                  color: 'hsl(var(--popover-foreground))',
+                }}
+                wrapperStyle={{ outline: 'none' }}
+              />
               <Recharts.Line type="monotone" dataKey="value" name="Note" stroke="#2563eb" strokeWidth={2} dot={{ r: 5 }} activeDot={{ r: 7 }} />
             </Recharts.LineChart>
           </ChartContainer>

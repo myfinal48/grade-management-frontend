@@ -12,8 +12,17 @@ export function StudentHome() {
     
     const list = grades ?? []
     const totalCourses = list.length ? new Set(list.map(g => g.course.id)).size : 0
-    const averageGrade = list.length > 0 
-        ? parseFloat((list.reduce((sum, g) => sum + g.value, 0) / list.length).toFixed(1))
+    const { totalPoints, totalCredits } = list.reduce(
+        (acc, g) => {
+            const credit = g.course?.credit ?? 0
+            acc.totalPoints += g.value * credit
+            acc.totalCredits += credit
+            return acc
+        },
+        { totalPoints: 0, totalCredits: 0 }
+    )
+    const averageGrade = totalCredits > 0
+        ? Math.round(((totalPoints / totalCredits) + Number.EPSILON) * 10) / 10
         : 0.0
 
     const cardItems: HomeCardItem[] = [

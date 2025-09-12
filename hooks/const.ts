@@ -34,3 +34,7 @@ export const UsersCacheKeys = Object.freeze({
   User: 'user',
 })
 
+export const StaffCacheKeys = Object.freeze({
+  Staff: 'staff',
+})
+

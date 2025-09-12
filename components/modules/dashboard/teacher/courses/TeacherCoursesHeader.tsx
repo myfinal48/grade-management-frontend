@@ -17,7 +17,7 @@ export function TeacherCoursesHeader() {
             Gérez les cours qui vous sont assignés
           </p>
         </div>
-        <Button onClick={() => setCreateDialogOpen(true)}>
+        <Button onClick={() => setCreateDialogOpen(true)} className="hidden">
           <Plus className="mr-2 h-4 w-4" />
           Nouveau cours
         </Button>

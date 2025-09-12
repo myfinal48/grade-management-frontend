@@ -15,6 +15,7 @@ export const emailService = {
       const params = new URLSearchParams()
       params.append("to", data.to)
       params.append("recipient", data.recipient)
+      params.append("subject", data.subject)
       params.append("body", data.body)
 
       const response = await apiClient.post<string>(`/emails/simple?${params.toString()}`)

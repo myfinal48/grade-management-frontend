@@ -11,10 +11,10 @@ export function TeacherHome() {
     const { data: session } = useSession()
     const teacherId = session?.user?.id ? Number(session.user.id) : 0
     
-    const { getCourses } = useCourses()
+    const coursesQuery = useCourses()
     const gradesQuery = useGradesByTeacher({ teacherId })
     
-    const { data: allCourses, isLoading: coursesLoading } = getCourses
+    const { data: allCourses, isLoading: coursesLoading } = coursesQuery
     const { data: teacherGrades, isLoading: gradesLoading } = gradesQuery
     
     const teacherCourses = allCourses?.filter(course => 

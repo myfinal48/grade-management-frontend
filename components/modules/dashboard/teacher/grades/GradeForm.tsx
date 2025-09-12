@@ -17,7 +17,7 @@ import * as z from "zod"
 import { useCreateGrade, useUpdateGrade } from "@/hooks/useGrades"
 import { useState, useEffect } from "react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { useUsers } from "@/hooks/useUsers"
+import { useStaffByRole } from "@/hooks/useStaff"
 import { UserRoles } from "@/types"
 import { useCoursesByTeacher } from "@/hooks/useCourses"
 import type { Course } from "@/types/course"
@@ -51,7 +51,7 @@ export function GradeForm({ open, onOpenChange, initialData, mode, gradeId }: Re
   const updateGradeMutation = useUpdateGrade()
   const { data: courses, isLoading: isCoursesLoading } = useCoursesByTeacher({ teacherId })
   const [formError, setFormError] = useState<string | null>(null)
-  const { data: students, isLoading: isStudentsLoading } = useUsers(UserRoles.STUDENT)
+  const { data: students, isLoading: isStudentsLoading } = useStaffByRole(UserRoles.STUDENT, open)
 
   const coursesList = courses || []
 
@@ -200,7 +200,7 @@ export function GradeForm({ open, onOpenChange, initialData, mode, gradeId }: Re
                       placeholder="Note sur 20"
                       min="0"
                       max="20"
-                      step="0.5"
+                      step={0.01}
                       {...field}
                       className={fieldState.invalid ? "border-red-500 focus-visible:ring-red-500" : ""}
                     />

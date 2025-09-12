@@ -35,9 +35,9 @@ export function EmailHistory() {
     const filtered = emails.filter((email: EmailHistoryItem) => {
       const searchLower = searchTerm.toLowerCase()
       return (
-        email.recipient.toLowerCase().includes(searchLower) ||
-        email.body.toLowerCase().includes(searchLower) ||
-        email.status.toLowerCase().includes(searchLower)
+        (email.recipient?.toLowerCase().includes(searchLower) ||
+        email.body?.toLowerCase().includes(searchLower) ||
+        email.status?.toLowerCase().includes(searchLower))
       )
     })
     
@@ -49,10 +49,10 @@ export function EmailHistory() {
           comparison = new Date(a.sentAt).getTime() - new Date(b.sentAt).getTime()
           break
         case "recipient":
-          comparison = a.recipient.localeCompare(b.recipient)
+          comparison = (a.recipient || "").localeCompare(b.recipient || "")
           break
         case "status":
-          comparison = a.status.localeCompare(b.status)
+          comparison = (a.status || "").localeCompare(b.status || "")
           break
       }
       

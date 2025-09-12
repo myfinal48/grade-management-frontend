@@ -166,7 +166,7 @@ export const columns = ({ onDetails, onEdit, onDelete }: ColumnsProps): ColumnDe
             >
               <DropdownMenuItem 
                 onSelect={(e) => e.preventDefault()}
-                className="text-destructive"
+                className="text-destructive hidden"
               >
                 <Trash2 className="mr-2 h-4 w-4" />
                 Supprimer
