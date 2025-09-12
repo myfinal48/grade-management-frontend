@@ -30,10 +30,10 @@ export function Transcripts() {
 
   const { data: transcripts, isLoading } = useTranscripts(filters, hasSearched)
   const { data: universities } = useUniversities()
-  const { getUsers } = useUsers({ role: UserRoles.STUDENT })
+  const { data: users } = useUsers(UserRoles.STUDENT)
   const { data: semesters } = useSemesters()
 
-  const users = getUsers.data
+  
 
   const studentOptions = (users || []).map(user => ({
     value: user.id.toString(),
