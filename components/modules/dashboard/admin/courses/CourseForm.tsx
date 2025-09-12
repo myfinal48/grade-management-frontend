@@ -17,7 +17,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
 import { useEffect } from "react"
 import type { Course } from "@/types/course"
-import { useCourses } from "@/hooks/useCourses"
+import { useCreateCourse, useUpdateCourse } from "@/hooks/useCourses"
 import { useSemesters } from "@/hooks/useSemesters"
 import { useUsers } from "@/hooks/useUsers"
 import { UserRoles, type UserResponseData } from "@/types"
@@ -41,10 +41,10 @@ interface CourseFormProps {
 }
 
 export function CourseForm({ open, onOpenChange, course, mode }: Readonly<CourseFormProps>) {
-  const { createCourse, updateCourse } = useCourses({ courseId: course?.id })
+  const createCourseMutation = useCreateCourse()
+  const updateCourseMutation = useUpdateCourse()
   const { data: semesters, isPending: semestersLoading } = useSemesters()
-  const { getUsers } = useUsers({ role: UserRoles.TEACHER })
-  const { data: teachers, isLoading: teachersLoading } = getUsers
+  const { data: teachers, isLoading: teachersLoading } = useUsers(UserRoles.TEACHER)
 
   const form = useForm<CourseFormData>({
     resolver: zodResolver(courseSchema),
@@ -59,11 +59,11 @@ export function CourseForm({ open, onOpenChange, course, mode }: Readonly<Course
   })
 
   useEffect(() => {
-    if (course) {
+    if (course && semesters) {
       const inferredSemesterId = (() => {
         if (course.semesterId) return course.semesterId
-        const match = semesters?.find((s) => s.name === course.semesterName)
-        return match ? match.id : 1
+        const match = semesters.find((s) => s.name === course.semesterName)
+        return match ? match.id : (semesters[0]?.id || 1)
       })()
 
       form.reset({
@@ -72,15 +72,15 @@ export function CourseForm({ open, onOpenChange, course, mode }: Readonly<Course
         description: course.description || "",
         credit: course.credit ?? 1,
         semesterId: inferredSemesterId,
-        teacherId: course.teacherId ?? null,
+        teacherId: course.teacherId || null,
       })
-    } else {
+    } else if (!course) {
       form.reset({
         code: "",
         name: "",
         description: "",
         credit: 1,
-        semesterId: 1,
+        semesterId: semesters?.[0]?.id || 1,
         teacherId: null,
       })
     }
@@ -88,15 +88,23 @@ export function CourseForm({ open, onOpenChange, course, mode }: Readonly<Course
 
   const onSubmit = async (data: CourseFormData) => {
     if (mode === "create") {
-      await createCourse.mutateAsync(data)
+      await createCourseMutation.mutateAsync(data)
     } else if (course) {
-      await updateCourse.mutateAsync(data)
+      await updateCourseMutation.mutateAsync({ id: course.id, data })
     }
     onOpenChange(false)
     form.reset()
   }
 
-  const isLoading = createCourse.isPending || updateCourse.isPending
+  const isLoading = createCourseMutation.isPending || updateCourseMutation.isPending
+
+  let submitLabel = "Mettre à jour"
+  if (mode === "create") {
+    submitLabel = "Créer"
+  }
+  if (isLoading) {
+    submitLabel = "Enregistrement..."
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -169,7 +177,7 @@ export function CourseForm({ open, onOpenChange, course, mode }: Readonly<Course
                   <FormLabel>Semestre</FormLabel>
                   <Select
                     onValueChange={(value) => field.onChange(Number.parseInt(value))}
-                    value={field.value?.toString() || ""}
+                    value={field.value && field.value !== 0 ? field.value.toString() : ""}
                     disabled={isLoading || semestersLoading}
                   >
                     <FormControl>
@@ -197,7 +205,7 @@ export function CourseForm({ open, onOpenChange, course, mode }: Readonly<Course
                   <FormLabel>Professeur</FormLabel>
                   <Select
                     onValueChange={(value) => field.onChange(value === "none" ? null : Number.parseInt(value))}
-                    value={field.value?.toString() || "none"}
+                    value={field.value ? field.value.toString() : "none"}
                     disabled={isLoading || teachersLoading}
                   >
                     <FormControl>
@@ -223,7 +231,7 @@ export function CourseForm({ open, onOpenChange, course, mode }: Readonly<Course
                 Annuler
               </Button>
               <Button type="submit" disabled={isLoading}>
-                {isLoading ? "Enregistrement..." : mode === "create" ? "Créer" : "Mettre à jour"}
+                {submitLabel}
               </Button>
             </DialogFooter>
           </form>

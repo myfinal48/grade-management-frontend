@@ -8,21 +8,21 @@ import { useLevels } from "@/hooks/useLevels"
 import { HomeCard, HomeCardItem } from "@/components/modules/dashboard/shared"
 
 export function AdminHome() {
-    const { getUsers } = useUsers()
-    const { getCourses } = useCourses()
+    const { data: users, isLoading: usersLoading } = useUsers()
+    const { data: courses, isLoading: coursesLoading } = useCourses()
     const { data: majors, isLoading: majorsLoading } = useMajors()
     const { data: levels, isLoading: levelsLoading } = useLevels()
     
-    const totalUsers = getUsers.data?.length || 0
-    const totalCourses = getCourses.data?.length || 0
+    const totalUsers = users?.length || 0
+    const totalCourses = courses?.length || 0
     const totalMajors = majors?.length || 0
     const totalLevels = levels?.length || 0
 
     
 
     const cardItems: HomeCardItem[] = [
-        { title: "Total Utilisateurs", description: "Utilisateurs enregistrés", icon: Users, count: totalUsers, isLoading: getUsers.isLoading },
-        { title: "Cours Actifs", description: "Cours disponibles", icon: BookOpen, count: totalCourses, isLoading: getCourses.isLoading },
+        { title: "Total Utilisateurs", description: "Utilisateurs enregistrés", icon: Users, count: totalUsers, isLoading: usersLoading },
+        { title: "Cours Actifs", description: "Cours disponibles", icon: BookOpen, count: totalCourses, isLoading: coursesLoading },
         { title: "Filières", description: "Filières disponibles", icon: Building2, count: totalMajors, isLoading: majorsLoading },
         { title: "Niveaux", description: "Niveaux académiques", icon: GraduationCap, count: totalLevels, isLoading: levelsLoading },
     ] 

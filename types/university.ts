@@ -5,6 +5,7 @@ export interface University {
   phone: string
   website: string
   logoUrl: string
+  fullUrl?: string
 }
 
 export interface CreateUniversityRequest {

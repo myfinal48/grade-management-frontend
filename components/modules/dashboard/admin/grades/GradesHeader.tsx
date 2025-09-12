@@ -7,7 +7,7 @@ interface GradesHeaderProps {
   onCreateNew: () => void
 }
 
-export function GradesHeader({ onCreateNew }: GradesHeaderProps) {
+export function GradesHeader({ onCreateNew }: Readonly<GradesHeaderProps>) {
   return (
     <div className="flex items-center justify-between">
       <div>
@@ -16,7 +16,7 @@ export function GradesHeader({ onCreateNew }: GradesHeaderProps) {
           Gérer les notes des étudiants
         </p>
       </div>
-      <Button onClick={onCreateNew}>
+      <Button onClick={onCreateNew} className="hidden">
         <Plus className="mr-2 h-4 w-4" />
         Ajouter une note
       </Button>

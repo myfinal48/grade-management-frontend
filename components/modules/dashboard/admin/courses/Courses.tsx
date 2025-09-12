@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { useCourses } from "@/hooks/useCourses"
+import { useCourses, useDeleteCourse } from "@/hooks/useCourses"
 import { useSemesters } from "@/hooks/useSemesters"
 import { CoursesHeader } from "./CoursesHeader"
 import { DataTable } from "./data-table"
@@ -14,8 +14,8 @@ export function Courses() {
   const [editingCourse, setEditingCourse] = useState<Course | null>(null)
   const [isFormOpen, setIsFormOpen] = useState(false)
 
-  const { getCourses, deleteCourse } = useCourses()
-  const { data: courses, isPending: isLoadingCourses } = getCourses
+  const { data: courses, isLoading: isLoadingCourses } = useCourses()
+  const deleteCourse = useDeleteCourse()
   const { data: semesters, isPending: isLoadingSemesters } = useSemesters()
 
   const handleEdit = (course: Course) => {

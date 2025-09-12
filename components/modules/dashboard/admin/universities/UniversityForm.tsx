@@ -111,7 +111,7 @@ export function UniversityForm({ open, onOpenChange, university, mode }: Readonl
   const isLoading = createUniversity.isPending || updateUniversity.isPending
 
   const currentLogoUrl =
-    university?.logoUrl && !selectedFile ? `https://${university.logoUrl}` : null
+    university?.fullUrl && !selectedFile ? university.fullUrl : null
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -131,7 +131,7 @@ export function UniversityForm({ open, onOpenChange, university, mode }: Readonl
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Nom de l&qpos;Université</FormLabel>
+                  <FormLabel>{"Nom de l'Université"}</FormLabel>
                   <FormControl>
                     <Input placeholder="Entrer le nom de l'université" {...field} />
                   </FormControl>
@@ -202,7 +202,7 @@ export function UniversityForm({ open, onOpenChange, university, mode }: Readonl
                 </div>
               )}
 
-              <div className="flex items-center gap-2">
+              <div className="flex flex-col-reverse items-center gap-2">
                 <Button
                   type="button"
                   variant="outline"

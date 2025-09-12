@@ -37,6 +37,13 @@ export function useCreateCourse() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [CoursesCacheKeys.Courses] })
       queryClient.invalidateQueries({ queryKey: [CoursesCacheKeys.Course] })
+      
+      queryClient.invalidateQueries({ 
+        predicate: (query) => 
+          query.queryKey[0] === CoursesCacheKeys.Courses && 
+          query.queryKey[1] === "teacher"
+      })
+      
       toast.success("Succès", {
         description: "Cours créé avec succès",
       })
@@ -51,10 +58,17 @@ export function useCreateCourse() {
 export function useUpdateCourse() {
   return useMutation({
     mutationFn: ({ id, data }: { id: number; data: CourseRequestData }) => courseService.update(id, data),
-    onSuccess: (_, { id }) => {
+    onSuccess: (updatedCourse, { id }) => {
       queryClient.invalidateQueries({ queryKey: [CoursesCacheKeys.Courses] })
       queryClient.invalidateQueries({ queryKey: [CoursesCacheKeys.Course, id] })
       queryClient.invalidateQueries({ queryKey: [CoursesCacheKeys.Course] })
+      
+      queryClient.invalidateQueries({ 
+        predicate: (query) => 
+          query.queryKey[0] === CoursesCacheKeys.Courses && 
+          query.queryKey[1] === "teacher"
+      })
+      
       toast.success("Succès", {
         description: "Cours mis à jour avec succès",
       })
@@ -73,6 +87,13 @@ export function useDeleteCourse() {
       queryClient.invalidateQueries({ queryKey: [CoursesCacheKeys.Courses] })
       queryClient.invalidateQueries({ queryKey: [CoursesCacheKeys.Course, id] })
       queryClient.invalidateQueries({ queryKey: [CoursesCacheKeys.Course] })
+      
+      queryClient.invalidateQueries({ 
+        predicate: (query) => 
+          query.queryKey[0] === CoursesCacheKeys.Courses && 
+          query.queryKey[1] === "teacher"
+      })
+      
       toast.success("Succès", {
         description: "Cours supprimé avec succès",
       })
