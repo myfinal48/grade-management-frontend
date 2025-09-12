@@ -1,20 +1,19 @@
 "use client"
 
 import { BookOpen, TrendingUp } from "lucide-react"
-import { useGrades } from "@/hooks/useGrades"
+import { useGradesByStudent } from "@/hooks/useGrades"
 import { useSession } from "next-auth/react"
 import { HomeCard, HomeCardItem } from "@/components/modules/dashboard/shared"
 
 export function StudentHome() {
     const { data: session } = useSession()
-    const studentId = session?.user?.id ? Number(session.user.id) : undefined
+    const studentId = session?.user?.id ? Number(session.user.id) : 0
+    const { data: grades, isLoading } = useGradesByStudent(studentId)
     
-    const { getGradesByStudent } = useGrades({ studentId })
-    const { data: grades, isLoading } = getGradesByStudent
-    
-    const totalCourses = grades ? new Set(grades.map(g => g.course.id)).size : 0
-    const averageGrade = grades && grades.length > 0 
-        ? parseFloat((grades.reduce((sum, g) => sum + g.value, 0) / grades.length).toFixed(1))
+    const list = grades ?? []
+    const totalCourses = list.length ? new Set(list.map(g => g.course.id)).size : 0
+    const averageGrade = list.length > 0 
+        ? parseFloat((list.reduce((sum, g) => sum + g.value, 0) / list.length).toFixed(1))
         : 0.0
 
     const cardItems: HomeCardItem[] = [
