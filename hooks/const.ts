@@ -24,5 +24,8 @@ export const GradesCacheKeys = Object.freeze({
 })
 
 
-
+export const UniversitiesCacheKeys = Object.freeze({
+  Universities: 'universities',
+  University: 'university',
+})
 
