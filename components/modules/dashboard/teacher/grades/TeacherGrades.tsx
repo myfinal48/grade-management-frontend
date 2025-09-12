@@ -3,7 +3,7 @@
 import React, { useState } from "react"
 import { useSession } from "next-auth/react"
 import { useGradesByTeacher, useDeleteGrade } from "@/hooks/useGrades"
-import { useCourses } from "@/hooks/useCourses"
+import { useCoursesByTeacher } from "@/hooks/useCourses"
 import { TeacherGradesLoading, TeacherGradeDetails, columns, DataTable, TeacherGradesHeader, GradeForm } from "@/components/modules/dashboard/teacher/grades"
 import type { GradeResponseData } from "@/types/grade"
 
@@ -12,8 +12,8 @@ export function TeacherGrades() {
   const teacherId = session?.user?.id ? Number(session.user.id) : 0
   
   const { data: grades, isLoading } = useGradesByTeacher({ teacherId })
-  const { getByTeacherId } = useCourses({ teacherId })
-  const courses = getByTeacherId.data || []
+  const { data: courses } = useCoursesByTeacher({ teacherId })
+  const coursesList = courses || []
   
   const [selectedGrade, setSelectedGrade] = useState<GradeResponseData | null>(null)
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false)
@@ -55,7 +55,7 @@ export function TeacherGrades() {
       <DataTable
         data={grades || []}
         columns={columns({ onDetails: handleDetails, onEdit: handleEdit, onDelete: handleDelete })}
-        courses={courses}
+        courses={coursesList}
       />
       <TeacherGradeDetails
         grade={selectedGrade}

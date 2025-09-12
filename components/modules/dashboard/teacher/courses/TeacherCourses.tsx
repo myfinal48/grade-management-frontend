@@ -1,87 +1,77 @@
-"use client";
-import { useCourses } from "@/hooks/useCourses";
-import { useSemesters } from "@/hooks/useSemesters";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { BookOpen } from "lucide-react";
-import { GridSkeleton } from "@/components/ui/loading-skeletons";
-import { useState, useMemo } from "react";
+"use client"
 
-export function TeacherCourses({ teacherId }: { teacherId: number }) {
-  const [semesterFilter, setSemesterFilter] = useState("all");
-  const { getByTeacherId } = useCourses({ teacherId });
-  const { data: semesters } = useSemesters();
-  const { data: courses, isLoading, error, refetch } = getByTeacherId;
+import React, { useState } from "react"
+import { useSession } from "next-auth/react"
+import { useCoursesByTeacher, useDeleteCourse } from "@/hooks/useCourses"
+import { TeacherCoursesLoading, TeacherCourseDetails, columns, DataTable, TeacherCoursesHeader, CourseForm } from "@/components/modules/dashboard/teacher/courses"
+import type { Course } from "@/types/course"
+
+export function TeacherCourses() {
+  const { data: session } = useSession()
+  const teacherId = session?.user?.id ? Number(session.user.id) : 0
   
-  const filteredCourses = useMemo(() => {
-    if (!courses) return [];
-    if (semesterFilter === "all") return courses;
-    
-    return courses.filter(course => {
-      const semester = semesters?.find(s => s.name === course.semesterName);
-      return semester && String(semester.id) === semesterFilter;
-    });
-  }, [courses, semesterFilter, semesters]);
+  const { data: courses, isLoading } = useCoursesByTeacher({ teacherId })
+  const deleteCourseMutation = useDeleteCourse()
+  
+  const [selectedCourse, setSelectedCourse] = useState<Course | null>(null)
+  const [detailsDialogOpen, setDetailsDialogOpen] = useState(false)
+  const [editCourse, setEditCourse] = useState<Course | null>(null)
+  const [editDialogOpen, setEditDialogOpen] = useState(false)
+
+  const handleDetails = (course: Course) => {
+    setSelectedCourse(course)
+    setDetailsDialogOpen(true)
+  }
+
+  const handleDetailsDialogClose = (open: boolean) => {
+    setDetailsDialogOpen(open)
+    if (!open) setSelectedCourse(null)
+  }
+
+  const handleEdit = (course: Course) => {
+    setEditCourse(course)
+    setEditDialogOpen(true)
+  }
+
+  const handleEditDialogClose = (open: boolean) => {
+    setEditDialogOpen(open)
+    if (!open) setEditCourse(null)
+  }
+
+  const handleDelete = (courseId: number) => {
+    deleteCourseMutation.mutate(courseId)
+  }
+
+  if (isLoading) {
+    return <TeacherCoursesLoading />
+  }
 
   return (
-    <Card>
-      <CardHeader>
-        <div className="flex flex-row items-center gap-2 mb-4">
-          <BookOpen className="w-6 h-6" />
-          <CardTitle>Mes cours assignés</CardTitle>
-        </div>
-        <div className="flex items-center gap-2">
-          <Select value={semesterFilter} onValueChange={setSemesterFilter}>
-            <SelectTrigger className="w-[200px]">
-              <SelectValue placeholder="Filtrer par semestre" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Tous les semestres</SelectItem>
-              {semesters?.map((semester) => (
-                <SelectItem key={semester.id} value={String(semester.id)}>
-                  {semester.name} - {semester.universityYear}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-      </CardHeader>
-      <CardContent>
-        {isLoading && (
-          <GridSkeleton items={3} columns={3} cardHeight="h-32" />
-        )}
-        {error && (
-          <Alert variant="destructive">
-            <AlertTitle>Erreur</AlertTitle>
-            <AlertDescription>
-              Impossible de charger vos cours. <button onClick={() => refetch()} className="underline">Réessayer</button>
-            </AlertDescription>
-          </Alert>
-        )}
-        {!isLoading && !error && (
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {filteredCourses && filteredCourses.length > 0 ? (
-              filteredCourses.map(course => (
-                <Card key={course.id}>
-                  <CardHeader>
-                    <CardTitle>{course.name}</CardTitle>
-                    <CardDescription>Code : {course.code}</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-sm text-muted-foreground mb-2">Crédits : {course.credit}</div>
-                    <div className="text-xs">{course.description}</div>
-                  </CardContent>
-                </Card>
-              ))
-            ) : (
-              <div className="col-span-full text-center text-muted-foreground py-12">
-                Aucun cours assigné pour le moment.
-              </div>
-            )}
-          </div>
-        )}
-      </CardContent>
-    </Card>
-  );
+    <div className="space-y-6">
+      <TeacherCoursesHeader />
+      <DataTable
+        data={courses || []}
+        columns={columns({ onDetails: handleDetails, onEdit: handleEdit, onDelete: handleDelete })}
+      />
+      <TeacherCourseDetails
+        course={selectedCourse}
+        open={detailsDialogOpen}
+        onOpenChange={handleDetailsDialogClose}
+      />
+      <CourseForm
+        open={editDialogOpen}
+        onOpenChange={handleEditDialogClose}
+        mode="edit"
+        courseId={editCourse?.id}
+        initialData={editCourse ? {
+          name: editCourse.name,
+          code: editCourse.code,
+          credit: editCourse.credit,
+          description: editCourse.description,
+          semesterId: editCourse.semesterId,
+          semesterName: editCourse.semesterName,
+        } : undefined}
+      />
+    </div>
+  )
 } 

@@ -19,7 +19,8 @@ import { useState, useEffect } from "react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useUsers } from "@/hooks/useUsers"
 import { UserRoles } from "@/types"
-import { useCourses } from "@/hooks/useCourses"
+import { useCoursesByTeacher } from "@/hooks/useCourses"
+import type { Course } from "@/types/course"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Loader2 } from "lucide-react"
 import { useSession } from "next-auth/react"
@@ -48,12 +49,11 @@ export function GradeForm({ open, onOpenChange, initialData, mode, gradeId }: Re
   
   const createGradeMutation = useCreateGrade()
   const updateGradeMutation = useUpdateGrade()
-  const { getByTeacherId } = useCourses({ teacherId })
+  const { data: courses, isLoading: isCoursesLoading } = useCoursesByTeacher({ teacherId })
   const [formError, setFormError] = useState<string | null>(null)
   const { data: students, isLoading: isStudentsLoading } = useUsers(UserRoles.STUDENT)
 
-  const courses = getByTeacherId.data || []
-  const isCoursesLoading = getByTeacherId.isLoading
+  const coursesList = courses || []
 
   const form = useForm<GradeFormData>({
     resolver: zodResolver(gradeSchema),
@@ -173,8 +173,8 @@ export function GradeForm({ open, onOpenChange, initialData, mode, gradeId }: Re
                           <Loader2 className="h-4 w-4 animate-spin" />
                           Chargement...
                         </div>
-                      ) : courses.length > 0 ? (
-                        courses.map((course) => (
+                      ) : coursesList.length > 0 ? (
+                        coursesList.map((course: Course) => (
                           <SelectItem key={course.id} value={String(course.id)}>
                             {course.name} ({course.code})
                           </SelectItem>
