@@ -6,7 +6,6 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
-  DialogTrigger,
 } from "@/components/ui/dialog"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
@@ -14,16 +13,16 @@ import { BookOpen, Calendar, TrendingUp } from "lucide-react"
 import type { GradeResponseData } from "@/types/grade"
 
 interface GradeDetailsProps {
-  grade: GradeResponseData
-  children: React.ReactNode
+  grade: GradeResponseData | null
+  open: boolean
+  onOpenChange: (open: boolean) => void
 }
 
-export function GradeDetails({ grade, children }: GradeDetailsProps) {
+export function GradeDetails({ grade, open, onOpenChange }: GradeDetailsProps) {
+  if (!grade) return null
+
   return (
-    <Dialog>
-      <DialogTrigger asChild>
-        {children}
-      </DialogTrigger>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-lg">
         <DialogHeader>
           <DialogTitle>Détail de la note</DialogTitle>
@@ -60,7 +59,7 @@ export function GradeDetails({ grade, children }: GradeDetailsProps) {
             </div>
             <div>
               <div className="flex items-center gap-2 font-medium mb-1">
-                <Calendar className="h-4 w-4" />{" Date d'attribution"}
+                <Calendar className="h-4 w-4" /> {"Date d'attribution"}
               </div>
               <div className="text-sm">{new Date(grade.createdAt).toLocaleString("fr-FR")}</div>
             </div>

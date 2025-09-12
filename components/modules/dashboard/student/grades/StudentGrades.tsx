@@ -14,9 +14,18 @@ export function StudentGrades() {
   const studentId = session?.user?.id ? Number(session.user.id) : 0
   const { data: grades, isLoading } = useGradesByStudent(studentId)
   const [selectedGrade, setSelectedGrade] = useState<GradeResponseData | null>(null)
+  const [dialogOpen, setDialogOpen] = useState(false)
 
   const handleDetails = (grade: GradeResponseData) => {
     setSelectedGrade(grade)
+    setDialogOpen(true)
+  }
+
+  const handleDialogClose = (open: boolean) => {
+    setDialogOpen(open)
+    if (!open) {
+      setSelectedGrade(null)
+    }
   }
 
   const chartData = React.useMemo(() => {
@@ -66,13 +75,11 @@ export function StudentGrades() {
         }}
       />
     
-      {selectedGrade && (
-        <GradeDetails 
-          grade={selectedGrade}
-        >
-          <div />
-        </GradeDetails>
-      )}
+      <GradeDetails 
+        grade={selectedGrade}
+        open={dialogOpen}
+        onOpenChange={handleDialogClose}
+      />
     </div>
   )
 } 
