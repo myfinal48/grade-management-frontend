@@ -23,8 +23,9 @@ export interface RegisterRequest {
 export interface UpdateUserRequestData {
   username: string;
   email: string;
+  password?: string;
   firstName: string;
   lastName: string;
   registrationNumber: string;
   role: UserRole;
-} 
+}

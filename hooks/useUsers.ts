@@ -1,52 +1,78 @@
-import { userService } from "@/services/userService";
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { toast } from "sonner";
-import { queryClient } from "@/providers";
-import { UserRole } from "@/types";
-import { UpdateUserRequestData } from "@/types/user";
+import { useMutation, useQuery } from "@tanstack/react-query"
+import { userService } from "@/services/userService"
+import type { RegisterRequest, UpdateUserRequestData } from "@/types/user"
+import type { ApiError } from "@/lib/axios"
+import { getErrorMessage } from "@/lib/axios"
+import { toast } from "sonner"
+import { queryClient } from "@/providers"
+import { UsersCacheKeys } from "./const"
+import { UserRole } from "@/types"
 
-export const useUsers = ({ userId, role }: { userId?: number; role?: UserRole } = {}) => {
-  const getUsers = useQuery({
-    queryKey: ["users", role],
+export function useUsers(role?: UserRole) {
+  return useQuery({
+    queryKey: [UsersCacheKeys.Users, role],
     queryFn: () => userService.getAll(role),
-    enabled: true,
-  });
+    staleTime: 5 * 60 * 1000,
+  })
+}
 
-  const getUser = useQuery({
-    queryKey: ["user", userId],
-    queryFn: () => userService.getById(userId as number),
-    enabled: !!userId,
-  });
+export function useUser(id: number) {
+  return useQuery({
+    queryKey: [UsersCacheKeys.User, id],
+    queryFn: () => userService.getById(id),
+    enabled: !!id,
+  })
+}
 
-  const createUser = useMutation({
-    mutationFn: userService.create,
+export function useCreateUser() {
+  return useMutation({
+    mutationFn: (data: RegisterRequest) => userService.create(data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["users"] });
-      toast.success("Utilisateur créé avec succès");
+      queryClient.invalidateQueries({ queryKey: [UsersCacheKeys.Users] })
+      queryClient.invalidateQueries({ queryKey: [UsersCacheKeys.User] })
+      toast.success("Success", {
+        description: "Utilisateur créé avec succès",
+      })
     },
-  });
-
-  const deleteUser = useMutation({
-    mutationFn: (id: number) => userService.delete(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["users"] });
-      toast.success("Utilisateur supprimé avec succès");
+    onError: (error: ApiError) => {
+      const message = getErrorMessage(error, "Échec de la création de l'utilisateur")
+      toast.error("", { description: message })
     },
-  });
+  })
+}
 
-  const updateUser = useMutation({
+export function useUpdateUser() {
+  return useMutation({
     mutationFn: ({ id, data }: { id: number; data: UpdateUserRequestData }) => userService.update(id, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["users"] });
-      toast.success("Utilisateur modifié avec succès");
+    onSuccess: (_, { id }) => {
+      queryClient.invalidateQueries({ queryKey: [UsersCacheKeys.Users] })
+      queryClient.invalidateQueries({ queryKey: [UsersCacheKeys.User, id] })
+      queryClient.invalidateQueries({ queryKey: [UsersCacheKeys.User] })
+      toast.success("Success", {
+        description: "Utilisateur mis à jour avec succès",
+      })
     },
-  });
+    onError: (error: ApiError) => {
+      const message = getErrorMessage(error, "Échec de la mise à jour de l'utilisateur")
+      toast.error("", { description: message })
+    },
+  })
+}
 
-  return {
-    getUsers,
-    getUser,
-    createUser,
-    updateUser,
-    deleteUser,
-  };
-}; 
+export function useDeleteUser() {
+  return useMutation({
+    mutationFn: (id: number) => userService.delete(id),
+    onSuccess: (_, id) => {
+      queryClient.invalidateQueries({ queryKey: [UsersCacheKeys.Users] })
+      queryClient.invalidateQueries({ queryKey: [UsersCacheKeys.User, id] })
+      queryClient.invalidateQueries({ queryKey: [UsersCacheKeys.User] })
+      toast.success("Success", {
+        description: "Utilisateur supprimé avec succès",
+      })
+    },
+    onError: (error: ApiError) => {
+      const message = getErrorMessage(error, "Échec de la suppression de l'utilisateur")
+      toast.error("", { description: message })
+    },
+  })
+}

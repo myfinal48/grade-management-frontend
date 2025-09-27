@@ -1,6 +1,7 @@
 export interface SimpleEmailRequest {
   to: string
   recipient: string
+  subject: string
   body: string
 }
 
@@ -32,7 +33,7 @@ export interface EmailHistoryItem {
 export interface EmailTemplate {
   id: number
   name: string
-  recipient: string
+  subject: string
   body: string
   variables: string[]
   createdAt: string
@@ -41,7 +42,7 @@ export interface EmailTemplate {
 
 export interface CreateEmailTemplateRequest {
   name: string
-  recipient: string
+  subject: string
   body: string
   variables?: string[]
 }
@@ -49,7 +50,7 @@ export interface CreateEmailTemplateRequest {
 export interface UpdateEmailTemplateRequest {
   id: number
   name: string
-  recipient: string
+  subject: string
   body: string
   variables?: string[]
 }

@@ -1,6 +1,8 @@
 import { useMutation, useQuery } from "@tanstack/react-query"
 import { levelsService } from "@/services/levelsService"
 import type { CreateLevelRequest, UpdateLevelRequest } from "@/types/level"
+import type { ApiError } from "@/lib/axios"
+import { getErrorMessage } from "@/lib/axios"
 import { toast } from "sonner"
 import { queryClient } from "@/providers"
 import { LevelsCacheKeys } from "./const"
@@ -27,16 +29,14 @@ export function useCreateLevel() {
       levelsService.createLevel(majorId, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [LevelsCacheKeys.Levels] })
+      queryClient.invalidateQueries({ queryKey: [LevelsCacheKeys.Level] })
       toast.success("Success",{
-        description: "Level created successfully",
+        description: "Niveau créé avec succès",
       })
     },
-    onError: (error: unknown) => {
-      let message = "Failed to create level";
-      if (error && typeof error === 'object' && 'response' in error && error.response && typeof error.response === 'object' && 'data' in error.response && error.response.data && typeof error.response.data === 'object' && 'message' in error.response.data) {
-        message = (error.response.data as { message?: string }).message || message;
-      }
-      toast.error("Error", { description: message });
+    onError: (error: ApiError) => {
+      const message = getErrorMessage(error, "Echec de la création du niveau");
+      toast.error("", { description: message });
     },
   })
 }
@@ -44,18 +44,17 @@ export function useCreateLevel() {
 export function useUpdateLevel() {
   return useMutation({
     mutationFn: ({ id, data }: { id: number; data: UpdateLevelRequest }) => levelsService.updateLevel(id, data),
-    onSuccess: () => {
+    onSuccess: (_, { id }) => {
       queryClient.invalidateQueries({ queryKey: [LevelsCacheKeys.Levels] })
+      queryClient.invalidateQueries({ queryKey: [LevelsCacheKeys.Level, id] })
+      queryClient.invalidateQueries({ queryKey: [LevelsCacheKeys.Level] })
       toast.success("Success",{
-        description: "Level updated successfully",
+        description: "Niveau mis à jour avec succès",
       })
     },
-    onError: (error: unknown) => {
-      let message = "Failed to update level";
-      if (error && typeof error === 'object' && 'response' in error && error.response && typeof error.response === 'object' && 'data' in error.response && error.response.data && typeof error.response.data === 'object' && 'message' in error.response.data) {
-        message = (error.response.data as { message?: string }).message || message;
-      }
-      toast.error("Error", { description: message });
+    onError: (error: ApiError) => {
+      const message = getErrorMessage(error, "Echec de la mise à jour du niveau");
+      toast.error("", { description: message });
     },
   })
 }
@@ -63,18 +62,17 @@ export function useUpdateLevel() {
 export function useDeleteLevel() {
   return useMutation({
     mutationFn: (id: number) => levelsService.deleteLevel(id),
-    onSuccess: () => {
+    onSuccess: (_, id) => {
       queryClient.invalidateQueries({ queryKey: [LevelsCacheKeys.Levels] })
+      queryClient.invalidateQueries({ queryKey: [LevelsCacheKeys.Level, id] })
+      queryClient.invalidateQueries({ queryKey: [LevelsCacheKeys.Level] })
       toast.success("Success",{
-        description: "Level deleted successfully",
+        description: "Niveau supprimé avec succès",
       })
     },
-    onError: (error: unknown) => {
-      let message = "Failed to delete level";
-      if (error && typeof error === 'object' && 'response' in error && error.response && typeof error.response === 'object' && 'data' in error.response && error.response.data && typeof error.response.data === 'object' && 'message' in error.response.data) {
-        message = (error.response.data as { message?: string }).message || message;
-      }
-      toast.error("Error", { description: message });
+    onError: (error: ApiError) => {
+      const message = getErrorMessage(error, "Echec de la suppression du niveau");
+      toast.error("", { description: message });
     },
   })
 }

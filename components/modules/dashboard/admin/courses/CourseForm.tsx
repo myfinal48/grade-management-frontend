@@ -1,4 +1,5 @@
 "use client"
+
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -10,22 +11,24 @@ import {
 } from "@/components/ui/dialog"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
-import type { CourseRequestData } from "@/types/course"
-import { useCourses } from "@/hooks/useCourses"
-import { useState, useEffect } from "react"
+import { useEffect } from "react"
+import type { Course } from "@/types/course"
+import { useCreateCourse, useUpdateCourse } from "@/hooks/useCourses"
 import { useSemesters } from "@/hooks/useSemesters"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { FormLoadingState, FormErrorState } from "@/components/global"
+import { useUsers } from "@/hooks/useUsers"
+import { UserRoles, type UserResponseData } from "@/types"
 
 const courseSchema = z.object({
-  code: z.string().min(1, "Code is required").max(20, "Code must be less than 20 characters"),
-  name: z.string().min(1, "Name is required").max(100, "Name must be less than 100 characters"),
-  description: z.string().min(1, "Description is required").max(500, "Description must be less than 500 characters"),
-  credit: z.coerce.number().min(1, "Credit is required").max(100, "Credit must be less than 100"),
-  semesterId: z.coerce.number().min(1, "Semester is required"),
+  code: z.string().min(2, "Le code est requis (min 2 caractères)").max(20, "Le code doit contenir moins de 20 caractères"),
+  name: z.string().min(2, "Le nom est requis (min 2 caractères)").max(100, "Le nom doit contenir moins de 100 caractères"),
+  description: z.string().min(10, "La description est requise (min 10 caractères)").max(500, "La description doit contenir moins de 500 caractères"),
+  credit: z.coerce.number().min(1, "Le crédit est requis").max(100, "Le crédit doit être inférieur à 100"),
+  semesterId: z.coerce.number().min(1, "Le semestre est requis"),
+  teacherId: z.coerce.number().optional().nullable(),
 })
 
 type CourseFormData = z.infer<typeof courseSchema>
@@ -33,14 +36,15 @@ type CourseFormData = z.infer<typeof courseSchema>
 interface CourseFormProps {
   open: boolean
   onOpenChange: (open: boolean) => void
-  course?: CourseRequestData & { id?: number }
+  course?: Course
   mode: "create" | "edit"
 }
 
-export function CourseForm({ open, onOpenChange, course, mode }: CourseFormProps) {
-  const { createCourse, updateCourse } = useCourses({ courseId: course?.id })
-  const [formError, setFormError] = useState<string | null>(null)
-  const { data: semesters, isLoading: semestersLoading, error: semestersError } = useSemesters()
+export function CourseForm({ open, onOpenChange, course, mode }: Readonly<CourseFormProps>) {
+  const createCourseMutation = useCreateCourse()
+  const updateCourseMutation = useUpdateCourse()
+  const { data: semesters, isPending: semestersLoading } = useSemesters()
+  const { data: teachers, isLoading: teachersLoading } = useUsers(UserRoles.TEACHER)
 
   const form = useForm<CourseFormData>({
     resolver: zodResolver(courseSchema),
@@ -50,57 +54,65 @@ export function CourseForm({ open, onOpenChange, course, mode }: CourseFormProps
       description: "",
       credit: 1,
       semesterId: 1,
+      teacherId: null,
     },
   })
 
   useEffect(() => {
-    if (course) {
+    if (course && semesters) {
+      const inferredSemesterId = (() => {
+        if (course.semesterId) return course.semesterId
+        const match = semesters.find((s) => s.name === course.semesterName)
+        return match ? match.id : (semesters[0]?.id || 1)
+      })()
+
       form.reset({
         code: course.code || "",
         name: course.name || "",
         description: course.description || "",
         credit: course.credit ?? 1,
-        semesterId: course.semesterId ?? 1,
+        semesterId: inferredSemesterId,
+        teacherId: course.teacherId || null,
       })
-    } else {
+    } else if (!course) {
       form.reset({
         code: "",
         name: "",
         description: "",
         credit: 1,
-        semesterId: 1,
+        semesterId: semesters?.[0]?.id || 1,
+        teacherId: null,
       })
     }
-  }, [course, form])
+  }, [course, semesters, form])
 
   const onSubmit = async (data: CourseFormData) => {
-    setFormError(null)
-    try {
-      if (mode === "create") {
-        await createCourse.mutateAsync(data)
-      } else if (course) {
-        await updateCourse.mutateAsync(data)
-      }
-      onOpenChange(false)
-      form.reset()
-    } catch (error: unknown) {
-      if (error && typeof error === 'object' && 'message' in error) {
-        setFormError((error as { message?: string }).message || "An error occurred. Please try again.")
-      } else {
-        setFormError("An error occurred. Please try again.")
-      }
+    if (mode === "create") {
+      await createCourseMutation.mutateAsync(data)
+    } else if (course) {
+      await updateCourseMutation.mutateAsync({ id: course.id, data })
     }
+    onOpenChange(false)
+    form.reset()
   }
 
-  const isLoading = createCourse.isPending || updateCourse.isPending
+  const isLoading = createCourseMutation.isPending || updateCourseMutation.isPending
+
+  let submitLabel = "Mettre à jour"
+  if (mode === "create") {
+    submitLabel = "Créer"
+  }
+  if (isLoading) {
+    submitLabel = "Enregistrement..."
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>{mode === "create" ? "Create New Course" : "Edit Course"}</DialogTitle>
+          <DialogTitle>{mode === "create" ? "Créer un nouveau cours" : "Modifier le cours"}</DialogTitle>
           <DialogDescription>
-            {mode === "create" ? "Add a new course to the system." : "Make changes to the course information."}
+            {mode === "create" ? "Ajouter un nouveau cours au système." : "Modifier les informations du cours."}
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -112,7 +124,7 @@ export function CourseForm({ open, onOpenChange, course, mode }: CourseFormProps
                 <FormItem>
                   <FormLabel>Code</FormLabel>
                   <FormControl>
-                    <Input placeholder="Enter course code" {...field} />
+                    <Input placeholder="Entrer le code du cours" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -123,9 +135,9 @@ export function CourseForm({ open, onOpenChange, course, mode }: CourseFormProps
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Name</FormLabel>
+                  <FormLabel>Nom</FormLabel>
                   <FormControl>
-                    <Input placeholder="Enter course name" {...field} />
+                    <Input placeholder="Entrer le nom du cours" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -138,7 +150,7 @@ export function CourseForm({ open, onOpenChange, course, mode }: CourseFormProps
                 <FormItem>
                   <FormLabel>Description</FormLabel>
                   <FormControl>
-                    <Input placeholder="Enter course description" {...field} />
+                    <Input placeholder="Entrer la description du cours" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -149,9 +161,9 @@ export function CourseForm({ open, onOpenChange, course, mode }: CourseFormProps
               name="credit"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Credit</FormLabel>
+                  <FormLabel>Crédits</FormLabel>
                   <FormControl>
-                    <Input type="number" placeholder="Enter course credit" {...field} />
+                    <Input type="number" placeholder="Entrer le nombre de crédits" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -162,46 +174,64 @@ export function CourseForm({ open, onOpenChange, course, mode }: CourseFormProps
               name="semesterId"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Semester</FormLabel>
-                  <FormControl>
-                    {semestersLoading ? (
-                      <FormLoadingState message="Chargement des semestres..." />
-                    ) : semestersError ? (
-                      <FormErrorState message="Erreur lors du chargement des semestres" />
-                    ) : (
-                      <Select
-                        value={field.value ? String(field.value) : ""}
-                        onValueChange={(value) => field.onChange(Number(value))}
-                        disabled={isLoading}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select a semester" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {semesters?.map((semester) => (
-                            <SelectItem key={semester.id} value={String(semester.id)}>
-                              {semester.name} - {semester.universityYear}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    )}
-                  </FormControl>
+                  <FormLabel>Semestre</FormLabel>
+                  <Select
+                    onValueChange={(value) => field.onChange(Number.parseInt(value))}
+                    value={field.value && field.value !== 0 ? field.value.toString() : ""}
+                    disabled={isLoading || semestersLoading}
+                  >
+                    <FormControl>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Sélectionner un semestre" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {semesters?.map((semester) => (
+                        <SelectItem key={semester.id} value={semester.id.toString()}>
+                          {semester.name} - {semester.universityYear}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}
             />
-            {formError && (
-              <div className="text-destructive text-sm font-medium text-center">
-                {formError}
-              </div>
-            )}
+            <FormField
+              control={form.control}
+              name="teacherId"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Professeur</FormLabel>
+                  <Select
+                    onValueChange={(value) => field.onChange(value === "none" ? null : Number.parseInt(value))}
+                    value={field.value ? field.value.toString() : "none"}
+                    disabled={isLoading || teachersLoading}
+                  >
+                    <FormControl>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Sélectionner un professeur" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="none">Aucun professeur assigné</SelectItem>
+                      {teachers?.map((teacher: UserResponseData) => (
+                        <SelectItem key={teacher.id} value={teacher.id.toString()}>
+                          {teacher.firstName} {teacher.lastName}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <DialogFooter>
               <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isLoading}>
-                Cancel
+                Annuler
               </Button>
               <Button type="submit" disabled={isLoading}>
-                {isLoading ? "Saving..." : mode === "create" ? "Create" : "Update"}
+                {submitLabel}
               </Button>
             </DialogFooter>
           </form>

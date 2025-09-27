@@ -1,5 +1,6 @@
-"use client";
-import { Button } from "@/components/ui/button";
+"use client"
+
+import { Button } from "@/components/ui/button"
 import {
   Dialog,
   DialogContent,
@@ -7,19 +8,22 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
-import { useGrades } from "@/hooks/useGrades";
-import { useState, useEffect } from "react";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useUsers } from "@/hooks/useUsers";
-import { useCourses } from "@/hooks/useCourses";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Loader2 } from "lucide-react";
+} from "@/components/ui/dialog"
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+import { Input } from "@/components/ui/input"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import * as z from "zod"
+import { useCreateGrade, useUpdateGrade } from "@/hooks/useGrades"
+import { useState, useEffect } from "react"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { useStaffByRole } from "@/hooks/useStaff"
+import { UserRoles } from "@/types"
+import { useCoursesByTeacher } from "@/hooks/useCourses"
+import type { Course } from "@/types/course"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Loader2 } from "lucide-react"
+import { useSession } from "next-auth/react"
 
 const gradeSchema = z.object({
   studentId: z.coerce.number().min(1, "L'étudiant est requis"),
@@ -32,27 +36,24 @@ const gradeSchema = z.object({
 type GradeFormData = z.infer<typeof gradeSchema>;
 
 interface GradeFormProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  initialData?: Partial<GradeFormData>;
-  mode: "create" | "edit";
-  gradeId?: number;
-  teacherId?: number;
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  initialData?: Partial<GradeFormData>
+  mode: "create" | "edit"
+  gradeId?: number
 }
 
-export function GradeForm({ open, onOpenChange, initialData, mode, gradeId, teacherId }: GradeFormProps) {
-  const { createGrade, updateGrade } = useGrades({ gradeId, teacherId });
-  const { getByTeacherId } = useCourses({ teacherId });
-  const [formError, setFormError] = useState<string | null>(null);
-  const { getUsers } = useUsers({ role: "STUDENT" });
+export function GradeForm({ open, onOpenChange, initialData, mode, gradeId }: Readonly<GradeFormProps>) {
+  const { data: session } = useSession()
+  const teacherId = session?.user?.id ? Number(session.user.id) : 0
+  
+  const createGradeMutation = useCreateGrade()
+  const updateGradeMutation = useUpdateGrade()
+  const { data: courses, isLoading: isCoursesLoading } = useCoursesByTeacher({ teacherId })
+  const [formError, setFormError] = useState<string | null>(null)
+  const { data: students, isLoading: isStudentsLoading } = useStaffByRole(UserRoles.STUDENT, open)
 
-  const courses = teacherId && getByTeacherId.data
-    ? getByTeacherId.data
-    : [];
-
-  const isCoursesLoading =getByTeacherId.isLoading;
-
-  const students = getUsers.data || [];
+  const coursesList = courses || []
 
   const form = useForm<GradeFormData>({
     resolver: zodResolver(gradeSchema),
@@ -80,25 +81,25 @@ export function GradeForm({ open, onOpenChange, initialData, mode, gradeId, teac
   }, [initialData, form]);
 
   const onSubmit = async (data: GradeFormData) => {
-    setFormError(null);
+    setFormError(null)
     try {
       if (mode === "create") {
-        await createGrade.mutateAsync(data);
+        await createGradeMutation.mutateAsync(data)
       } else if (gradeId) {
-        await updateGrade.mutateAsync(data);
+        await updateGradeMutation.mutateAsync({ id: gradeId, data })
       }
-      onOpenChange(false);
-      form.reset();
+      onOpenChange(false)
+      form.reset()
     } catch (error: unknown) {
       if (error && typeof error === 'object' && 'message' in error) {
-        setFormError((error as { message?: string }).message || "Une erreur est survenue. Veuillez réessayer.");
+        setFormError((error as { message?: string }).message || "Une erreur est survenue. Veuillez réessayer.")
       } else {
-        setFormError("Une erreur est survenue. Veuillez réessayer.");
+        setFormError("Une erreur est survenue. Veuillez réessayer.")
       }
     }
-  };
+  }
 
-  const isLoading = createGrade.isPending || updateGrade.isPending;
+  const isLoading = createGradeMutation.isPending || updateGradeMutation.isPending
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -122,20 +123,20 @@ export function GradeForm({ open, onOpenChange, initialData, mode, gradeId, teac
                   <Select
                     value={field.value ? String(field.value) : ""}
                     onValueChange={(value) => field.onChange(Number(value))}
-                    disabled={getUsers.isLoading || isLoading}
+                    disabled={isStudentsLoading || isLoading}
                   >
                     <FormControl>
-                      <SelectTrigger className={fieldState.invalid ? "border-red-500 focus-visible:ring-red-500" : ""}>
+                      <SelectTrigger className={`w-full ${fieldState.invalid ? "border-red-500 focus-visible:ring-red-500" : ""}`}>
                         <SelectValue placeholder="Sélectionner un étudiant" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {getUsers.isLoading ? (
+                      {isStudentsLoading ? (
                         <div className="flex items-center gap-2 px-3 py-2 text-muted-foreground text-sm">
                           <Loader2 className="h-4 w-4 animate-spin" />
                           Chargement...
                         </div>
-                      ) : students.length > 0 ? (
+                      ) : students && students.length > 0 ? (
                         students.map((student) => (
                           <SelectItem key={student.id} value={String(student.id)}>
                             {student.firstName} {student.lastName} ({student.email})
@@ -160,10 +161,9 @@ export function GradeForm({ open, onOpenChange, initialData, mode, gradeId, teac
                     value={field.value ? String(field.value) : ""}
                     onValueChange={(value) => field.onChange(Number(value))}
                     disabled={isCoursesLoading || isLoading}
-                    
                   >
                     <FormControl>
-                      <SelectTrigger className={fieldState.invalid ? "border-red-500 focus-visible:ring-red-500" : ""}>
+                      <SelectTrigger className={`w-full ${fieldState.invalid ? "border-red-500 focus-visible:ring-red-500" : ""}`}>
                         <SelectValue placeholder="Sélectionner un cours" />
                       </SelectTrigger>
                     </FormControl>
@@ -173,8 +173,8 @@ export function GradeForm({ open, onOpenChange, initialData, mode, gradeId, teac
                           <Loader2 className="h-4 w-4 animate-spin" />
                           Chargement...
                         </div>
-                      ) : courses.length > 0 ? (
-                        courses.map((course) => (
+                      ) : coursesList.length > 0 ? (
+                        coursesList.map((course: Course) => (
                           <SelectItem key={course.id} value={String(course.id)}>
                             {course.name} ({course.code})
                           </SelectItem>
@@ -200,7 +200,7 @@ export function GradeForm({ open, onOpenChange, initialData, mode, gradeId, teac
                       placeholder="Note sur 20"
                       min="0"
                       max="20"
-                      step="0.5"
+                      step={0.01}
                       {...field}
                       className={fieldState.invalid ? "border-red-500 focus-visible:ring-red-500" : ""}
                     />

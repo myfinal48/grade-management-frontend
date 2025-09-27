@@ -1,1 +1,6 @@
-export * from "./StudentGrades"; 
+export { StudentGrades } from "./StudentGrades"
+export { StudentGradesHeader } from "./StudentGradesHeader"
+export { StudentGradesLoading } from "./StudentGradesLoading"
+export { GradeDetails } from "./GradeDetails"
+export { DataTable } from "./data-table"
+export { columns } from "./columns"
