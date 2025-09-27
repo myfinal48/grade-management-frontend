@@ -8,10 +8,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Eye, MoreHorizontal, FileText } from "lucide-react"
+import { Eye, MoreHorizontal } from "lucide-react"
 import { Transcript } from "@/types/transcript"
 import { TranscriptDetails } from "./TranscriptDetails"
-import { useExportMultipleTranscriptsPDF } from "@/hooks/useTranscripts"
 
 interface TranscriptActionsProps {
   transcript: Transcript
@@ -19,17 +18,7 @@ interface TranscriptActionsProps {
 
 export function TranscriptActions({ transcript }: Readonly<TranscriptActionsProps>) {
   const [showDetails, setShowDetails] = useState(false)
-  const exportPDF = useExportMultipleTranscriptsPDF()
 
-  const handleExportPDF = () => {
-    const filters = {
-      studentIds: [],
-      semesterIds: [],
-      universityYear: transcript.universityYear
-    }
-    
-    exportPDF.mutate({ filters })
-  }
 
   return (
     <>
@@ -44,13 +33,6 @@ export function TranscriptActions({ transcript }: Readonly<TranscriptActionsProp
           <DropdownMenuItem onClick={() => setShowDetails(true)}>
             <Eye className="mr-2 h-4 w-4" />
             Détails
-          </DropdownMenuItem>
-          <DropdownMenuItem 
-            onClick={handleExportPDF}
-            disabled={exportPDF.isPending}
-          >
-            <FileText className="mr-2 h-4 w-4" />
-            Exporter PDF
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

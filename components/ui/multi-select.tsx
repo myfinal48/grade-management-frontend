@@ -116,7 +116,7 @@ export function MultiSelect({
       </Button>
       
       {open && (
-        <div className="absolute top-full left-0 right-0 z-50 mt-1 bg-white border rounded-md shadow-lg max-h-60 overflow-auto">
+        <div className="absolute top-full left-0 right-0 z-50 mt-1 rounded-md border bg-popover text-popover-foreground shadow-lg max-h-60 overflow-auto">
           <div className="p-2">
             <Input
               placeholder={searchPlaceholder}
@@ -133,7 +133,7 @@ export function MultiSelect({
                 <button
                   key={option.value}
                   type="button"
-                  className="flex items-center px-3 py-2 text-sm cursor-pointer hover:bg-gray-100 w-full text-left"
+                  className="flex items-center w-full px-3 py-2 text-sm text-left cursor-pointer hover:bg-accent hover:text-accent-foreground"
                   onClick={() => handleSelect(option.value)}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
@@ -145,7 +145,7 @@ export function MultiSelect({
                   <div className="flex items-center space-x-2 w-full">
                     <div
                       className={cn(
-                        "h-4 w-4 border border-primary rounded-sm flex items-center justify-center",
+                        "h-4 w-4 border border-input rounded-sm flex items-center justify-center",
                         value.includes(option.value) && "bg-primary"
                       )}
                     >

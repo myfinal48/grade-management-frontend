@@ -158,7 +158,7 @@ export function Transcripts() {
                 searchPlaceholder="Rechercher une université..."
                 emptyText="Aucune université trouvée."
                 maxCount={1}
-                className="w-full"
+                className="w-full text-primary-foreground"
               />
             </div>
 
