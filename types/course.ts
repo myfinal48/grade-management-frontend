@@ -2,8 +2,12 @@ export interface Course {
   id: number;
   code: string;
   name: string;
-  description: number;
+  description: string;
   credit: number;
+  semesterName: string;
+  semesterId: number;
+  teacherId: number | null;
+  teacherName: string | null;
 }
 
 export interface CourseRequestData {
@@ -12,6 +16,7 @@ export interface CourseRequestData {
   name: string;
   description: string;
   credit: number;
+  teacherId?: number | null;
 }
 
 export interface CourseResponseData {

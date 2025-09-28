@@ -1,7 +1,17 @@
 "use client"
 
-import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
+
+const SKELETON_KEYS = [
+  "course-skeleton-1",
+  "course-skeleton-2", 
+  "course-skeleton-3",
+  "course-skeleton-4",
+  "course-skeleton-5",
+  "course-skeleton-6",
+  "course-skeleton-7",
+  "course-skeleton-8",
+]
 
 export function CoursesLoading() {
   return (
@@ -15,35 +25,50 @@ export function CoursesLoading() {
         <Skeleton className="h-10 w-32" />
       </div>
 
-      {/* Search skeleton */}
-      <div className="flex items-center space-x-2">
+      {/* Filters skeleton */}
+      <div className="flex items-center py-4 space-x-2">
         <Skeleton className="h-10 w-full max-w-sm" />
+        <Skeleton className="h-10 w-[200px]" />
+        <Skeleton className="h-10 w-[100px] ml-auto" />
       </div>
 
-      {/* Grid skeleton */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {Array.from({ length: 6 }).map((_, i) => (
-          <Card key={i} className="h-full">
-            <CardHeader className="pb-3">
-              <div className="flex items-start justify-between">
-                <div className="space-y-2">
-                  <Skeleton className="h-6 w-32" />
-                  <Skeleton className="h-4 w-16" />
-                </div>
-                <Skeleton className="h-8 w-8" />
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Skeleton className="h-4 w-full" />
-                <Skeleton className="h-4 w-3/4" />
-                <Skeleton className="h-4 w-1/2" />
-              </div>
-              <Skeleton className="h-9 w-20" />
-            </CardContent>
-          </Card>
+      {/* Table skeleton */}
+      <div className="rounded-md border">
+        {/* Table header */}
+        <div className="border-b bg-muted/50">
+          <div className="flex h-12 items-center px-4 space-x-4">
+            <Skeleton className="h-4 w-[80px]" />
+            <Skeleton className="h-4 w-[120px]" />
+            <Skeleton className="h-4 w-[100px]" />
+            <Skeleton className="h-4 w-[80px]" />
+            <Skeleton className="h-4 w-[100px]" />
+            <Skeleton className="h-4 w-[60px]" />
+          </div>
+        </div>
+        
+        {/* Table rows */}
+        {SKELETON_KEYS.map((key) => (
+          <div key={key} className="border-b last:border-0">
+            <div className="flex h-16 items-center px-4 space-x-4">
+              <Skeleton className="h-4 w-[80px]" />
+              <Skeleton className="h-4 w-[120px]" />
+              <Skeleton className="h-4 w-[100px]" />
+              <Skeleton className="h-4 w-[80px]" />
+              <Skeleton className="h-4 w-[100px]" />
+              <Skeleton className="h-8 w-8" />
+            </div>
+          </div>
         ))}
+      </div>
+
+      {/* Pagination skeleton */}
+      <div className="flex items-center justify-end space-x-2 py-4">
+        <Skeleton className="h-4 w-[200px]" />
+        <div className="space-x-2 flex">
+          <Skeleton className="h-8 w-[80px]" />
+          <Skeleton className="h-8 w-[80px]" />
+        </div>
       </div>
     </div>
   )
-} 
+}

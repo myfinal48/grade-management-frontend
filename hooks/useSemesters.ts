@@ -1,6 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { semestersService } from "@/services/semestersService"
 import type { CreateSemesterRequest, UpdateSemesterRequest } from "@/types/semester"
+import type { ApiError } from "@/lib/axios"
+import { getErrorMessage } from "@/lib/axios"
 import { toast } from "sonner"
 import { LevelsCacheKeys, SemestersCacheKeys } from "./const"
 
@@ -9,7 +11,7 @@ export function useSemesters() {
   return useQuery({
     queryKey: [SemestersCacheKeys.Semesters],
     queryFn: semestersService.getAllSemesters,
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 5 * 60 * 1000,
   })
 }
 
@@ -37,14 +39,13 @@ export function useCreateSemester() {
       semestersService.createSemester(levelId, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [SemestersCacheKeys.Semesters] })
-      toast.success("Semester created successfully")
+      toast.success("Succès", {
+        description: "Semestre créé avec succès",
+      })
     },
-    onError: (error: unknown) => {
-      let message = "Failed to create semester";
-      if (error && typeof error === 'object' && 'response' in error && error.response && typeof error.response === 'object' && 'data' in error.response && error.response.data && typeof error.response.data === 'object' && 'message' in error.response.data) {
-        message = (error.response.data as { message?: string }).message || message;
-      }
-      toast.error(message);
+    onError: (error: ApiError) => {
+      const message = getErrorMessage(error, "Échec de la création du semestre");
+      toast.error("", { description: message });
     },
   })
 }
@@ -57,14 +58,13 @@ export function useUpdateSemester() {
       semestersService.updateSemester(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [SemestersCacheKeys.Semesters] })
-      toast.success("Semester updated successfully")
+      toast.success("Succès", {
+        description: "Semestre mis à jour avec succès",
+      })
     },
-    onError: (error: unknown) => {
-      let message = "Failed to update semester";
-      if (error && typeof error === 'object' && 'response' in error && error.response && typeof error.response === 'object' && 'data' in error.response && error.response.data && typeof error.response.data === 'object' && 'message' in error.response.data) {
-        message = (error.response.data as { message?: string }).message || message;
-      }
-      toast.error(message);
+    onError: (error: ApiError) => {
+      const message = getErrorMessage(error, "Échec de la mise à jour du semestre");
+      toast.error("", { description: message });
     },
   })
 }
@@ -76,14 +76,13 @@ export function useDeleteSemester() {
     mutationFn: (id: number) => semestersService.deleteSemester(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [SemestersCacheKeys.Semesters] })
-      toast.success("Semester deleted successfully")
+      toast.success("Succès", {
+        description: "Semestre supprimé avec succès",
+      })
     },
-    onError: (error: unknown) => {
-      let message = "Failed to delete semester";
-      if (error && typeof error === 'object' && 'response' in error && error.response && typeof error.response === 'object' && 'data' in error.response && error.response.data && typeof error.response.data === 'object' && 'message' in error.response.data) {
-        message = (error.response.data as { message?: string }).message || message;
-      }
-      toast.error(message);
+    onError: (error: ApiError) => {
+      const message = getErrorMessage(error, "Échec de la suppression du semestre");
+      toast.error("", { description: message });
     },
   })
 }

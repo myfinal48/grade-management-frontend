@@ -55,3 +55,5 @@ export interface UserResponseData{
   registrationNumber:string
   role:UserRole
 }
+
+export type { Staff, StaffRole } from "./staff"

@@ -1,1 +1,7 @@
-export * from "./Courses" 
+export { Courses } from "./Courses"
+export { CoursesHeader } from "./CoursesHeader"
+export { CoursesLoading } from "./CoursesLoading"
+export { CourseForm } from "./CourseForm"
+export { CourseDetails } from "./CourseDetails"
+export { DataTable } from "./data-table"
+export { columns } from "./columns" 

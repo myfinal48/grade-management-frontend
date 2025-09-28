@@ -21,7 +21,6 @@ export function EmailTranscriptButton({
 }: EmailTranscriptButtonProps) {
   const [showEmailForm, setShowEmailForm] = useState(false)
 
-  // Generate default email content
   const defaultSubject = `Relevé de notes - ${transcript.name} - ${transcript.semester} ${transcript.universityYear}`
   const defaultBody = `Bonjour ${transcript.name},
 

@@ -18,7 +18,6 @@ interface ApiError {
   status?: number
 }
 
-// Email sending hooks
 export function useSendSimpleEmail() {
   const queryClient = useQueryClient()
 
@@ -26,11 +25,9 @@ export function useSendSimpleEmail() {
     mutationFn: (data: SimpleEmailRequest) => emailService.sendSimpleEmail(data),
     onSuccess: (response) => {
       toast.success(response.message)
-      // Invalidate email history to refresh the list
       queryClient.invalidateQueries({ queryKey: EMAIL_HISTORY_QUERY_KEY })
     },
     onError: (error: AxiosError<ApiError>) => {
-      console.error("Send simple email error:", error)
 
       let errorMessage = "Échec de l'envoi de l'email"
 
@@ -57,11 +54,9 @@ export function useSendEmailWithAttachment() {
     mutationFn: (data: EmailWithAttachmentRequest) => emailService.sendEmailWithAttachment(data),
     onSuccess: (response) => {
       toast.success(response.message)
-      // Invalidate email history to refresh the list
       queryClient.invalidateQueries({ queryKey: EMAIL_HISTORY_QUERY_KEY })
     },
     onError: (error: AxiosError<ApiError>) => {
-      console.error("Send email with attachment error:", error)
 
       let errorMessage = "Échec de l'envoi de l'email avec pièce jointe"
 
@@ -84,21 +79,19 @@ export function useSendEmailWithAttachment() {
   })
 }
 
-// Email history hooks
 export function useEmailHistory() {
   return useQuery({
     queryKey: EMAIL_HISTORY_QUERY_KEY,
     queryFn: emailService.getEmailHistory,
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 5 * 60 * 1000,
   })
 }
 
-// Email templates hooks
 export function useEmailTemplates() {
   return useQuery({
     queryKey: EMAIL_TEMPLATES_QUERY_KEY,
     queryFn: emailService.getEmailTemplates,
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 5 * 60 * 1000,
   })
 }
 

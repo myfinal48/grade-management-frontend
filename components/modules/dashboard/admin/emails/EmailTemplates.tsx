@@ -33,12 +33,9 @@ export function EmailTemplates() {
 
   const handleDelete = async () => {
     if (deletingTemplate) {
-      try {
         await deleteTemplate.mutateAsync(deletingTemplate.id)
         setDeletingTemplate(null)
-      } catch (error) {
-        console.error("Delete template error:", error)
-      }
+      
     }
   }
 
@@ -153,7 +150,7 @@ function EmailTemplateCard({ template, onEdit, onDelete }: { template: EmailTemp
               <FileText className="h-4 w-4" />
               {template.name}
             </CardTitle>
-            <CardDescription className="line-clamp-1">{template.recipient}</CardDescription>
+            <CardDescription className="line-clamp-1">{template.subject}</CardDescription>
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

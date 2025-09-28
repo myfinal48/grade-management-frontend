@@ -1,7 +1,6 @@
 import { apiClient } from "@/lib/axios";
 import { getEnv } from "@/lib/env";
 
-// Define profile types
 export type Profile = {
     id: string;
     name: string;

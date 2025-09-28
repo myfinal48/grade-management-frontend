@@ -15,23 +15,24 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
+import { useEffect } from "react"
 import type { Semester } from "@/types/semester"
 import { useCreateSemester, useUpdateSemester } from "@/hooks/useSemesters"
 import { useLevels } from "@/hooks/useLevels"
 
 const semesterSchema = z
   .object({
-    name: z.string().min(1, "Name is required").max(100, "Name must be less than 100 characters"),
-    startDate: z.string().min(1, "Start date is required"),
-    endDate: z.string().min(1, "End date is required"),
+    name: z.string().min(2, "Le nom est requis (min 2 caractères)").max(100, "Le nom doit contenir moins de 100 caractères"),
+    startDate: z.string().min(1, "La date de début est requise"),
+    endDate: z.string().min(1, "La date de fin est requise"),
     universityYear: z
       .string()
-      .min(1, "University year is required")
-      .max(50, "University year must be less than 50 characters"),
-    levelId: z.number().min(1, "Level is required"),
+      .min(1, "L'année universitaire est requise")
+      .max(50, "L'année universitaire doit contenir moins de 50 caractères"),
+    levelId: z.coerce.number().min(1, "Le niveau est requis"),
   })
   .refine((data) => new Date(data.startDate) < new Date(data.endDate), {
-    message: "End date must be after start date",
+    message: "La date de fin doit être après la date de début",
     path: ["endDate"],
   })
 
@@ -44,7 +45,7 @@ interface SemesterFormProps {
   mode: "create" | "edit"
 }
 
-export function SemesterForm({ open, onOpenChange, semester, mode }: SemesterFormProps) {
+export function SemesterForm({ open, onOpenChange, semester, mode }: Readonly<SemesterFormProps>) {
   const createSemester = useCreateSemester()
   const updateSemester = useUpdateSemester()
   const { data: levels } = useLevels()
@@ -52,13 +53,35 @@ export function SemesterForm({ open, onOpenChange, semester, mode }: SemesterFor
   const form = useForm<SemesterFormData>({
     resolver: zodResolver(semesterSchema),
     defaultValues: {
-      name: semester?.name || "",
-      startDate: semester?.startDate || "",
-      endDate: semester?.endDate || "",
-      universityYear: semester?.universityYear || "",
-      levelId: semester?.levelId || 0,
+      name: "",
+      startDate: "",
+      endDate: "",
+      universityYear: "",
+      levelId: 0,
     },
   })
+
+  useEffect(() => {
+    if (open) {
+      if (semester) {
+        form.reset({
+          name: semester.name || "",
+          startDate: semester.startDate || "",
+          endDate: semester.endDate || "",
+          universityYear: semester.universityYear || "",
+          levelId: semester.levelId || 0,
+        })
+      } else {
+        form.reset({
+          name: "",
+          startDate: "",
+          endDate: "",
+          universityYear: "",
+          levelId: 0,
+        })
+      }
+    }
+  }, [semester, form, open])
 
   const onSubmit = async (data: SemesterFormData) => {
       if (mode === "create") {
@@ -76,9 +99,9 @@ export function SemesterForm({ open, onOpenChange, semester, mode }: SemesterFor
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>{mode === "create" ? "Create New Semester" : "Edit Semester"}</DialogTitle>
+          <DialogTitle>{mode === "create" ? "Créer un nouveau semestre" : "Modifier le semestre"}</DialogTitle>
           <DialogDescription>
-            {mode === "create" ? "Add a new semester to the system." : "Make changes to the semester information."}
+            {mode === "create" ? "Ajouter un nouveau semestre au système." : "Modifier les informations du semestre."}
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -88,9 +111,9 @@ export function SemesterForm({ open, onOpenChange, semester, mode }: SemesterFor
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Name</FormLabel>
+                  <FormLabel>Nom</FormLabel>
                   <FormControl>
-                    <Input placeholder="Enter semester name" {...field} />
+                    <Input placeholder="Entrez le nom du semestre" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -103,7 +126,7 @@ export function SemesterForm({ open, onOpenChange, semester, mode }: SemesterFor
                 name="startDate"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Start Date</FormLabel>
+                    <FormLabel>Date de début</FormLabel>
                     <FormControl>
                       <Input type="date" {...field} />
                     </FormControl>
@@ -117,7 +140,7 @@ export function SemesterForm({ open, onOpenChange, semester, mode }: SemesterFor
                 name="endDate"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>End Date</FormLabel>
+                    <FormLabel>Date de fin</FormLabel>
                     <FormControl>
                       <Input type="date" {...field} />
                     </FormControl>
@@ -132,9 +155,9 @@ export function SemesterForm({ open, onOpenChange, semester, mode }: SemesterFor
               name="universityYear"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>University Year</FormLabel>
+                  <FormLabel>Année universitaire</FormLabel>
                   <FormControl>
-                    <Input placeholder="e.g., 2024-2025" {...field} />
+                    <Input placeholder="ex: 2024-2025" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -146,14 +169,14 @@ export function SemesterForm({ open, onOpenChange, semester, mode }: SemesterFor
               name="levelId"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Level</FormLabel>
+                  <FormLabel>Niveau</FormLabel>
                   <Select
                     onValueChange={(value) => field.onChange(Number.parseInt(value))}
                     value={field.value.toString()}
                   >
                     <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a level" />
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Sélectionner un niveau" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
@@ -171,10 +194,10 @@ export function SemesterForm({ open, onOpenChange, semester, mode }: SemesterFor
 
             <DialogFooter>
               <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isLoading}>
-                Cancel
+                Annuler
               </Button>
               <Button type="submit" disabled={isLoading}>
-                {isLoading ? "Saving..." : mode === "create" ? "Create" : "Update"}
+                {isLoading ? "Enregistrement..." : mode === "create" ? "Créer" : "Mettre à jour"}
               </Button>
             </DialogFooter>
           </form>

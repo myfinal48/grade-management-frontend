@@ -17,14 +17,8 @@ import { Badge } from "@/components/ui/badge"
 import { FileText, Plus, X } from "lucide-react"
 import { useCreateEmailTemplate, useUpdateEmailTemplate } from "@/hooks/useEmails"
 import type { EmailTemplate } from "@/types/email"
-import { useEmailTemplateForm } from "@/hooks/useEmailTemplateForm"
+import { useEmailTemplateForm, type TemplateFormData } from "@/hooks/useEmailTemplateForm"
 
-type TemplateFormData = {
-  name: string;
-  recipient: string;
-  body: string;
-  variableInput?: string;
-}
 
 interface EmailTemplateFormProps {
   open: boolean
@@ -41,7 +35,7 @@ export function EmailTemplateForm({ open, onOpenChange, template, mode }: Readon
 
   const form = useEmailTemplateForm({
     name: template?.name ?? "",
-    recipient: template?.recipient ?? "",
+    subject: template?.subject ?? "",
     body: template?.body ?? "",
     variableInput: "",
   })
@@ -60,11 +54,10 @@ export function EmailTemplateForm({ open, onOpenChange, template, mode }: Readon
   }
 
   const onSubmit = async (data: TemplateFormData) => {
-    try {
       if (mode === "create") {
         await createTemplate.mutateAsync({
           name: data.name,
-          recipient: data.recipient,
+          subject: data.subject,
           body: data.body,
           variables,
         })
@@ -72,7 +65,7 @@ export function EmailTemplateForm({ open, onOpenChange, template, mode }: Readon
         await updateTemplate.mutateAsync({
           id: template.id,
           name: data.name,
-          recipient: data.recipient,
+          subject: data.subject,
           body: data.body,
           variables,
         })
@@ -80,10 +73,7 @@ export function EmailTemplateForm({ open, onOpenChange, template, mode }: Readon
       onOpenChange(false)
       form.reset()
       setVariables([])
-    } catch (error) {
-        console.error("Error submitting template form:", error) 
-      // Error handling is done in the hooks
-    }
+   
   }
 
   const isLoading = createTemplate.isPending || updateTemplate.isPending
@@ -121,7 +111,7 @@ export function EmailTemplateForm({ open, onOpenChange, template, mode }: Readon
 
             <FormField
               control={form.control}
-              name="recipient"
+              name="subject"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Sujet</FormLabel>
@@ -152,7 +142,6 @@ export function EmailTemplateForm({ open, onOpenChange, template, mode }: Readon
               )}
             />
 
-            {/* Variables */}
             <div className="space-y-2">
               <FormField
                 control={form.control}
