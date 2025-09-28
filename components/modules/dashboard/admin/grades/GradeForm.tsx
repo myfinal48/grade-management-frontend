@@ -48,10 +48,8 @@ interface GradeFormProps {
 export function GradeForm({ open, onOpenChange, grade, mode }: Readonly<GradeFormProps>) {
   const createGrade = useCreateGrade()
   const updateGrade = useUpdateGrade()
-  const { getUsers } = useUsers({ role: UserRoles.STUDENT })
-  const { data: students, isLoading: studentsLoading } = getUsers
-  const { getCourses } = useCourses()
-  const { data: courses, isPending: coursesLoading } = getCourses
+  const { data: students, isLoading: studentsLoading } = useUsers(UserRoles.STUDENT)
+  const { data: courses, isPending: coursesLoading } = useCourses()
 
   const form = useForm<GradeFormData>({
     resolver: zodResolver(gradeSchema),
