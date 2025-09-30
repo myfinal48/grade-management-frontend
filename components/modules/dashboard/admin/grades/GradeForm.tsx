@@ -48,10 +48,8 @@ interface GradeFormProps {
 export function GradeForm({ open, onOpenChange, grade, mode }: Readonly<GradeFormProps>) {
   const createGrade = useCreateGrade()
   const updateGrade = useUpdateGrade()
-  const { getUsers } = useUsers({ role: UserRoles.STUDENT })
-  const { data: students, isLoading: studentsLoading } = getUsers
-  const { getCourses } = useCourses()
-  const { data: courses, isPending: coursesLoading } = getCourses
+  const { data: students, isPending: studentsLoading } = useUsers(UserRoles.STUDENT)
+  const { data: courses, isPending: coursesLoading } = useCourses()
 
   const form = useForm<GradeFormData>({
     resolver: zodResolver(gradeSchema),
@@ -92,7 +90,7 @@ export function GradeForm({ open, onOpenChange, grade, mode }: Readonly<GradeFor
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[425px] overflow-hidden">
         <DialogHeader>
           <DialogTitle>
             {mode === "create" ? "Ajouter une note" : "Modifier la note"}
@@ -118,8 +116,8 @@ export function GradeForm({ open, onOpenChange, grade, mode }: Readonly<GradeFor
                     disabled={isLoading || studentsLoading}
                   >
                     <FormControl>
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Sélectionner un étudiant" />
+                      <SelectTrigger className="w-full truncate">
+                        <SelectValue placeholder="Sélectionner un étudiant" className="truncate" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
@@ -152,8 +150,8 @@ export function GradeForm({ open, onOpenChange, grade, mode }: Readonly<GradeFor
                     disabled={isLoading || coursesLoading}
                   >
                     <FormControl>
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Sélectionner un cours" />
+                      <SelectTrigger className="w-full truncate">
+                        <SelectValue placeholder="Sélectionner un cours" className="truncate" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
