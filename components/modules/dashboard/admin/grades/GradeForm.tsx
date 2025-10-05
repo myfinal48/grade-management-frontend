@@ -49,6 +49,7 @@ export function GradeForm({ open, onOpenChange, grade, mode }: Readonly<GradeFor
   const createGrade = useCreateGrade()
   const updateGrade = useUpdateGrade()
   const { data: students, isPending: studentsLoading } = useUsers(UserRoles.STUDENT)
+
   const { data: courses, isPending: coursesLoading } = useCourses()
 
   const form = useForm<GradeFormData>({
