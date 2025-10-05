@@ -1,38 +1,60 @@
 "use client"
 
-import { useState, useMemo } from "react"
-import { useCourses } from "@/hooks/useCourses"
-import { CoursesLoading } from "@/components/modules/dashboard/admin/courses/CoursesLoading"
-import { CoursesError } from "@/components/modules/dashboard/admin/courses/CoursesError"
+import { useState } from "react"
+import { useCourses, useDeleteCourse } from "@/hooks/useCourses"
+import { useSemesters } from "@/hooks/useSemesters"
 import { CoursesHeader } from "./CoursesHeader"
-import { CoursesGrid } from "./CoursesGrid"
+import { DataTable } from "./data-table"
+import { columns } from "./columns"
+import { CoursesLoading } from "./CoursesLoading"
+import { CourseForm } from "./CourseForm"
+import type { Course } from "@/types/course"
 
 export function Courses() {
-  const [searchQuery, setSearchQuery] = useState("")
-  const { getCourses } = useCourses()
-  const { data: courses, isLoading, error, refetch } = getCourses
+  const [editingCourse, setEditingCourse] = useState<Course | null>(null)
+  const [isFormOpen, setIsFormOpen] = useState(false)
 
-  const filteredCourses = useMemo(() => {
-    if (!courses) return []
-    if (!searchQuery.trim()) return courses
-    const query = searchQuery.toLowerCase()
-    return courses.filter(
-      (course) => course.name.toLowerCase().includes(query) || course.code.toLowerCase().includes(query)
-    )
-  }, [courses, searchQuery])
+  const { data: courses, isLoading: isLoadingCourses } = useCourses()
+  const deleteCourse = useDeleteCourse()
+  const { data: semesters, isPending: isLoadingSemesters } = useSemesters()
 
-  if (isLoading) {
-    return <CoursesLoading />
+  const handleEdit = (course: Course) => {
+    setEditingCourse(course)
+    setIsFormOpen(true)
   }
 
-  if (error) {
-    return <CoursesError error={error} onRetry={() => refetch()} />
+  const handleDelete = (course: Course) => {
+    deleteCourse.mutate(course.id)
+  }
+
+  const handleCreateNew = () => {
+    setEditingCourse(null)
+    setIsFormOpen(true)
+  }
+
+  if (isLoadingCourses || isLoadingSemesters) {
+    return <CoursesLoading />
   }
 
   return (
     <div className="space-y-6">
-      <CoursesHeader searchQuery={searchQuery} onSearchChange={setSearchQuery} totalCount={courses?.length || 0} />
-      <CoursesGrid courses={filteredCourses} />
+      <CoursesHeader onCreateNew={handleCreateNew} />
+      <DataTable
+        columns={columns}
+        data={courses || []}
+        semesters={semesters || []}
+        meta={{
+          onEdit: handleEdit,
+          onDelete: handleDelete,
+        }}
+      />
+
+      <CourseForm
+        open={isFormOpen}
+        onOpenChange={setIsFormOpen}
+        course={editingCourse ?? undefined}
+        mode={editingCourse ? "edit" : "create"}
+      />
     </div>
   )
-} 
+}

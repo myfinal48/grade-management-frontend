@@ -4,12 +4,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Mail, Clock, CheckCircle, XCircle, Paperclip, RefreshCw, Trash2 } from "lucide-react"
+import { Input } from "@/components/ui/input"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Mail, Clock, CheckCircle, XCircle, Paperclip, RefreshCw, Trash2, Search, ArrowUpDown } from "lucide-react"
 import { useEmailHistory, useDeleteEmailHistory, useUpdateEmailHistory } from "@/hooks/useEmails"
 import { formatDistanceToNow } from "date-fns"
 import { fr } from "date-fns/locale"
 import type { EmailHistoryItem } from "@/types/email"
-import { useState } from "react"
+import { useState, useMemo } from "react"
 import { toast } from "sonner"
 import { Dialog as ConfirmDialog, DialogContent as ConfirmDialogContent, DialogHeader as ConfirmDialogHeader, DialogTitle as ConfirmDialogTitle, DialogFooter as ConfirmDialogFooter } from "@/components/ui/dialog"
 import { EmptyState } from "@/components/global/EmptyState"
@@ -23,6 +25,42 @@ export function EmailHistory() {
   const [editBody, setEditBody] = useState("")
   const [editFile, setEditFile] = useState<File | null>(null)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<number | null>(null)
+  const [searchTerm, setSearchTerm] = useState("")
+  const [sortBy, setSortBy] = useState<"date" | "recipient" | "status">("date")
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc")
+
+  const filteredAndSortedEmails = useMemo(() => {
+    if (!emails) return []
+    
+    const filtered = emails.filter((email: EmailHistoryItem) => {
+      const searchLower = searchTerm.toLowerCase()
+      return (
+        (email.recipient?.toLowerCase().includes(searchLower) ||
+        email.body?.toLowerCase().includes(searchLower) ||
+        email.status?.toLowerCase().includes(searchLower))
+      )
+    })
+    
+    filtered.sort((a: EmailHistoryItem, b: EmailHistoryItem) => {
+      let comparison = 0
+      
+      switch (sortBy) {
+        case "date":
+          comparison = new Date(a.sentAt).getTime() - new Date(b.sentAt).getTime()
+          break
+        case "recipient":
+          comparison = (a.recipient || "").localeCompare(b.recipient || "")
+          break
+        case "status":
+          comparison = (a.status || "").localeCompare(b.status || "")
+          break
+      }
+      
+      return sortOrder === "asc" ? comparison : -comparison
+    })
+    
+    return filtered
+  }, [emails, searchTerm, sortBy, sortOrder])
 
   if (isLoading) {
     return <EmailHistoryLoading />
@@ -47,7 +85,9 @@ export function EmailHistory() {
       <div className="flex items-center justify-between">
         <div>
           <h3 className="text-lg font-semibold">Historique des Emails</h3>
-          <p className="text-sm text-muted-foreground">{emails.length} email(s) envoyé(s)</p>
+          <p className="text-sm text-muted-foreground">
+            {filteredAndSortedEmails.length} email(s) affiché(s) sur {emails.length}
+          </p>
         </div>
         <Button variant="outline" size="sm" onClick={() => refetch()}>
           <RefreshCw className="h-4 w-4 mr-2" />
@@ -55,8 +95,48 @@ export function EmailHistory() {
         </Button>
       </div>
 
-      <div className="grid gap-4">
-        {emails.map((email: EmailHistoryItem) => (
+      <div className="flex flex-col sm:flex-row gap-4">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Rechercher par destinataire, contenu ou statut..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-10"
+          />
+        </div>
+        <div className="flex gap-2">
+          <Select value={sortBy} onValueChange={(value: "date" | "recipient" | "status") => setSortBy(value)}>
+            <SelectTrigger className="w-40">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="date">Trier par date</SelectItem>
+              <SelectItem value="recipient">Trier par destinataire</SelectItem>
+              <SelectItem value="status">Trier par statut</SelectItem>
+            </SelectContent>
+          </Select>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
+            title={`Ordre ${sortOrder === "asc" ? "croissant" : "décroissant"}`}
+          >
+            <ArrowUpDown className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
+
+      {filteredAndSortedEmails.length === 0 ? (
+        <EmptyState
+          title="Aucun résultat"
+          message="Aucun email ne correspond à votre recherche."
+          icon={Search}
+        />
+      ) : (
+        <div className="grid gap-4">
+
+        {filteredAndSortedEmails.map((email: EmailHistoryItem) => (
           <Card key={email.id}>
             <CardHeader className="pb-3">
               <div className="flex items-start justify-between">
@@ -171,9 +251,9 @@ export function EmailHistory() {
             </CardContent>
           </Card>
         ))}
-      </div>
+        </div>
+      )}
 
-      {/* Confirmation dialog for delete */}
       <ConfirmDialog open={!!showDeleteConfirm} onOpenChange={open => !open && setShowDeleteConfirm(null)}>
         <ConfirmDialogContent>
           <ConfirmDialogHeader>

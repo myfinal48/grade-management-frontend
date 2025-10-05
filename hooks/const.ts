@@ -24,5 +24,17 @@ export const GradesCacheKeys = Object.freeze({
 })
 
 
+export const UniversitiesCacheKeys = Object.freeze({
+  Universities: 'universities',
+  University: 'university',
+})
 
+export const UsersCacheKeys = Object.freeze({
+  Users: 'users',
+  User: 'user',
+})
+
+export const StaffCacheKeys = Object.freeze({
+  Staff: 'staff',
+})
 

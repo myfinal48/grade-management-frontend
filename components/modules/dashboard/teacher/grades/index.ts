@@ -1,1 +1,7 @@
-export * from "./TeacherGrades"; 
+export { TeacherGrades } from "./TeacherGrades"
+export { TeacherGradesHeader } from "./TeacherGradesHeader"
+export { TeacherGradesLoading } from "./TeacherGradesLoading"
+export { DataTable } from "./data-table"
+export { columns } from "./columns"
+export { TeacherGradeDetails } from "./TeacherGradeDetails"
+export { GradeForm } from "./GradeForm"

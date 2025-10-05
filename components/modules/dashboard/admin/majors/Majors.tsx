@@ -1,39 +1,52 @@
 "use client"
 
-import { useState, useMemo } from "react"
-import { useMajors } from "@/hooks/useMajors"
+import { useState } from "react"
+import { useMajors, useDeleteMajor } from "@/hooks/useMajors"
 import { MajorsHeader } from "@/components/modules/dashboard/admin/majors/MajorsHeader"
-import { MajorsGrid } from "@/components/modules/dashboard/admin/majors/MajorsGrid"
+import { DataTable } from "@/components/modules/dashboard/admin/majors/data-table"
+import { columns } from "@/components/modules/dashboard/admin/majors/columns"
 import { MajorsLoading } from "@/components/modules/dashboard/admin/majors/MajorsLoading"
-import { MajorsError } from "@/components/modules/dashboard/admin/majors/MajorsError"
+import { MajorForm } from "@/components/modules/dashboard/admin/majors/MajorForm"
+import type { Major } from "@/types/major"
 
 export function Majors() {
-  const [searchQuery, setSearchQuery] = useState("")
-  const { data: majors, isLoading, error, refetch } = useMajors()
+  const [editingMajor, setEditingMajor] = useState<Major | null>(null)
+  const { data: majors, isPending :isLoadingMajors } = useMajors()
+  const deleteMajor = useDeleteMajor()
+  
 
-  const filteredMajors = useMemo(() => {
-    if (!majors) return []
-
-    if (!searchQuery.trim()) return majors
-
-    const query = searchQuery.toLowerCase()
-    return majors.filter(
-      (major) => major.name.toLowerCase().includes(query) || major.description.toLowerCase().includes(query),
-    )
-  }, [majors, searchQuery])
-
-  if (isLoading) {
-    return <MajorsLoading />
+  const handleEdit = (major: Major) => {
+    setEditingMajor(major)
   }
 
-  if (error) {
-    return <MajorsError error={error} onRetry={() => refetch()} />
+  const handleDelete = (major: Major) => {
+    deleteMajor.mutate(major.id)
+  }
+
+  if (isLoadingMajors) {
+    return <MajorsLoading />
   }
 
   return (
     <div className="space-y-6">
-      <MajorsHeader searchQuery={searchQuery} onSearchChange={setSearchQuery} totalCount={majors?.length || 0} />
-      <MajorsGrid majors={filteredMajors} />
+      <MajorsHeader />
+      <DataTable 
+        columns={columns} 
+        data={majors || []} 
+        meta={{
+          onEdit: handleEdit,
+          onDelete: handleDelete,
+        }}
+      />
+      
+      {editingMajor && (
+        <MajorForm 
+          open={!!editingMajor} 
+          onOpenChange={(open) => !open && setEditingMajor(null)}
+          major={editingMajor}
+          mode="edit"
+        />
+      )}
     </div>
   )
 }

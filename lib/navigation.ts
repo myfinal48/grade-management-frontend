@@ -21,14 +21,14 @@ export interface NavigationItem {
 
 export const navigationConfig: NavigationItem[] = [
     {
-        title: "Tableau de bord",
+        title: "Accueil",
         href: "/dashboard",
         icon: LayoutDashboard,
         roles: [UserRoles.ADMIN, UserRoles.TEACHER, UserRoles.STUDENT],
     },
     // Admin specific
     {
-        title: "Filieres",
+        title: "Filières",
         href: "/dashboard/majors",
         icon: Book,
         roles: [UserRoles.ADMIN],
@@ -58,7 +58,7 @@ export const navigationConfig: NavigationItem[] = [
       roles: [UserRoles.ADMIN],
     },
     {
-        title: "Relevés de notes",
+        title: "Relevés",
         href: "/dashboard/transcripts",
         icon: FileArchive,
         roles: [UserRoles.ADMIN],
@@ -103,13 +103,6 @@ export const navigationConfig: NavigationItem[] = [
         icon: UserCheck,
         roles: [UserRoles.STUDENT],
     },
-    // Common
-    // {
-    //     title: "Paramètres",
-    //     href: "/dashboard/settings",
-    //     icon: Settings,
-    //     roles: [UserRoles.ADMIN, UserRoles.TEACHER, UserRoles.STUDENT],
-    // },
 ]
 
 export function getNavigationForRole(role: UserRole): NavigationItem[] {

@@ -5,7 +5,7 @@ export interface Semester {
   endDate: string
   universityYear: string
   levelId?: number
-  levelName?: string // For display purposes
+  levelName?: string
 }
 
 export interface CreateSemesterRequest {

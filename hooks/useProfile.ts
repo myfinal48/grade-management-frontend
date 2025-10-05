@@ -6,18 +6,15 @@ export const useProfile = () => {
     const queryClient = useQueryClient();
     const { update } = useSession();
 
-    // Get profile data
     const profileQuery = useQuery({
         queryKey: ["profile"],
         queryFn: profileService.getProfile,
         retry: 1,
     });
 
-    // Update profile
     const updateProfileMutation = useMutation({
         mutationFn: profileService.updateProfile,
         onSuccess: async (updatedProfile) => {
-            // Update session data
             await update({
                 user: {
                     ...updatedProfile,
@@ -25,12 +22,10 @@ export const useProfile = () => {
                 },
             });
 
-            // Update query cache
             queryClient.setQueryData(["profile"], updatedProfile);
         },
     });
 
-    // Update password
     const updatePasswordMutation = useMutation({
         mutationFn: async (passwords: { current: string; new: string }) => {
             await profileService.updatePassword(passwords.current, passwords.new);

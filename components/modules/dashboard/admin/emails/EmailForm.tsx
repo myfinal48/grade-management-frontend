@@ -85,7 +85,6 @@ export function EmailForm({
   }
 
   const onSubmit = async (data: EmailFormData) => {
-    try {
       if (data.withAttachment) {
         if (!selectedFile) {
           toast.error("Veuillez sélectionner un fichier à attacher")
@@ -103,6 +102,7 @@ export function EmailForm({
         await sendSimpleEmail.mutateAsync({
           to: data.to,
           recipient: data.to,
+          subject: data.subject,
           body: data.body,
         })
       }
@@ -110,9 +110,7 @@ export function EmailForm({
       onOpenChange(false)
       form.reset()
       setSelectedFile(null)
-    } catch (error) {
-      console.error("Email sending error:", error)
-    }
+    
   }
 
   const isLoading = sendSimpleEmail.isPending || sendEmailWithAttachment.isPending
@@ -194,10 +192,10 @@ export function EmailForm({
                 <FormLabel>Fichier à joindre</FormLabel>
 
                 {selectedFile && (
-                  <div className="flex items-center gap-2 p-2 bg-gray-50 rounded border">
-                    <Paperclip className="h-4 w-4 text-gray-500" />
+                  <div className="flex items-center gap-2 p-2 bg-muted rounded border">
+                    <Paperclip className="h-4 w-4 text-muted-foreground" />
                     <span className="text-sm flex-1">{selectedFile.name}</span>
-                    <span className="text-xs text-gray-500">({Math.round(selectedFile.size / 1024)} KB)</span>
+                    <span className="text-xs text-muted-foreground">({Math.round(selectedFile.size / 1024)} KB)</span>
                     <Button type="button" variant="ghost" size="sm" onClick={removeFile}>
                       <X className="h-3 w-3" />
                     </Button>
