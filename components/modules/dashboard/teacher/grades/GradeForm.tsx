@@ -15,7 +15,7 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
 import { useCreateGrade, useUpdateGrade } from "@/hooks/useGrades"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useStaffByRole } from "@/hooks/useStaff"
 import { UserRoles } from "@/types"
@@ -24,6 +24,9 @@ import type { Course } from "@/types/course"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Loader2 } from "lucide-react"
 import { useSession } from "next-auth/react"
+import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import type { Staff } from "@/types/staff"
 
 const gradeSchema = z.object({
   studentId: z.coerce.number().min(1, "L'étudiant est requis"),
@@ -101,6 +104,20 @@ export function GradeForm({ open, onOpenChange, initialData, mode, gradeId }: Re
 
   const isLoading = createGradeMutation.isPending || updateGradeMutation.isPending
 
+  // Searchable student combobox state
+  const [studentOpen, setStudentOpen] = useState(false)
+  const [studentSearch, setStudentSearch] = useState("")
+  const studentList = useMemo<Staff[]>(() => students ?? [], [students])
+  const filteredStudents = useMemo(() => {
+    const q = studentSearch.trim().toLowerCase()
+    if (!q) return studentList
+    return studentList.filter((s) => {
+      const name = `${s.firstName ?? ""} ${s.lastName ?? ""}`.toLowerCase()
+      const reg = s.registrationNumber?.toLowerCase() ?? ""
+      return name.includes(q) || reg.includes(q)
+    })
+  }, [studentSearch, studentList])
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
@@ -117,39 +134,77 @@ export function GradeForm({ open, onOpenChange, initialData, mode, gradeId }: Re
             <FormField
               control={form.control}
               name="studentId"
-              render={({ field, fieldState }) => (
-                <FormItem>
-                  <FormLabel>Étudiant</FormLabel>
-                  <Select
-                    value={field.value ? String(field.value) : ""}
-                    onValueChange={(value) => field.onChange(Number(value))}
-                    disabled={isStudentsLoading || isLoading}
-                  >
-                    <FormControl>
-                      <SelectTrigger className={`w-full ${fieldState.invalid ? "border-red-500 focus-visible:ring-red-500" : ""}`}>
-                        <SelectValue placeholder="Sélectionner un étudiant" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {isStudentsLoading ? (
-                        <div className="flex items-center gap-2 px-3 py-2 text-muted-foreground text-sm">
-                          <Loader2 className="h-4 w-4 animate-spin" />
-                          Chargement...
-                        </div>
-                      ) : students && students.length > 0 ? (
-                        students.map((student) => (
-                          <SelectItem key={student.id} value={String(student.id)}>
-                            {student.firstName} {student.lastName} ({student.email})
-                          </SelectItem>
-                        ))
-                      ) : (
-                        <div className="px-3 py-2 text-muted-foreground text-sm">Aucun étudiant disponible</div>
-                      )}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
+              render={({ field, fieldState }) => {
+                const current = studentList.find((s) => s.id === Number(field.value))
+                let label = "Sélectionner un étudiant"
+                if (current) {
+                  const base = `${current.firstName ?? ""} ${current.lastName ?? ""}`.trim()
+                  label = base
+                }
+                return (
+                  <FormItem>
+                    <FormLabel>Étudiant</FormLabel>
+                    <Popover
+                      open={studentOpen}
+                      onOpenChange={(o) => {
+                        setStudentOpen(o)
+                        if (!o) setStudentSearch("")
+                      }}
+                    >
+                      <PopoverTrigger asChild>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          className={`w-full justify-between ${fieldState.invalid ? "border-red-500 focus-visible:ring-red-500" : ""}`}
+                          disabled={isStudentsLoading || isLoading}
+                        >
+                          {label}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-72 p-2" align="start">
+                        {isStudentsLoading ? (
+                          <div className="flex items-center gap-2 px-2 py-2 text-muted-foreground text-sm">
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                            Chargement...
+                          </div>
+                        ) : (
+                          <>
+                            <Input
+                              placeholder="Rechercher par nom ou matricule..."
+                              value={studentSearch}
+                              onChange={(e) => setStudentSearch(e.target.value)}
+                              className="mb-2"
+                              autoFocus
+                            />
+                            <ScrollArea className="h-56">
+                              <div className="grid gap-1">
+                                {filteredStudents.length ? (
+                                  filteredStudents.map((student) => (
+                                    <button
+                                      type="button"
+                                      key={student.id}
+                                      className={`text-left rounded px-2 py-1 hover:bg-accent hover:text-accent-foreground ${Number(field.value) === student.id ? "bg-accent" : ""}`}
+                                      onClick={() => {
+                                        field.onChange(student.id)
+                                        setStudentOpen(false)
+                                      }}
+                                    >
+                                      {student.firstName} {student.lastName}
+                                    </button>
+                                  ))
+                                ) : (
+                                  <div className="text-muted-foreground text-sm px-2 py-4">Aucun résultat</div>
+                                )}
+                              </div>
+                            </ScrollArea>
+                          </>
+                        )}
+                      </PopoverContent>
+                    </Popover>
+                    <FormMessage />
+                  </FormItem>
+                )
+              }}
             />
             <FormField
               control={form.control}

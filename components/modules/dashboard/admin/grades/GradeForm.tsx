@@ -27,7 +27,8 @@ import type { GradeResponseData } from "@/types/grade"
 import { useCreateGrade, useUpdateGrade } from "@/hooks/useGrades"
 import { useUsers } from "@/hooks/useUsers"
 import { useCourses } from "@/hooks/useCourses"
-import { UserRoles, type UserResponseData } from "@/types"
+import { UserRoles } from "@/types"
+import type { User } from "@/types/user"
 import type { Course } from "@/types/course"
 
 const gradeSchema = z.object({
@@ -48,10 +49,12 @@ interface GradeFormProps {
 export function GradeForm({ open, onOpenChange, grade, mode }: Readonly<GradeFormProps>) {
   const createGrade = useCreateGrade()
   const updateGrade = useUpdateGrade()
-  const { getUsers } = useUsers({ role: UserRoles.STUDENT })
-  const { data: students, isLoading: studentsLoading } = getUsers
-  const { getCourses } = useCourses()
-  const { data: courses, isPending: coursesLoading } = getCourses
+  const usersQuery = useUsers(UserRoles.STUDENT)
+  const students = usersQuery.data as User[]
+  const studentsLoading = usersQuery.isPending || usersQuery.isLoading
+  const coursesQuery = useCourses()
+  const courses = coursesQuery.data as Course[]
+  const coursesLoading = coursesQuery.isPending || coursesQuery.isLoading
 
   const form = useForm<GradeFormData>({
     resolver: zodResolver(gradeSchema),
@@ -123,14 +126,9 @@ export function GradeForm({ open, onOpenChange, grade, mode }: Readonly<GradeFor
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {students?.map((student: UserResponseData) => (
+                      {students?.map((student) => (
                         <SelectItem key={student.id} value={student.id.toString()}>
                           {student.firstName} {student.lastName}
-                          {student.registrationNumber && (
-                            <span className="text-muted-foreground ml-2">
-                              ({student.registrationNumber})
-                            </span>
-                          )}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -157,7 +155,7 @@ export function GradeForm({ open, onOpenChange, grade, mode }: Readonly<GradeFor
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {courses?.map((course: Course) => (
+                      {courses?.map((course) => (
                         <SelectItem key={course.id} value={course.id.toString()}>
                           {course.name}
                           {course.code && (
