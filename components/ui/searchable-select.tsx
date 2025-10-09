@@ -45,9 +45,9 @@ export function SearchableSelect({
   )
 
   return (
-    <div className={cn("relative", className)}>
+    <div className={cn("relative w-full", className)}>
       <Select value={value} onValueChange={onValueChange} disabled={disabled}>
-        <SelectTrigger>
+        <SelectTrigger className="w-full">
           <SelectValue placeholder={placeholder} />
         </SelectTrigger>
         <SelectContent>

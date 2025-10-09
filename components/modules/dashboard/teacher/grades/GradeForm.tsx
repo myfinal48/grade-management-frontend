@@ -16,7 +16,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
 import { useState, useEffect, useMemo } from "react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { SearchableSelect } from "@/components/global/searchable-select"
+import { SearchableSelect as UISearchableSelect, type SearchableSelectOption } from "@/components/ui/searchable-select"
 import { useCreateGrade, useUpdateGrade } from "@/hooks/useGrades"
 import { useStaffByRole } from "@/hooks/useStaff"
 import { UserRoles } from "@/types"
@@ -103,13 +103,16 @@ export function GradeForm({ open, onOpenChange, initialData, mode, gradeId }: Re
 
   const isLoading = createGradeMutation.isPending || updateGradeMutation.isPending
 
-  // Student options for reusable searchable select
-  const studentOptions = useMemo(() => {
+  const studentUiOptions = useMemo<SearchableSelectOption[]>(() => {
     const list = (students ?? []) as Staff[]
-    return list.map((s) => ({
-      value: String(s.id),
-      label: `${s.firstName ?? ""} ${s.lastName ?? ""}`.trim() || s.registrationNumber || String(s.id),
-    }))
+    return list.map((s) => {
+      const name = `${s.firstName ?? ""} ${s.lastName ?? ""}`.trim()
+      return {
+        value: String(s.id),
+        label: name || String(s.id),
+        searchText: `${name} ${s.registrationNumber ?? ""}`.trim(),
+      }
+    })
   }, [students])
 
   return (
@@ -126,23 +129,28 @@ export function GradeForm({ open, onOpenChange, initialData, mode, gradeId }: Re
             <FormField
               control={form.control}
               name="studentId"
-              render={({ field, fieldState }) => (
+              render={({ field }) => (
                 <FormItem>
                   <FormLabel>Étudiant</FormLabel>
-                  <SearchableSelect
-                    value={field.value ? String(field.value) : ""}
-                    onChange={(val) => field.onChange(Number(val))}
-                    placeholder="Sélectionner un étudiant"
-                    options={studentOptions}
-                    emptyText="Aucun étudiant"
-                    loading={isStudentsLoading}
-                    disabled={isStudentsLoading || isLoading}
-                    className={fieldState.invalid ? "border-red-500 focus-visible:ring-red-500" : ""}
-                  />
+                  <FormControl>
+                    <UISearchableSelect
+                      value={field.value ? String(field.value) : undefined}
+                      onValueChange={(val) => {
+                        const n = Number(val)
+                        field.onChange(n)
+                        form.setValue("studentId", n, { shouldDirty: true, shouldTouch: true })
+                      }}
+                      placeholder="Sélectionner un étudiant"
+                      searchPlaceholder="Rechercher..."
+                      emptyText="Aucun étudiant"
+                      options={studentUiOptions}
+                      disabled={isStudentsLoading || isLoading}
+                      className="w-full"
+                    />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
-
             />
             <FormField
               control={form.control}
