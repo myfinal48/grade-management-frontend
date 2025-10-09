@@ -14,9 +14,10 @@ import { Input } from "@/components/ui/input"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
-import { useCreateGrade, useUpdateGrade } from "@/hooks/useGrades"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { SearchableSelect as UISearchableSelect, type SearchableSelectOption } from "@/components/ui/searchable-select"
+import { useCreateGrade, useUpdateGrade } from "@/hooks/useGrades"
 import { useStaffByRole } from "@/hooks/useStaff"
 import { UserRoles } from "@/types"
 import { useCoursesByTeacher } from "@/hooks/useCourses"
@@ -24,6 +25,7 @@ import type { Course } from "@/types/course"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Loader2 } from "lucide-react"
 import { useSession } from "next-auth/react"
+import type { Staff } from "@/types/staff"
 
 const gradeSchema = z.object({
   studentId: z.coerce.number().min(1, "L'étudiant est requis"),
@@ -101,15 +103,25 @@ export function GradeForm({ open, onOpenChange, initialData, mode, gradeId }: Re
 
   const isLoading = createGradeMutation.isPending || updateGradeMutation.isPending
 
+  const studentUiOptions = useMemo<SearchableSelectOption[]>(() => {
+    const list = (students ?? []) as Staff[]
+    return list.map((s) => {
+      const name = `${s.firstName ?? ""} ${s.lastName ?? ""}`.trim()
+      return {
+        value: String(s.id),
+        label: name || String(s.id),
+        searchText: `${name} ${s.registrationNumber ?? ""}`.trim(),
+      }
+    })
+  }, [students])
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px] overflow-hidden">
         <DialogHeader>
           <DialogTitle>{mode === "create" ? "Ajouter une note" : "Modifier la note"}</DialogTitle>
           <DialogDescription>
-            {mode === "create"
-              ? "Remplissez le formulaire pour ajouter une nouvelle note."
-              : "Modifiez les informations de la note."}
+            {mode === "create" ? "Remplissez le formulaire pour ajouter une nouvelle note." : "Modifiez les informations de la note."}
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -117,36 +129,25 @@ export function GradeForm({ open, onOpenChange, initialData, mode, gradeId }: Re
             <FormField
               control={form.control}
               name="studentId"
-              render={({ field, fieldState }) => (
+              render={({ field }) => (
                 <FormItem>
                   <FormLabel>Étudiant</FormLabel>
-                  <Select
-                    value={field.value ? String(field.value) : ""}
-                    onValueChange={(value) => field.onChange(Number(value))}
-                    disabled={isStudentsLoading || isLoading}
-                  >
-                    <FormControl>
-                      <SelectTrigger className={`w-full truncate ${fieldState.invalid ? "border-red-500 focus-visible:ring-red-500" : ""}`}>
-                        <SelectValue placeholder="Sélectionner un étudiant" className="truncate" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {isStudentsLoading ? (
-                        <div className="flex items-center gap-2 px-3 py-2 text-muted-foreground text-sm">
-                          <Loader2 className="h-4 w-4 animate-spin" />
-                          Chargement...
-                        </div>
-                      ) : students && students.length > 0 ? (
-                        students.map((student) => (
-                          <SelectItem key={student.id} value={String(student.id)}>
-                            {student.firstName} {student.lastName} ({student.email})
-                          </SelectItem>
-                        ))
-                      ) : (
-                        <div className="px-3 py-2 text-muted-foreground text-sm">Aucun étudiant disponible</div>
-                      )}
-                    </SelectContent>
-                  </Select>
+                  <FormControl>
+                    <UISearchableSelect
+                      value={field.value ? String(field.value) : undefined}
+                      onValueChange={(val) => {
+                        const n = Number(val)
+                        field.onChange(n)
+                        form.setValue("studentId", n, { shouldDirty: true, shouldTouch: true })
+                      }}
+                      placeholder="Sélectionner un étudiant"
+                      searchPlaceholder="Rechercher..."
+                      emptyText="Aucun étudiant"
+                      options={studentUiOptions}
+                      disabled={isStudentsLoading || isLoading}
+                      className="w-full"
+                    />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
