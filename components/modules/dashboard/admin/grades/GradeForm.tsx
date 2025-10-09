@@ -95,7 +95,7 @@ export function GradeForm({ open, onOpenChange, grade, mode }: Readonly<GradeFor
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[425px] overflow-hidden">
         <DialogHeader>
           <DialogTitle>
             {mode === "create" ? "Ajouter une note" : "Modifier la note"}
@@ -121,8 +121,8 @@ export function GradeForm({ open, onOpenChange, grade, mode }: Readonly<GradeFor
                     disabled={isLoading || studentsLoading}
                   >
                     <FormControl>
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Sélectionner un étudiant" />
+                      <SelectTrigger className="w-full truncate">
+                        <SelectValue placeholder="Sélectionner un étudiant" className="truncate" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
@@ -150,8 +150,8 @@ export function GradeForm({ open, onOpenChange, grade, mode }: Readonly<GradeFor
                     disabled={isLoading || coursesLoading}
                   >
                     <FormControl>
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Sélectionner un cours" />
+                      <SelectTrigger className="w-full truncate">
+                        <SelectValue placeholder="Sélectionner un cours" className="truncate" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>

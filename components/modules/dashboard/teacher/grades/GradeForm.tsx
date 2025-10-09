@@ -120,7 +120,7 @@ export function GradeForm({ open, onOpenChange, initialData, mode, gradeId }: Re
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[425px] overflow-hidden">
         <DialogHeader>
           <DialogTitle>{mode === "create" ? "Ajouter une note" : "Modifier la note"}</DialogTitle>
           <DialogDescription>
@@ -205,6 +205,7 @@ export function GradeForm({ open, onOpenChange, initialData, mode, gradeId }: Re
                   </FormItem>
                 )
               }}
+
             />
             <FormField
               control={form.control}
@@ -218,8 +219,8 @@ export function GradeForm({ open, onOpenChange, initialData, mode, gradeId }: Re
                     disabled={isCoursesLoading || isLoading}
                   >
                     <FormControl>
-                      <SelectTrigger className={`w-full ${fieldState.invalid ? "border-red-500 focus-visible:ring-red-500" : ""}`}>
-                        <SelectValue placeholder="Sélectionner un cours" />
+                      <SelectTrigger className={`w-full truncate ${fieldState.invalid ? "border-red-500 focus-visible:ring-red-500" : ""}`}>
+                        <SelectValue placeholder="Sélectionner un cours" className="truncate" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
